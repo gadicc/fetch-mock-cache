@@ -11,7 +11,8 @@
     "prettier": "prettier -w src",
     "build": "tsc",
     "prepublishOnly": "yarn build",
-    "coverage": "jest src --coverage"
+    "coverage": "jest src --coverage",
+    "ci": "yarn test:all"
   },
   "repository": {
     "type": "git",
@@ -33,6 +34,7 @@
     "jest-fetch-mock": "^3.0.3"
   },
   "devDependencies": {
+    "@types/debug": "^4.1.8",
     "@types/jest": "^29.5.3",
     "@types/node": "^20.4.2",
     "@typescript-eslint/eslint-plugin": "^6.1.0",
@@ -41,11 +43,18 @@
     "jest": "^29.6.1",
     "jest-fetch-mock": "^3.0.3",
     "prettier": "^3.0.0",
+    "semantic-release": "21.0.7",
     "ts-jest": "^29.1.1",
     "typescript": "^5.1.6"
   },
   "prettier": {},
   "dependencies": {
+    "debug": "^4.3.4",
     "filenamify-url": "2.1.2"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ]
   }
 }
