@@ -1,0 +1,51 @@
+{
+  "name": "jest-fetch-mock-cache",
+  "version": "0.0.1",
+  "description": "caching mock implementation for jest-fetch-mock",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "test": "jest",
+    "test:all": "yarn test && yarn tsc && yarn lint",
+    "lint": "eslint src",
+    "prettier": "prettier -w src",
+    "build": "tsc",
+    "prepublishOnly": "yarn build",
+    "coverage": "jest src --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gadicc/jest-fetch-mock-cache.git"
+  },
+  "keywords": [
+    "jest",
+    "mock",
+    "fetch",
+    "cache"
+  ],
+  "author": "Gadi Cohen <dragon@wastelands.net>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gadicc/jest-fetch-mock-cache/issues"
+  },
+  "homepage": "https://github.com/gadicc/jest-fetch-mock-cache#readme",
+  "peerDependencies": {
+    "jest-fetch-mock": "^3.0.3"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.3",
+    "@types/node": "^20.4.2",
+    "@typescript-eslint/eslint-plugin": "^6.1.0",
+    "@typescript-eslint/parser": "^6.1.0",
+    "eslint": "^8.45.0",
+    "jest": "^29.6.1",
+    "jest-fetch-mock": "^3.0.3",
+    "prettier": "^3.0.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.1.6"
+  },
+  "prettier": {},
+  "dependencies": {
+    "filenamify-url": "2.1.2"
+  }
+}
