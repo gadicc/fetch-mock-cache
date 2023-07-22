@@ -4,6 +4,8 @@ Caching mock implementation for jest-fetch-mock.
 
 Copyright (c) 2023 by Gadi Cohen. [MIT Licensed](./LICENSE.txt).
 
+![npm](https://img.shields.io/npm/v/jest-fetch-mock-cache) ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/gadicc/jest-fetch-mock-cache/release.yml) ![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/gadicc/26d0f88b04b6883e1a6bba5b9b344fab/raw/jest-coverage-comment__main.json) ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
+
 ## Introduction
 
 Instead of individually handcrafting a mock for each and every `fetch()`
@@ -12,7 +14,7 @@ cache the result, and use that cache result for future calls. **Super
 useful for writing tests against existing APIs!!**
 
 Note: this is a brand new project. It works but you may want to wait
-until v1.0.0 before any serious use. Feature requests welcome!
+a little before any serious use. Feature requests welcome!
 
 ## Quick Start
 

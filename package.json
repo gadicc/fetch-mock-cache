@@ -11,8 +11,8 @@
     "prettier": "prettier -w src",
     "build": "tsc",
     "prepublishOnly": "yarn build",
-    "coverage": "jest src --coverage",
-    "ci": "yarn test:all"
+    "coverage": "jest --coverage",
+    "ci": "yarn coverage && yarn tsc && yarn lint"
   },
   "repository": {
     "type": "git",
