@@ -7,6 +7,11 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    permissions:
+      # https://github.com/semantic-release/semantic-release/issues/2469
+      contents: write # create releases
+      issues: write # issue comments and labels
+      pull-requests: write # ditto
     steps:
       - name: Checkout
         uses: actions/checkout@v3
