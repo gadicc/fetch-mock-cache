@@ -37,7 +37,7 @@ jobs:
         id: coverageComment
         uses: MishaKav/jest-coverage-comment@main
         with:
-          # hide-comment: true
+          hide-comment: true
           coverage-summary-path: ./coverage/coverage-summary.json
 
       - name: Check the output coverage
