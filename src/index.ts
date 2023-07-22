@@ -1,5 +1,9 @@
 import fetchMock from "jest-fetch-mock";
+import _debug from "debug";
+
 import type { JFMCStore } from "./store";
+
+const debug = _debug("jest-fetch-mock-cache:core");
 
 export interface JFMCCacheContent {
   request: { url: string };
@@ -32,6 +36,7 @@ export default function createCachingMock({
 
     const existingContent = await store.fetchContent(url);
     if (existingContent) {
+      debug("[jsmc] Using cached copy of %o", url);
       const bodyText = existingContent.response.bodyJson
         ? JSON.stringify(existingContent.response.bodyJson)
         : existingContent.response.bodyText;
@@ -44,6 +49,8 @@ export default function createCachingMock({
         headers: new Headers(existingContent.response.headers),
       });
     }
+
+    debug("[jsmc] Fetching and caching %o", url);
 
     fetchMock.disableMocks();
     const p = fetch(url, options);

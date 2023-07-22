@@ -3,9 +3,10 @@ fetchMock.enableMocks();
 
 import { describe, expect, test as it } from "@jest/globals";
 import createCachingMock from "./index";
-import JFMCNodeFSStore from "./stores/nodeFs";
+// import JFMCNodeFSStore from "./stores/nodeFs";
+import JSMCMemoryStore from "./stores/memory";
 
-const memoryCacheMock = createCachingMock({ store: new JFMCNodeFSStore() });
+const memoryCacheMock = createCachingMock({ store: new JSMCMemoryStore() });
 
 describe("cachingMock", () => {
   it("should work", async () => {

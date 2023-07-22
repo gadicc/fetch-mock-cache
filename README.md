@@ -23,16 +23,31 @@ import fetchMock from "jest-fetch-mock";
 fetchMock.enableMocks();
 
 import { describe, expect, test as it } from "@jest/globals";
-import createCachingMock from "jest-fetch-mock-cache";
+import createCachingMock from "./index";
+
+import Store from "./stores/nodeFs"; // see #Stores below
+const cachingMock = createCachingMock({ store: new Store() });
 
 describe("cachingMock", () => {
   it("should work", async () => {
-    fetchMock.mockImplementationOnce(createCachingMock());
+    fetchMock.mockImplementationOnce(cachingMock);
 
-    const response = await fetch("http://echo.jsontest.com/key/value/one/two");
-    const data = await response.json();
+    const response1 = await fetch("http://echo.jsontest.com/key/value/one/two");
+    const data1 = await response1.json();
 
-    expect(data).toEqual({
+    expect(response1.headers.get("X-JFMC-Cache")).toBe("MISS");
+    expect(data1).toEqual({
+      one: "two",
+      key: "value",
+    });
+
+    fetchMock.mockImplementationOnce(cachingMock);
+
+    const response2 = await fetch("http://echo.jsontest.com/key/value/one/two");
+    const data2 = await response2.json();
+
+    expect(response2.headers.get("X-JFMC-Cache")).toBe("HIT");
+    expect(data2).toEqual({
       one: "two",
       key: "value",
     });
@@ -49,7 +64,7 @@ describe("cachingMock", () => {
 
 ## What's cached
 
-Sample output from the Quick Start code above.
+Sample output from the Quick Start code above, when used with `NodeFSStore`:
 
 ```bash
 $ cat tests/fixtures/http/echo.jsontest.com\!key\!value\!one\!two
@@ -81,45 +96,43 @@ $ cat tests/fixtures/http/echo.jsontest.com\!key\!value\!one\!two
 }
 ```
 
-## DEBUGGING
+For non-JSON bodies, a `bodyText` is stored as a string. We store an
+object as `bodyJson` for readability reasons.
+
+## Debugging
 
 We use [debug](https://www.npmjs.com/package/debug) for debugging. E.g.:
-
-```bash
-$ DEBUG=jest-fetch-mock-cache yarn test
-yarn run v1.22.19
-$ jest
- PASS  src/index.spec.ts
-  cachingMock
-    ✓ should work (5 ms)
-
-Test Suites: 1 passed, 1 total
-Tests:       1 passed, 1 total
-Snapshots:   0 total
-Time:        1.026 s, estimated 2 s
-Ran all test suites.
-Done in 1.45s.
-```
 
 ```bash
 $ DEBUG=jest-fetch-mock-cache:* yarn test
 yarn run v1.22.19
 $ jest
-  jest-fetch-mock-cache:node [jsmc] Using cached copy of 'http://echo.jsontest.com/key/value/one/two' +0ms
+  jest-fetch-mock-cache:core [jsmc] Fetching and caching 'http://echo.jsontest.com/key/value/one/two' +0ms
+  jest-fetch-mock-cache:core [jsmc] Using cached copy of 'http://echo.jsontest.com/key/value/one/two' +177ms
  PASS  src/index.spec.ts
   cachingMock
-    ✓ should work (7 ms)
+    ✓ should work (180 ms)
+```
 
-Test Suites: 1 passed, 1 total
-Tests:       1 passed, 1 total
-Snapshots:   0 total
-Time:        1.018 s
-Ran all test suites.
-Done in 1.46s.
+## Available Stores
+
+```ts
+import createCachingMock from "jest-fetch-mock-cache";
+
+// Use Node's FS API to store as (creating paths as necessary)
+// `${process.cwd()}/tests/fixtures/${filenamifyUrl(url)}`.
+// https://github.com/sindresorhus/filenamify-url
+import JFMCNodeFSStore from "./stores/nodeFs";
+const fsCacheMock = createCachingMock({ store: new JFMCNodeFSStore() });
+fetchMock.mockImplementationOnce(fsCacheMock);
+
+// Keep in memory
+import JSMCMemoryStore from "./stores/memory";
+const memoryCacheMock = createCachingMock({ store: new JSMCMemoryStore() });
+fetchMock.mockImplementationOnce(memoryCacheMock);
 ```
 
 ## TODO
 
 - [ ] Browser-environment support. Please open an issue if you need this, and in what cases. jsdom?
-- [ ] Cache request headers too and hash them in filename.
-- [ ] Allow custom caches and cache behaviours.
+- [ ] Cache request headers too and hash them in filename / key / id.
