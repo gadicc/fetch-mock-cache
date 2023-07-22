@@ -1,5 +1,5 @@
 import fetchMock from "jest-fetch-mock";
-import { fetchContent, storeContent } from "./node";
+import type { JFMCStore } from "./store";
 
 export interface JFMCCacheContent {
   request: { url: string };
@@ -13,8 +13,15 @@ export interface JFMCCacheContent {
   };
 }
 
-export default function createCachingMock() {
-  const implementation = async function cachingMockImplementation(
+export default function createCachingMock({
+  store,
+}: { store?: JFMCStore } = {}) {
+  if (!store)
+    throw new Error(
+      "No `store` option was provided, but is required.  See docs.",
+    );
+
+  return async function cachingMockImplementation(
     urlOrRequest: string | Request | undefined,
     options: RequestInit | undefined,
   ) {
@@ -23,16 +30,18 @@ export default function createCachingMock() {
     const url =
       typeof urlOrRequest === "string" ? urlOrRequest : urlOrRequest?.url;
 
-    const existingContent = await implementation.fetchContent(url);
+    const existingContent = await store.fetchContent(url);
     if (existingContent) {
-      const parsed = JSON.parse(existingContent);
-      const bodyText = parsed.response.bodyJson
-        ? JSON.stringify(parsed.response.bodyJson)
-        : parsed.response.bodyText;
+      const bodyText = existingContent.response.bodyJson
+        ? JSON.stringify(existingContent.response.bodyJson)
+        : existingContent.response.bodyText;
+
+      existingContent.response.headers["X-JFMC-Cache"] = "HIT";
+
       return new Response(bodyText, {
-        status: parsed.response.status,
-        statusText: parsed.response.statusText,
-        headers: new Headers(parsed.response.headers),
+        status: existingContent.response.status,
+        statusText: existingContent.response.statusText,
+        headers: new Headers(existingContent.response.headers),
       });
     }
 
@@ -50,22 +59,23 @@ export default function createCachingMock() {
         headers: Object.fromEntries(response.headers.entries()),
       },
     };
-    const bodyText = await response.text();
 
+    const bodyText = await response.text();
     if (response.headers.get("Content-Type")?.startsWith("application/json"))
       newContent.response.bodyJson = JSON.parse(bodyText);
     else newContent.response.bodyText = bodyText;
 
-    await implementation.storeContent(url, newContent);
+    await store.storeContent(url, newContent);
+
+    const headersWithCacheEntry = {
+      ...response.headers,
+      "X-JFMC-Cache": "MISS",
+    };
 
     return new Response(bodyText, {
       status: response.status,
       statusText: response.statusText,
-      headers: response.headers,
+      headers: headersWithCacheEntry,
     });
   };
-
-  implementation.fetchContent = fetchContent;
-  implementation.storeContent = storeContent;
-  return implementation;
 }
