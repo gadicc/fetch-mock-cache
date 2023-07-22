@@ -79,6 +79,43 @@ $ cat tests/fixtures/http/echo.jsontest.com\!key\!value\!one\!two
 }
 ```
 
+## DEBUGGING
+
+We use [debug](https://www.npmjs.com/package/debug) for debugging. E.g.:
+
+```bash
+$ DEBUG=jest-fetch-mock-cache yarn test
+yarn run v1.22.19
+$ jest
+ PASS  src/index.spec.ts
+  cachingMock
+    ✓ should work (5 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        1.026 s, estimated 2 s
+Ran all test suites.
+Done in 1.45s.
+```
+
+```bash
+$ DEBUG=jest-fetch-mock-cache:* yarn test
+yarn run v1.22.19
+$ jest
+  jest-fetch-mock-cache:node [jsmc] Using cached copy of 'http://echo.jsontest.com/key/value/one/two' +0ms
+ PASS  src/index.spec.ts
+  cachingMock
+    ✓ should work (7 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        1.018 s
+Ran all test suites.
+Done in 1.46s.
+```
+
 ## TODO
 
 - [ ] Browser-environment support. Please open an issue if you need this, and in what cases. jsdom?
