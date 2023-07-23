@@ -47,7 +47,7 @@ describe("jest-fetch-mock-cache", () => {
       }
     });
 
-    it("should work", async () => {
+    it("works with a JSON response", async () => {
       const url = "http://echo.jsontest.com/key/value/one/two";
       const expectedResponse = { one: "two", key: "value" };
 

@@ -29,28 +29,18 @@ import Store from "./stores/nodeFs"; // see #Stores below
 const cachingMock = createCachingMock({ store: new Store() });
 
 describe("cachingMock", () => {
-  it("should work", async () => {
-    fetchMock.mockImplementationOnce(cachingMock);
+  it("works with a JSON response", async () => {
+    const url = "http://echo.jsontest.com/key/value/one/two";
+    const expectedResponse = { one: "two", key: "value" };
 
-    const response1 = await fetch("http://echo.jsontest.com/key/value/one/two");
-    const data1 = await response1.json();
-
-    expect(response1.headers.get("X-JFMC-Cache")).toBe("MISS");
-    expect(data1).toEqual({
-      one: "two",
-      key: "value",
-    });
-
-    fetchMock.mockImplementationOnce(cachingMock);
-
-    const response2 = await fetch("http://echo.jsontest.com/key/value/one/two");
-    const data2 = await response2.json();
-
-    expect(response2.headers.get("X-JFMC-Cache")).toBe("HIT");
-    expect(data2).toEqual({
-      one: "two",
-      key: "value",
-    });
+    for (let i = 0; i < 2; i++) {
+      fetchMock.mockImplementationOnce(cachingMock);
+      const response = await fetch(url);
+      const data = await response.json();
+      const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
+      expect(response.headers.get("X-JFMC-Cache")).toBe(expectedCacheHeader);
+      expect(data).toEqual(expectedResponse);
+    }
   });
 });
 ```
