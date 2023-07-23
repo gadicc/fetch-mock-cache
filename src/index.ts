@@ -31,10 +31,13 @@ export default function createCachingMock({
   ) {
     if (!urlOrRequest) throw new Error("urlOrRequest is undefined");
 
-    const url =
-      typeof urlOrRequest === "string" ? urlOrRequest : urlOrRequest?.url;
+    const request =
+      typeof urlOrRequest === "string"
+        ? new Request(urlOrRequest)
+        : urlOrRequest;
+    const url = request.url;
 
-    const existingContent = await store.fetchContent(url);
+    const existingContent = await store.fetchContent(request);
     if (existingContent) {
       debug("[jsmc] Using cached copy of %o", url);
       const bodyText = existingContent.response.bodyJson
@@ -72,7 +75,7 @@ export default function createCachingMock({
       newContent.response.bodyJson = JSON.parse(bodyText);
     else newContent.response.bodyText = bodyText;
 
-    await store.storeContent(url, newContent);
+    await store.storeContent(request, newContent);
 
     const headersWithCacheEntry = {
       ...response.headers,

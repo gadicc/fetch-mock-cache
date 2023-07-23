@@ -5,11 +5,13 @@ import type { JFMCStore, JFMCCacheContent } from "../store";
 export default class JFMCMemoryStore implements JFMCStore {
   private store: { [url: string]: JFMCCacheContent } = {};
 
-  async fetchContent(url: string): Promise<JFMCCacheContent | undefined> {
+  async fetchContent(req: Request): Promise<JFMCCacheContent | undefined> {
+    const url = req.url;
     return this.store[url];
   }
 
-  async storeContent(url: string, content: JFMCCacheContent): Promise<void> {
+  async storeContent(req: Request, content: JFMCCacheContent): Promise<void> {
+    const url = req.url;
     this.store[url] = content;
   }
 }

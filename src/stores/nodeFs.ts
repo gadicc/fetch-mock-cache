@@ -12,7 +12,8 @@ function cache_dir(filename: string) {
 })();
 
 export default class JFMCNodeFSStore implements JFMCStore {
-  async fetchContent(url: string) {
+  async fetchContent(req: Request) {
+    const url = req.url;
     const path = cache_dir(filenamifyUrl(url));
     try {
       const content = await fs.readFile(path, "utf8");
@@ -22,7 +23,8 @@ export default class JFMCNodeFSStore implements JFMCStore {
     }
   }
 
-  async storeContent(url: string, content: JFMCCacheContent) {
+  async storeContent(req: Request, content: JFMCCacheContent) {
+    const url = req.url;
     const path = cache_dir(filenamifyUrl(url));
     await fs.writeFile(path, JSON.stringify(content, null, 2));
   }
