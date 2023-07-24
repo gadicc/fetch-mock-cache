@@ -13,8 +13,7 @@ const nodeFsCacheMock = createCachingMock({ store: new nodeFsStore() });
 describe("memoryStore", () => {
   describe("standard tests", () => {
     beforeAll(async () => {
-      await fs.rm("./tests/fixtures/http", { recursive: true });
-      await fs.mkdir("./tests/fixtures/http", { recursive: true });
+      await fs.rm("./tests/fixtures/http", { force: true, recursive: true });
     });
     createTestsForMock(nodeFsCacheMock);
   });
