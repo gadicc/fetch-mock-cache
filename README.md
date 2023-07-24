@@ -23,7 +23,7 @@ import fetchMock from "jest-fetch-mock";
 fetchMock.enableMocks();
 
 import { describe, expect, test as it } from "@jest/globals";
-import createCachingMock from "./index";
+import createCachingMock from "jest-fetch-mock-cache";
 
 import Store from "./stores/nodeFs"; // see #Stores below
 const cachingMock = createCachingMock({ store: new Store() });
