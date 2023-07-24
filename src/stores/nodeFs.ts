@@ -1,7 +1,8 @@
 import filenamifyUrl from "filenamify-url";
 import fs from "fs/promises";
 
-import type { JFMCStore, JFMCCacheContent } from "../store";
+import JFMCStore from "../store";
+import type { JFMCCacheContent } from "../store";
 
 const CWD = process.cwd();
 function cache_dir(filename: string) {
@@ -11,10 +12,19 @@ function cache_dir(filename: string) {
   await fs.mkdir(cache_dir(""), { recursive: true });
 })();
 
-export default class JFMCNodeFSStore implements JFMCStore {
-  async fetchContent(req: Request) {
-    const url = req.url;
-    const path = cache_dir(filenamifyUrl(url));
+class JFMCNodeFSStore extends JFMCStore {
+  async idFromResponse(request: Request): Promise<string> {
+    let filename = filenamifyUrl(request.url);
+    console.log(Array.from(request.headers.keys()));
+    if (Array.from(request.headers.keys()).length > 0) {
+      const headersHash = await this.hashFromHeaders(request.headers, 7);
+      filename += `[headers:${headersHash}]`;
+    }
+    return filename;
+  }
+
+  async fetchContent(request: Request) {
+    const path = cache_dir(await this.idFromResponse(request));
     try {
       const content = await fs.readFile(path, "utf8");
       return JSON.parse(content) as JFMCCacheContent;
@@ -23,9 +33,10 @@ export default class JFMCNodeFSStore implements JFMCStore {
     }
   }
 
-  async storeContent(req: Request, content: JFMCCacheContent) {
-    const url = req.url;
-    const path = cache_dir(filenamifyUrl(url));
+  async storeContent(request: Request, content: JFMCCacheContent) {
+    const path = cache_dir(await this.idFromResponse(request));
     await fs.writeFile(path, JSON.stringify(content, null, 2));
   }
 }
+
+export default JFMCNodeFSStore;

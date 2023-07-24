@@ -1,17 +1,20 @@
-import type { JFMCStore, JFMCCacheContent } from "../store";
+import JFMCStore from "../store";
+import type { JFMCCacheContent } from "../store";
 
 // TODO LRU cache
 
-export default class JFMCMemoryStore implements JFMCStore {
-  private store: { [url: string]: JFMCCacheContent } = {};
+class JFMCMemoryStore extends JFMCStore {
+  store: Map<string, JFMCCacheContent> = new Map();
 
   async fetchContent(req: Request): Promise<JFMCCacheContent | undefined> {
-    const url = req.url;
-    return this.store[url];
+    const key = await this.idFromResponse(req);
+    return this.store.get(key);
   }
 
   async storeContent(req: Request, content: JFMCCacheContent): Promise<void> {
-    const url = req.url;
-    this.store[url] = content;
+    const key = await this.idFromResponse(req);
+    this.store.set(key, content);
   }
 }
+
+export default JFMCMemoryStore;

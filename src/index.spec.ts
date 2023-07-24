@@ -60,5 +60,28 @@ describe("jest-fetch-mock-cache", () => {
         expect(data).toEqual(expectedResponse);
       }
     });
+
+    it("differentiates requests by headers", async () => {
+      const url = "http://echo.jsontest.com/key/value/one/two";
+      const expectedResponse = { one: "two", key: "value" };
+
+      for (let i = 0; i < 2; i++) {
+        fetchMock.mockImplementationOnce(memoryCacheMock);
+        const response = await fetch(url, { headers: { "X-Test": "1" } });
+        const data = await response.json();
+        const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
+        expect(response.headers.get("X-JFMC-Cache")).toBe(expectedCacheHeader);
+        expect(data).toEqual(expectedResponse);
+      }
+
+      for (let i = 0; i < 2; i++) {
+        fetchMock.mockImplementationOnce(memoryCacheMock);
+        const response = await fetch(url, { headers: { "X-Test": "2" } });
+        const data = await response.json();
+        const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
+        expect(response.headers.get("X-JFMC-Cache")).toBe(expectedCacheHeader);
+        expect(data).toEqual(expectedResponse);
+      }
+    });
   });
 });

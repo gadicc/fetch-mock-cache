@@ -1,7 +1,7 @@
 import fetchMock from "jest-fetch-mock";
 import _debug from "debug";
 
-import type { JFMCStore } from "./store";
+import JFMCStore from "./store";
 
 const debug = _debug("jest-fetch-mock-cache:core");
 
@@ -33,7 +33,7 @@ export default function createCachingMock({
 
     const request =
       typeof urlOrRequest === "string"
-        ? new Request(urlOrRequest)
+        ? new Request(urlOrRequest, options)
         : urlOrRequest;
     const url = request.url;
 
