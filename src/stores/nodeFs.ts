@@ -15,7 +15,6 @@ function cache_dir(filename: string) {
 class JFMCNodeFSStore extends JFMCStore {
   async idFromResponse(request: Request): Promise<string> {
     let filename = filenamifyUrl(request.url);
-    console.log(Array.from(request.headers.keys()));
     if (Array.from(request.headers.keys()).length > 0) {
       const headersHash = await this.hashFromHeaders(request.headers, 7);
       filename += `[headers:${headersHash}]`;
