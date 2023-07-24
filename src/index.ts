@@ -2,16 +2,20 @@ import fetchMock from "jest-fetch-mock";
 import _debug from "debug";
 
 import JFMCStore from "./store";
+import { serializeHeaders, unserializeHeaders } from "./headers";
 
 const debug = _debug("jest-fetch-mock-cache:core");
 
 export interface JFMCCacheContent {
-  request: { url: string };
+  request: {
+    url: string;
+    headers?: Record<string, string | string[]>;
+  };
   response: {
     ok: boolean;
     status: number;
     statusText: string;
-    headers: Record<string, string>;
+    headers: Record<string, string | string[]>;
     bodyJson?: string;
     bodyText?: string;
   };
@@ -49,7 +53,7 @@ export default function createCachingMock({
       return new Response(bodyText, {
         status: existingContent.response.status,
         statusText: existingContent.response.statusText,
-        headers: new Headers(existingContent.response.headers),
+        headers: unserializeHeaders(existingContent.response.headers),
       });
     }
 
@@ -66,9 +70,12 @@ export default function createCachingMock({
         ok: response.ok,
         status: response.status,
         statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries()),
+        headers: serializeHeaders(response.headers),
       },
     };
+
+    if (Array.from(request.headers.keys()).length > 0)
+      newContent.request.headers = serializeHeaders(request.headers);
 
     const bodyText = await response.text();
     if (response.headers.get("Content-Type")?.startsWith("application/json"))
@@ -77,15 +84,12 @@ export default function createCachingMock({
 
     await store.storeContent(request, newContent);
 
-    const headersWithCacheEntry = {
-      ...response.headers,
-      "X-JFMC-Cache": "MISS",
-    };
+    response.headers.set("X-JFMC-Cache", "MISS");
 
     return new Response(bodyText, {
       status: response.status,
       statusText: response.statusText,
-      headers: headersWithCacheEntry,
+      headers: response.headers,
     });
   };
 }
