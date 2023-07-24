@@ -74,8 +74,10 @@ export default function createCachingMock({
       },
     };
 
-    if (Array.from(request.headers.keys()).length > 0)
+    if (Array.from(request.headers.keys()).length > 0) {
+      // Not really necessary as set-cookie never appears in the REQUEST headers.
       newContent.request.headers = serializeHeaders(request.headers);
+    }
 
     const bodyText = await response.text();
     if (response.headers.get("Content-Type")?.startsWith("application/json"))

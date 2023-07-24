@@ -18,6 +18,7 @@ export default class JFMCStore {
     headers: Headers,
     len: number | null = null,
   ): Promise<string> {
+    // No need to worry about set-cookie header/array in REQUEST headers.
     const jsonString = JSON.stringify(Object.fromEntries(headers.entries()));
     const hashHex = await JFMCStore.hash(jsonString);
     return len ? hashHex.substring(0, len) : hashHex;
