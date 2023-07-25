@@ -23,7 +23,7 @@ class JFMCNodeFSStore extends JFMCStore {
       const headersHash = await this.hashFromHeaders(request.headers, 7);
       filename += `[headers:${headersHash}]`;
     }
-    return filename;
+    return filename + ".json";
   }
 
   async fetchContent(request: Request) {
