@@ -25,7 +25,9 @@ fetchMock.enableMocks();
 import { describe, expect, test as it } from "@jest/globals";
 import createCachingMock from "jest-fetch-mock-cache";
 
-import Store from "./stores/nodeFs"; // see #Stores below
+// See list of possible stores, below.
+import Store from "jest-fetch-mock-cache/lib/stores/nodeFs";
+
 const cachingMock = createCachingMock({ store: new Store() });
 
 describe("cachingMock", () => {
@@ -122,7 +124,30 @@ const memoryCacheMock = createCachingMock({ store: new JSMCMemoryStore() });
 fetchMock.mockImplementationOnce(memoryCacheMock);
 ```
 
+### Create your own Store
+
+```ts
+import JFMCStore from "jest-fetch-mock-cache/lib/store";
+import type { JFMCCacheContent } from "jest-fetch-mock-cache/lib/store";
+import db from "./db"; // your existing db
+
+class MyCustomStore extends JFMCStore {
+  async fetchContent(req: Request): Promise<JFMCCacheContent | undefined> {
+    const key = await this.idFromResponse(req);
+    return (await db.collection("jfmc").findOne(key)).content;
+  }
+
+  async storeContent(req: Request, content: JFMCCacheContent): Promise<void> {
+    const key = await this.idFromResponse(req);
+    await db.collection("jfmc").insertOne({ _id: key, content });
+  }
+}
+
+export default MyCustomStore;
+```
+
 ## TODO
 
 - [ ] Browser-environment support. Please open an issue if you need this, and in what cases. jsdom?
-- [ ] Cache request headers too and hash them in filename / key / id.
+- [x] Cache request headers too and hash them in filename / key / id.
+- [ ] Handle and store invalid JSON too.
