@@ -36,6 +36,7 @@ describe("cachingMock", () => {
     const expectedResponse = { one: "two", key: "value" };
 
     for (let i = 0; i < 2; i++) {
+      // If you get a TypeError here, make sure @types/jest is instaled.
       fetchMock.mockImplementationOnce(cachingMock);
       const response = await fetch(url);
       const data = await response.json();
@@ -53,6 +54,15 @@ describe("cachingMock", () => {
 
 - **Subsequent requests** will return the cached copy without
   making an HTTP request.
+
+Note: the package is designed to be used with `jest-fetch-mock`, but that's
+not required. Since it's a complete impleemntation on its own, you could
+do something like
+
+```ts
+// Do this and then use this `fetch()` function, or set global.fetch = ...
+const fetch = jest.fn(createCachingMock({ store: new Store() }));
+```
 
 ## What's cached
 
