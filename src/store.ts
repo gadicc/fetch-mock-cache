@@ -1,4 +1,4 @@
-import type { JFMCCacheContent } from "./index";
+import type { JFMCCacheContent } from "./cache";
 
 const localCrypto =
   typeof crypto === "undefined" ? require("node:crypto").webcrypto : crypto;

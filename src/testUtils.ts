@@ -1,4 +1,4 @@
-import createCachingMock from "./index";
+import { createCachingMock } from "./index";
 
 export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
   it("works with a Request as first argument", async () => {

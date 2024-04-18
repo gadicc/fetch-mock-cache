@@ -1,29 +1,14 @@
 import fetchMock from "jest-fetch-mock";
 import _debug from "debug";
-
-import JFMCStore from "./store";
+import type { JFMCCacheContent } from "./cache";
 import { serializeHeaders, unserializeHeaders } from "./headers";
+import JFMCNodeFSStore from "./stores/nodeFs";
+export { JFMCNodeFSStore as NodeFSStore };
+import JFMCStore from "./store";
 
 const debug = _debug("jest-fetch-mock-cache:core");
 
-export interface JFMCCacheContent {
-  request: {
-    url: string;
-    headers?: Record<string, string | string[]>;
-  };
-  response: {
-    ok: boolean;
-    status: number;
-    statusText: string;
-    headers: Record<string, string | string[]>;
-    bodyJson?: string;
-    bodyText?: string;
-  };
-}
-
-export default function createCachingMock({
-  store,
-}: { store?: JFMCStore } = {}) {
+export function createCachingMock({ store }: { store?: JFMCStore } = {}) {
   if (!store)
     throw new Error(
       "No `store` option was provided, but is required.  See docs.",

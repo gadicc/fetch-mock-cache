@@ -4,7 +4,7 @@ fetchMock.enableMocks();
 import fs from "fs/promises";
 import { describe, expect, test as it } from "@jest/globals";
 
-import createCachingMock from "../index";
+import { createCachingMock } from "../index";
 import nodeFsStore from "./nodeFs";
 import { createTestsForMock } from "../testUtils";
 

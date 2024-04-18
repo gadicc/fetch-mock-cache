@@ -3,7 +3,7 @@ fetchMock.enableMocks();
 
 import { describe, expect, test as it } from "@jest/globals";
 
-import createCachingMock from "./index";
+import { createCachingMock } from "./index";
 // import JFMCNodeFSStore from "./stores/nodeFs";
 import JSMCMemoryStore from "./stores/memory";
 
