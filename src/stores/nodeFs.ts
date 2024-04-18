@@ -1,5 +1,6 @@
 import filenamifyUrl from "filenamify-url";
 import fs from "fs/promises";
+import path from "path";
 
 import JFMCStore from "../store";
 import type { JFMCCacheContent } from "../store";
@@ -7,14 +8,20 @@ import type { JFMCCacheContent } from "../store";
 class JFMCNodeFSStore extends JFMCStore {
   _createdCacheDir = false;
   _cwd = process.cwd();
+  _location: string;
 
+  constructor(location?: string) {
+    super();
+    this._location = location || "__cache__";
+  }
+
+  // Cache in a sub-folder in the tests folder.
   async cache_dir(filename: string) {
     if (!this._createdCacheDir) {
       this._createdCacheDir = true;
       await fs.mkdir(await this.cache_dir(""), { recursive: true });
     }
-
-    return `${this._cwd}/tests/fixtures/http/${filename}`;
+    return path.join(this._cwd, "tests", this._location, filename);
   }
 
   async idFromResponse(request: Request): Promise<string> {
