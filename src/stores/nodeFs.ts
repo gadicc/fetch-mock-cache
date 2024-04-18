@@ -21,7 +21,7 @@ class JFMCNodeFSStore extends JFMCStore {
     let filename = filenamifyUrl(request.url);
     if (Array.from(request.headers.keys()).length > 0) {
       const headersHash = await this.hashFromHeaders(request.headers, 7);
-      filename += `[headers:${headersHash}]`;
+      filename += `[headers=${headersHash}]`;
     }
     return filename + ".json";
   }
