@@ -80,3 +80,5 @@ export function createCachingMock({ store }: { store?: JFMCStore } = {}) {
     });
   };
 }
+
+export default createCachingMock;
