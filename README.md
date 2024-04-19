@@ -127,6 +127,8 @@ import createCachingMock from "jest-fetch-mock-cache";
 import JFMCNodeFSStore from "./stores/nodeFs";
 const fsCacheMock = createCachingMock({ store: new JFMCNodeFSStore() });
 fetchMock.mockImplementationOnce(fsCacheMock);
+// To override the store location, init with store with e.g.:
+// new JFMCNodeFSStore({ location: "tests/other/location" })
 
 // Keep in memory
 import JSMCMemoryStore from "./stores/memory";

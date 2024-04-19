@@ -1,5 +1,7 @@
 import type { JFMCCacheContent } from "./cache";
 
+export interface JFMCStoreOptions {}
+
 const localCrypto =
   typeof crypto === "undefined" ? require("node:crypto").webcrypto : crypto;
 
@@ -13,6 +15,8 @@ export default class JFMCStore {
       .join("");
     return hashHex;
   }
+
+  constructor(options: JFMCStoreOptions = {}) {}
 
   async hashFromHeaders(
     headers: Headers,

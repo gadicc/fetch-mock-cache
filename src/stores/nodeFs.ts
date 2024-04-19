@@ -3,25 +3,36 @@ import fs from "fs/promises";
 import path from "path";
 
 import JFMCStore from "../store";
-import type { JFMCCacheContent } from "../store";
+import type { JFMCCacheContent, JFMCStoreOptions } from "../store";
+
+interface JFMCNodeStoreOptions extends JFMCStoreOptions {
+  location?: string;
+}
+
+const defaults = {
+  location: path.join("tests", "fixtures", "http"),
+};
 
 class JFMCNodeFSStore extends JFMCStore {
   _createdCacheDir = false;
   _cwd = process.cwd();
   _location: string;
 
-  constructor(location?: string) {
+  constructor(options: JFMCNodeStoreOptions = {}) {
     super();
-    this._location = location || "__cache__";
+    this._location = path.join(
+      this._cwd,
+      options.location || defaults.location,
+    );
   }
 
   // Cache in a sub-folder in the tests folder.
   async cache_dir(filename: string) {
     if (!this._createdCacheDir) {
       this._createdCacheDir = true;
-      await fs.mkdir(await this.cache_dir(""), { recursive: true });
+      await fs.mkdir(this._location, { recursive: true });
     }
-    return path.join(this._cwd, "tests", this._location, filename);
+    return path.join(this._location, filename);
   }
 
   async idFromResponse(request: Request): Promise<string> {
