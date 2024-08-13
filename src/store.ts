@@ -6,43 +6,64 @@ const localCrypto =
   typeof crypto === "undefined" ? require("node:crypto").webcrypto : crypto;
 
 export default class JFMCStore {
-  static async hash(input: string) {
+  static async hash(input: string, length?: number) {
     const utf8 = new TextEncoder().encode(input);
     const hashBuffer = await localCrypto.subtle.digest("SHA-256", utf8);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hashHex = hashArray
       .map((bytes) => bytes.toString(16).padStart(2, "0"))
       .join("");
-    return hashHex;
+    return length ? hashHex.substring(0, length) : hashHex;
+  }
+
+  static async uniqueRequestIdentifiers(
+    request: JFMCCacheContent["request"],
+    hashLen = 7,
+  ) {
+    const ids: Record<string, string> = {};
+
+    if (request.method && request.method !== "GET") {
+      ids.method = request.method;
+    }
+    if (request.headers) {
+      ids.headers = await this.hash(JSON.stringify(request.headers), hashLen);
+    }
+    if (request.bodyJson) {
+      const body = JSON.stringify(request.bodyJson);
+      ids.body = await this.hash(body, hashLen);
+    }
+    if (request.bodyText) {
+      const body = request.bodyText;
+      ids.body = await this.hash(body, hashLen);
+    }
+
+    return Object.keys(ids).length > 0 ? ids : null;
   }
 
   constructor(options: JFMCStoreOptions = {}) {}
 
-  async hashFromHeaders(
-    headers: Headers,
-    len: number | null = null,
-  ): Promise<string> {
-    // No need to worry about set-cookie header/array in REQUEST headers.
-    const jsonString = JSON.stringify(Object.fromEntries(headers.entries()));
-    const hashHex = await JFMCStore.hash(jsonString);
-    return len ? hashHex.substring(0, len) : hashHex;
-  }
+  async idFromRequest(request: JFMCCacheContent["request"]): Promise<string> {
+    let id = request.url;
 
-  async idFromResponse(request: Request): Promise<string> {
-    return (
-      request.url +
-      "#" +
-      JSON.stringify(Object.fromEntries(request.headers.entries()))
-    );
+    const ids = await JFMCStore.uniqueRequestIdentifiers(request);
+    if (ids)
+      id +=
+        "[" +
+        Object.entries(ids)
+          .map(([k, v]) => k + "=" + v)
+          .join(",") +
+        "]";
+
+    return id;
   }
 
   async fetchContent(
-    req: Request,
+    request: JFMCCacheContent["request"],
   ): Promise<JFMCCacheContent | null | undefined> {
     throw new Error("Not implemented");
   }
 
-  async storeContent(req: Request, content: JFMCCacheContent): Promise<void> {
+  async storeContent(content: JFMCCacheContent): Promise<void> {
     throw new Error("Not implemented");
   }
 }

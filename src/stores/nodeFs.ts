@@ -1,9 +1,10 @@
-import filenamifyUrl from "filenamify-url";
+import filenamify from "filenamify";
 import fs from "fs/promises";
 import path from "path";
 
 import JFMCStore from "../store";
 import type { JFMCCacheContent, JFMCStoreOptions } from "../store";
+import filenamifyUrl from "filenamify-url";
 
 interface JFMCNodeStoreOptions extends JFMCStoreOptions {
   location?: string;
@@ -35,17 +36,19 @@ class JFMCNodeFSStore extends JFMCStore {
     return path.join(this._location, filename);
   }
 
-  async idFromResponse(request: Request): Promise<string> {
-    let filename = filenamifyUrl(request.url);
-    if (Array.from(request.headers.keys()).length > 0) {
-      const headersHash = await this.hashFromHeaders(request.headers, 7);
-      filename += `[headers=${headersHash}]`;
-    }
-    return filename + ".json";
+  async idFromRequest(request: JFMCCacheContent["request"]): Promise<string> {
+    const id = await super.idFromRequest(request);
+    const parts = id.match(/^(.*?)(\[.*\])?$/);
+    if (!parts) throw new Error("Invalid id");
+    return filenamifyUrl(parts[1]) + (parts[2] || "") + ".json";
   }
 
-  async fetchContent(request: Request) {
-    const path = await this.cache_dir(await this.idFromResponse(request));
+  async pathFromRequest(request: JFMCCacheContent["request"]): Promise<string> {
+    return await this.cache_dir(await this.idFromRequest(request));
+  }
+
+  async fetchContent(request: JFMCCacheContent["request"]) {
+    const path = await this.pathFromRequest(request);
     try {
       const content = await fs.readFile(path, "utf8");
       return JSON.parse(content) as JFMCCacheContent;
@@ -54,8 +57,8 @@ class JFMCNodeFSStore extends JFMCStore {
     }
   }
 
-  async storeContent(request: Request, content: JFMCCacheContent) {
-    const path = await this.cache_dir(await this.idFromResponse(request));
+  async storeContent(content: JFMCCacheContent) {
+    const path = await this.pathFromRequest(content.request);
     await fs.writeFile(path, JSON.stringify(content, null, 2));
   }
 }

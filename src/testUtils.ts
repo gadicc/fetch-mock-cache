@@ -60,4 +60,38 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
       expect(data).toEqual(expectedResponse);
     }
   });
+
+  it("differentiates requests by body", async () => {
+    const url = "http://echo.free.beeceptor.com/sample-request";
+    const jsonInit = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    };
+
+    for (let i = 0; i < 2; i++) {
+      fetchMock.mockImplementationOnce(mock);
+      const body = { a: 1 };
+      const response = await fetch(url, {
+        ...jsonInit,
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
+      expect(response.headers.get("X-JFMC-Cache")).toBe(expectedCacheHeader);
+      expect(data.parsedBody).toEqual(body);
+    }
+
+    for (let i = 0; i < 2; i++) {
+      fetchMock.mockImplementationOnce(mock);
+      const body = { b: 2 };
+      const response = await fetch(url, {
+        ...jsonInit,
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
+      expect(response.headers.get("X-JFMC-Cache")).toBe(expectedCacheHeader);
+      expect(data.parsedBody).toEqual(body);
+    }
+  });
 }

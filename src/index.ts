@@ -20,13 +20,36 @@ export function createCachingMock({ store }: { store?: JFMCStore } = {}) {
   ) {
     if (!urlOrRequest) throw new Error("urlOrRequest is undefined");
 
-    const request =
+    const fetchRequest =
       typeof urlOrRequest === "string"
         ? new Request(urlOrRequest, options)
         : urlOrRequest;
-    const url = request.url;
 
-    const existingContent = await store.fetchContent(request);
+    const url = fetchRequest.url;
+
+    const clonedRequest = fetchRequest.clone();
+    const cacheContentRequest: JFMCCacheContent["request"] = {
+      url,
+      method: fetchRequest.method,
+    };
+
+    if (Array.from(fetchRequest.headers.keys()).length > 0) {
+      // Not really necessary as set-cookie never appears in the REQUEST headers.
+      cacheContentRequest.headers = serializeHeaders(fetchRequest.headers);
+    }
+
+    if (clonedRequest.body) {
+      const bodyText = await clonedRequest.text();
+      if (
+        clonedRequest.headers
+          .get("Content-Type")
+          ?.startsWith("application/json")
+      )
+        cacheContentRequest.bodyJson = JSON.parse(bodyText);
+      else cacheContentRequest.bodyText = bodyText;
+    }
+
+    const existingContent = await store.fetchContent(cacheContentRequest);
     if (existingContent) {
       debug("[jsmc] Using cached copy of %o", url);
       const bodyText = existingContent.response.bodyJson
@@ -50,7 +73,7 @@ export function createCachingMock({ store }: { store?: JFMCStore } = {}) {
     const response = await p;
 
     const newContent: JFMCCacheContent = {
-      request: { url },
+      request: cacheContentRequest,
       response: {
         ok: response.ok,
         status: response.status,
@@ -59,17 +82,12 @@ export function createCachingMock({ store }: { store?: JFMCStore } = {}) {
       },
     };
 
-    if (Array.from(request.headers.keys()).length > 0) {
-      // Not really necessary as set-cookie never appears in the REQUEST headers.
-      newContent.request.headers = serializeHeaders(request.headers);
-    }
-
     const bodyText = await response.text();
     if (response.headers.get("Content-Type")?.startsWith("application/json"))
       newContent.response.bodyJson = JSON.parse(bodyText);
     else newContent.response.bodyText = bodyText;
 
-    await store.storeContent(request, newContent);
+    await store.storeContent(newContent);
 
     response.headers.set("X-JFMC-Cache", "MISS");
 

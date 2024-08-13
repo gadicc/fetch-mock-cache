@@ -6,13 +6,15 @@ import type { JFMCCacheContent } from "../store";
 class JFMCMemoryStore extends JFMCStore {
   store: Map<string, JFMCCacheContent> = new Map();
 
-  async fetchContent(req: Request): Promise<JFMCCacheContent | undefined> {
-    const key = await this.idFromResponse(req);
+  async fetchContent(
+    req: JFMCCacheContent["request"],
+  ): Promise<JFMCCacheContent | undefined> {
+    const key = await this.idFromRequest(req);
     return this.store.get(key);
   }
 
-  async storeContent(req: Request, content: JFMCCacheContent): Promise<void> {
-    const key = await this.idFromResponse(req);
+  async storeContent(content: JFMCCacheContent): Promise<void> {
+    const key = await this.idFromRequest(content.request);
     this.store.set(key, content);
   }
 }
