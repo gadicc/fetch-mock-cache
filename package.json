@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "caching mock implementation for jest-fetch-mock",
   "main": "lib/index.js",
+  "type": "module",
   "types": "lib/index.d.ts",
   "scripts": {
     "test": "jest",
