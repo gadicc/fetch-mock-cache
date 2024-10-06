@@ -1,4 +1,3 @@
-import fetchMock from "jest-fetch-mock";
 import _debug from "debug";
 import type { JFMCCacheContent } from "./cache";
 import { serializeHeaders, unserializeHeaders } from "./headers";
@@ -7,12 +6,17 @@ export { JFMCNodeFSStore as NodeFSStore };
 import JFMCStore from "./store";
 
 const debug = _debug("jest-fetch-mock-cache:core");
+const origFetch = fetch;
 
-export function createCachingMock({ store }: { store?: JFMCStore } = {}) {
+export function createCachingMock({
+  store,
+  fetch,
+}: { store?: JFMCStore; fetch?: typeof origFetch } = {}) {
   if (!store)
     throw new Error(
       "No `store` option was provided, but is required.  See docs.",
     );
+  if (!fetch) fetch = origFetch;
 
   return async function cachingMockImplementation(
     urlOrRequest: string | Request | undefined,
@@ -67,9 +71,7 @@ export function createCachingMock({ store }: { store?: JFMCStore } = {}) {
 
     debug("[jsmc] Fetching and caching %o", url);
 
-    fetchMock.disableMocks();
     const p = fetch(url, options);
-    fetchMock.enableMocks();
     const response = await p;
 
     const newContent: JFMCCacheContent = {
@@ -89,12 +91,13 @@ export function createCachingMock({ store }: { store?: JFMCStore } = {}) {
 
     await store.storeContent(newContent);
 
-    response.headers.set("X-JFMC-Cache", "MISS");
+    const headers = new Headers(response.headers);
+    headers.set("X-JFMC-Cache", "MISS");
 
     return new Response(bodyText, {
       status: response.status,
       statusText: response.statusText,
-      headers: response.headers,
+      headers,
     });
   };
 }
