@@ -1,5 +1,5 @@
 import fs from "fs/promises";
-import FMCFileSystemStore from "./fs";
+import FMCFileSystemStore from "./fs.js";
 
 class FMCNodeFSStore extends FMCFileSystemStore {
   async readFile(path: string) {

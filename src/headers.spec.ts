@@ -1,6 +1,6 @@
 import { describe, test as it } from "node:test";
 import { expect } from "expect";
-import { serializeHeaders, unserializeHeaders } from "./headers";
+import { serializeHeaders, unserializeHeaders } from "./headers.js";
 
 describe("headers", () => {
   it("serializeHeaders", () => {

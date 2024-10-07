@@ -1,4 +1,4 @@
-import type { FMCCacheContent } from "./cache";
+import type { FMCCacheContent } from "./cache.js";
 
 export interface FMCStoreOptions {}
 

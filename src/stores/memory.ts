@@ -1,5 +1,5 @@
-import FMCStore from "../store";
-import type { FMCCacheContent } from "../store";
+import FMCStore from "../store.js";
+import type { FMCCacheContent } from "../store.js";
 
 // TODO LRU cache
 

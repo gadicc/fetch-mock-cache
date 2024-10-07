@@ -1,9 +1,9 @@
 import { describe, test as it } from "node:test";
 import { expect } from "expect";
 
-import { createCachingMock } from "./index";
-// import FMCNodeFSStore from "./stores/nodeFs";
-import FMCMemoryStore from "./stores/memory";
+import { createCachingMock } from "./index.js";
+// import FMCNodeFSStore from "./stores/nodeFs.js";
+import FMCMemoryStore from "./stores/memory.js";
 
 const fetchCache = createCachingMock({ store: new FMCMemoryStore() });
 

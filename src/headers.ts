@@ -9,7 +9,6 @@ export function serializeHeaders(headers: Headers) {
   const serialized = Object.fromEntries(headers.entries());
 
   if (serialized["set-cookie"]) {
-    // @ts-expect-error: only in node 19.7.0+
     if (typeof headers.getSetCookie === "function") {
       // @ts-expect-error: no type guard for typeof === "function"
       serialized["set-cookie"] = headers.getSetCookie();

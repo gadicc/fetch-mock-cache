@@ -1,12 +1,11 @@
 // NB: this is just the generalized filesystem store components, it won't work
 // on it's own.  You need to extend it and implement `readFile` and `writeFile`
 // methods.
-import filenamify from "filenamify";
 import fs from "fs/promises";
 import path from "path";
 
-import FMCStore from "../store";
-import type { FMCCacheContent, FMCStoreOptions } from "../store";
+import FMCStore from "../store.js";
+import type { FMCCacheContent, FMCStoreOptions } from "../store.js";
 import filenamifyUrl from "filenamify-url";
 
 interface FMCFileStoreOptions extends FMCStoreOptions {

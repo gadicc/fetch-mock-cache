@@ -1,9 +1,9 @@
-import { describe, test as it, before } from "node:test";
+import { describe, before } from "node:test";
 import fs from "fs/promises";
 
-import { createCachingMock } from "../index";
-import nodeFsStore from "./nodeFs";
-import { createTestsForMock } from "../testUtils";
+import { createCachingMock } from "../index.js";
+import nodeFsStore from "./nodeFs.js";
+import { createTestsForMock } from "../testUtils.js";
 
 const nodeFsCacheMock = createCachingMock({ store: new nodeFsStore() });
 

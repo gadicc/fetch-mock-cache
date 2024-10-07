@@ -1,8 +1,8 @@
-import { describe, test as it } from "node:test";
+import { describe } from "node:test";
 
-import { createCachingMock } from "../index";
-import JSMCMemoryStore from "./memory";
-import { createTestsForMock } from "../testUtils";
+import { createCachingMock } from "../index.js";
+import JSMCMemoryStore from "./memory.js";
+import { createTestsForMock } from "../testUtils.js";
 
 const memoryCacheMock = createCachingMock({ store: new JSMCMemoryStore() });
 

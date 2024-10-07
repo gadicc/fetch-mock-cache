@@ -9,5 +9,8 @@ module.exports = {
       },
     ],
   },
+  moduleNameMapper: {
+    "(.+)\\.js": "$1",
+  },
   extensionsToTreatAsEsm: [".ts", ".tsx"],
 };

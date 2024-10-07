@@ -1,9 +1,9 @@
 import _debug from "debug";
-import type { FMCCacheContent } from "./cache";
-import { serializeHeaders, unserializeHeaders } from "./headers";
-import FMCNodeFSStore from "./stores/nodeFs";
+import type { FMCCacheContent } from "./cache.js";
+import { serializeHeaders, unserializeHeaders } from "./headers.js";
+import FMCNodeFSStore from "./stores/nodeFs.js";
 export { FMCNodeFSStore as NodeFSStore };
-import FMCStore from "./store";
+import FMCStore from "./store.js";
 
 const debug = _debug("fetch-mock-cache:core");
 const origFetch = fetch;
