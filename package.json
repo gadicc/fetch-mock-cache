@@ -1,7 +1,7 @@
 {
-  "name": "jest-fetch-mock-cache",
+  "name": "fetch-mock-cache",
   "version": "0.0.1",
-  "description": "caching mock implementation for jest-fetch-mock",
+  "description": "Caching mock fetch implementation for all runtimes and frameworks.",
   "main": "lib/index.js",
   "type": "module",
   "types": "lib/index.d.ts",
@@ -17,21 +17,25 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gadicc/jest-fetch-mock-cache.git"
+    "url": "git+https://github.com/gadicc/fetch-mock-cache.git"
   },
   "keywords": [
-    "jest",
-    "mock",
     "fetch",
-    "cache"
+    "mock",
+    "fetch-mock",
+    "node:test",
+    "vitest",
+    "jest",
+    "cache",
+    "bun",
+    "deno"
   ],
   "author": "Gadi Cohen <dragon@wastelands.net>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/gadicc/jest-fetch-mock-cache/issues"
+    "url": "https://github.com/gadicc/fetch-mock-cache/issues"
   },
-  "homepage": "https://github.com/gadicc/jest-fetch-mock-cache#readme",
-  "peerDependencies": {},
+  "homepage": "https://github.com/gadicc/fetch-mock-cache#readme",
   "devDependencies": {
     "@types/debug": "^4.1.8",
     "@types/node": "^20.4.2",
