@@ -6,12 +6,13 @@
   "scripts": {
     "test": "npm run test:native && npm run test:jest",
     "test:native": "node --experimental-vm-modules --test --import tsx src/native-*.spec.ts",
-    "test:jest": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js src/jest-*.spec.ts"
+    "test:jest": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js src/jest-*.spec.ts",
+    "test:vitest": "vitest --run src/vitest-*.spec.ts"
   },
   "engines": {
     "node": ">=20.0.0"
   },
-  "author": "",
+  "author": "Gadi Cohen <dragon@wastelands.net>",
   "license": "MIT",
   "description": "",
   "devDependencies": {
@@ -22,6 +23,7 @@
     "fetch-mock": "^11.1.5",
     "jest": "^29.7.0",
     "jest-fetch-mock": "^3.0.3",
-    "tsx": "^4.19.1"
+    "tsx": "^4.19.1",
+    "vitest": "^2.1.2"
   }
 }
