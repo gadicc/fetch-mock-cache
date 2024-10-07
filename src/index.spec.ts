@@ -1,15 +1,13 @@
-import fetchMock from "jest-fetch-mock";
-fetchMock.enableMocks();
-
-import { describe, expect, test as it } from "@jest/globals";
+import { describe, test as it } from "node:test";
+import { expect } from "expect";
 
 import { createCachingMock } from "./index";
 // import FMCNodeFSStore from "./stores/nodeFs";
 import FMCMemoryStore from "./stores/memory";
 
-const memoryCacheMock = createCachingMock({ store: new FMCMemoryStore() });
+const fetchCache = createCachingMock({ store: new FMCMemoryStore() });
 
-describe("jest-fetch-mock-cache", () => {
+describe("fetch-mock-cache", () => {
   describe("createCachingMock", () => {
     it("should throw if no store is provided", () => {
       expect(() => createCachingMock()).toThrow(
@@ -19,8 +17,8 @@ describe("jest-fetch-mock-cache", () => {
   });
 
   describe("created mock", () => {
-    it("should throw if no url is provided", async () => {
-      fetchMock.mockImplementationOnce(memoryCacheMock);
+    it("should throw if no url is provided", async (t) => {
+      t.mock.method(globalThis, "fetch", fetchCache);
       // @ts-expect-error: intentionally passing undefined to test runtime type checks
       await expect(fetch()).rejects.toThrow(/urlOrRequest is undefined/);
     });

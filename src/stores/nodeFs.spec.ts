@@ -1,8 +1,5 @@
-import fetchMock from "jest-fetch-mock";
-fetchMock.enableMocks();
-
+import { describe, test as it, before } from "node:test";
 import fs from "fs/promises";
-import { describe, expect, test as it } from "@jest/globals";
 
 import { createCachingMock } from "../index";
 import nodeFsStore from "./nodeFs";
@@ -10,9 +7,9 @@ import { createTestsForMock } from "../testUtils";
 
 const nodeFsCacheMock = createCachingMock({ store: new nodeFsStore() });
 
-describe("memoryStore", () => {
+describe("nodeFsStore", () => {
   describe("standard tests", () => {
-    beforeAll(async () => {
+    before(async () => {
       await fs.rm("./tests/fixtures/http", { force: true, recursive: true });
     });
     createTestsForMock(nodeFsCacheMock);

@@ -1,8 +1,6 @@
-import { describe, expect, test as it } from "@jest/globals";
+import { describe, test as it } from "node:test";
+import { expect } from "expect";
 import { serializeHeaders, unserializeHeaders } from "./headers";
-
-// Will polyfil fetch with node-fetch, which has headers.raw()
-import "jest-fetch-mock";
 
 describe("headers", () => {
   it("serializeHeaders", () => {
@@ -27,7 +25,6 @@ describe("headers", () => {
     const headers = unserializeHeaders(serialized);
 
     expect(headers.get("x-test")).toBe("1");
-    // @ts-expect-error: node-fetch
-    expect(headers.raw()["set-cookie"]).toEqual(["a", "b"]);
+    expect(headers.getSetCookie()).toEqual(["a", "b"]);
   });
 });
