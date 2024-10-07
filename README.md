@@ -1,6 +1,6 @@
-# jest-fetch-mock-cache
+# fetch-mock-cache
 
-Caching mock implementation for jest-fetch-mock.
+Caching mock fetch implementation for all runtimes and frameworks.
 
 Copyright (c) 2023 by Gadi Cohen. [MIT Licensed](./LICENSE.txt).
 
@@ -13,31 +13,30 @@ call in your code, maybe you'd like to perform a real `fetch()` once,
 cache the result, and use that cache result for future calls. **Super
 useful for TDD against existing APIs!!**
 
-Note: this is a brand new project. It works but you may want to wait
-a little before any serious use. Feature requests welcome!
+Note: v3 is active development. v2 (csm & jest only) is more stable but
+is no longer being worked on. See [MIGRATING.md](./MIGRATING.md) for how
+to upgrade. v3 works but you may want to wait a bit before any serious
+use. Feature requests welcome!
 
 ## Quick Start
 
+Generally your code will look something like this, but, **see further below**
+for the exact code for different runtimes and testing frameworks.
+
 ```ts
-import fetchMock from "jest-fetch-mock";
-fetchMock.enableMocks();
-
-import { describe, expect, test as it } from "@jest/globals";
-import createCachingMock from "jest-fetch-mock-cache";
-
+import createCachingMock from "fetch-mock-cache";
 // See list of possible stores, below.
-import Store from "jest-fetch-mock-cache/lib/stores/nodeFs";
+import Store from "fetch-mock-cache/lib/stores/nodeFs";
 
-const cachingMock = createCachingMock({ store: new Store() });
+const fetchCache = createCachingMock({ store: new Store() });
 
 describe("cachingMock", () => {
-  it("works with a JSON response", async () => {
+  it("works with a JSON response", async (t) => {
     const url = "http://echo.jsontest.com/key/value/one/two";
     const expectedResponse = { one: "two", key: "value" };
+    t.mock.method(globalThis, "fetch", fetchCache);
 
     for (let i = 0; i < 2; i++) {
-      // If you get a TypeError here, make sure @types/jest is instaled.
-      fetchMock.mockImplementationOnce(cachingMock);
       const response = await fetch(url);
       const data = await response.json();
       const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
@@ -55,14 +54,17 @@ describe("cachingMock", () => {
 - **Subsequent requests** will return the cached copy without
   making an HTTP request.
 
-Note: the package is designed to be used with `jest-fetch-mock`, but that's
-not required. Since it's a complete impleemntation on its own, you could
-do something like
+## Supported runtimes and test frameworks
 
-```ts
-// Do this and then use this `fetch()` function, or set global.fetch = ...
-const fetch = jest.fn(createCachingMock({ store: new Store() }));
-```
+Click on the "Quick Start / Example" links to see a working implementation for your framework of choice.
+
+| Runtime                         | Framework                                       | Status | Quick Start / Example                                                                                                                     |
+| ------------------------------- | ----------------------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| [Node](https://nodejs.org/) 20+ | [`node:test`](https://nodejs.org/api/test.html) |        | [direct](./tests/runtimes/node/src/native-direct-mock.spec.ts) or with [fetch-mock](./tests/runtimes/node/src/native-fetch-mock.spec.ts)  |
+|                                 | [`jest`](https://jestjs.io/)                    |        | [direct](./tests/runtimes/node/src/jest-direct-mock.spec.ts) or with [jest-fetch-mock](./tests/runtimes/node/src/jest-fetch-mock.spec.ts) |
+|                                 | [`vitest`](https://vitest.dev/)                 |
+| [Deno](https://deno.com/)       |
+| [Bun](https://bun.sh/)          |
 
 ## What's cached
 
@@ -106,11 +108,11 @@ object as `bodyJson` for readability reasons.
 We use [debug](https://www.npmjs.com/package/debug) for debugging. E.g.:
 
 ```bash
-$ DEBUG=jest-fetch-mock-cache:* yarn test
+$ DEBUG=fetch-mock-cache:* yarn test
 yarn run v1.22.19
 $ jest
-  jest-fetch-mock-cache:core [jsmc] Fetching and caching 'http://echo.jsontest.com/key/value/one/two' +0ms
-  jest-fetch-mock-cache:core [jsmc] Using cached copy of 'http://echo.jsontest.com/key/value/one/two' +177ms
+  fetch-mock-cache:core Fetching and caching 'http://echo.jsontest.com/key/value/one/two' +0ms
+  fetch-mock-cache:core Using cached copy of 'http://echo.jsontest.com/key/value/one/two' +177ms
  PASS  src/index.spec.ts
   cachingMock
     ✓ should work (180 ms)
@@ -119,19 +121,19 @@ $ jest
 ## Available Stores
 
 ```ts
-import createCachingMock from "jest-fetch-mock-cache";
+import createCachingMock from "fetch-mock-cache";
 
 // Use Node's FS API to store as (creating paths as necessary)
 // `${process.cwd()}/tests/fixtures/${filenamifyUrl(url)}`.
 // https://github.com/sindresorhus/filenamify-url
-import JFMCNodeFSStore from "./stores/nodeFs";
-const fsCacheMock = createCachingMock({ store: new JFMCNodeFSStore() });
-fetchMock.mockImplementationOnce(fsCacheMock);
+import FMCNodeFSStore from "./stores/nodeFs";
+const fileCacheMock = createCachingMock({ store: new FMCNodeFSStore() });
+fetchMock.mockImplementationOnce(fileCacheMock);
 // To override the store location, init with store with e.g.:
 // new JFMCNodeFSStore({ location: "tests/other/location" })
 
 // Keep in memory
-import JSMCMemoryStore from "./stores/memory";
+import FMCMemoryStore from "./stores/memory";
 const memoryCacheMock = createCachingMock({ store: new JSMCMemoryStore() });
 fetchMock.mockImplementationOnce(memoryCacheMock);
 ```
@@ -139,18 +141,20 @@ fetchMock.mockImplementationOnce(memoryCacheMock);
 ### Create your own Store
 
 ```ts
-import JFMCStore from "jest-fetch-mock-cache/lib/store";
-import type { JFMCCacheContent } from "jest-fetch-mock-cache/lib/store";
+import FMCStore from "fetch-mock-cache/lib/store";
+import type { FMCCacheContent } from "jest-fetch-mock-cache/lib/store";
 import db from "./db"; // your existing db
 
-class MyCustomStore extends JFMCStore {
-  async fetchContent(req: Request): Promise<JFMCCacheContent | undefined> {
-    const key = await this.idFromResponse(req);
-    return (await db.collection("jfmc").findOne(key)).content;
+class MyCustomStore extends FMCStore {
+  async fetchContent(
+    request: FMCCacheContent["request"],
+  ): Promise<FMCCacheContent | undefined> {
+    const key = await this.idFromRequest(request);
+    return (await db.collection("fmc").findOne({ _id: key })).content;
   }
 
-  async storeContent(req: Request, content: JFMCCacheContent): Promise<void> {
-    const key = await this.idFromResponse(req);
+  async storeContent(content: FMCCacheContent): Promise<void> {
+    const key = await this.idFromRequest(content.request);
     await db.collection("jfmc").insertOne({ _id: key, content });
   }
 }
@@ -160,6 +164,6 @@ export default MyCustomStore;
 
 ## TODO
 
-- [ ] Browser-environment support. Please open an issue if you need this, and in what cases. jsdom?
 - [x] Cache request headers too and hash them in filename / key / id.
-- [ ] Handle and store invalid JSON too.
+- [ ] Browser-environment support. Please open an issue if you need this, and in what cases. jsdom?
+- [ ] Handle and store invalid JSON too?
