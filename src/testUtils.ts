@@ -19,7 +19,7 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
       const response = await fetch(url);
       const data = await response.text();
       const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
-      expect(response.headers.get("X-JFMC-Cache")).toBe(expectedCacheHeader);
+      expect(response.headers.get("X-FMC-Cache")).toBe(expectedCacheHeader);
       expect(data).toBe(expectedResponse);
     }
   });
@@ -33,7 +33,7 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
       const response = await fetch(url);
       const data = await response.json();
       const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
-      expect(response.headers.get("X-JFMC-Cache")).toBe(expectedCacheHeader);
+      expect(response.headers.get("X-FMC-Cache")).toBe(expectedCacheHeader);
       expect(data).toEqual(expectedResponse);
     }
   });
@@ -47,7 +47,7 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
       const response = await fetch(url, { headers: { "X-Test": "1" } });
       const data = await response.json();
       const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
-      expect(response.headers.get("X-JFMC-Cache")).toBe(expectedCacheHeader);
+      expect(response.headers.get("X-FMC-Cache")).toBe(expectedCacheHeader);
       expect(data).toEqual(expectedResponse);
     }
 
@@ -56,7 +56,7 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
       const response = await fetch(url, { headers: { "X-Test": "2" } });
       const data = await response.json();
       const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
-      expect(response.headers.get("X-JFMC-Cache")).toBe(expectedCacheHeader);
+      expect(response.headers.get("X-FMC-Cache")).toBe(expectedCacheHeader);
       expect(data).toEqual(expectedResponse);
     }
   });
@@ -77,7 +77,7 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
       });
       const data = await response.json();
       const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
-      expect(response.headers.get("X-JFMC-Cache")).toBe(expectedCacheHeader);
+      expect(response.headers.get("X-FMC-Cache")).toBe(expectedCacheHeader);
       expect(data.parsedBody).toEqual(body);
     }
 
@@ -90,7 +90,7 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
       });
       const data = await response.json();
       const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
-      expect(response.headers.get("X-JFMC-Cache")).toBe(expectedCacheHeader);
+      expect(response.headers.get("X-FMC-Cache")).toBe(expectedCacheHeader);
       expect(data.parsedBody).toEqual(body);
     }
   });

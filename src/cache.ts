@@ -1,4 +1,4 @@
-export interface JFMCCacheContent {
+export interface FMCCacheContent {
   request: {
     url: string;
     headers?: Record<string, string | string[]>;

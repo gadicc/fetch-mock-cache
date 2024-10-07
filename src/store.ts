@@ -1,11 +1,11 @@
-import type { JFMCCacheContent } from "./cache";
+import type { FMCCacheContent } from "./cache";
 
-export interface JFMCStoreOptions {}
+export interface FMCStoreOptions {}
 
 const localCrypto =
   typeof crypto === "undefined" ? require("node:crypto").webcrypto : crypto;
 
-export default class JFMCStore {
+export default class FMCStore {
   static async hash(input: string, length?: number) {
     const utf8 = new TextEncoder().encode(input);
     const hashBuffer = await localCrypto.subtle.digest("SHA-256", utf8);
@@ -17,7 +17,7 @@ export default class JFMCStore {
   }
 
   static async uniqueRequestIdentifiers(
-    request: JFMCCacheContent["request"],
+    request: FMCCacheContent["request"],
     hashLen = 7,
   ) {
     const ids: Record<string, string> = {};
@@ -40,12 +40,12 @@ export default class JFMCStore {
     return Object.keys(ids).length > 0 ? ids : null;
   }
 
-  constructor(options: JFMCStoreOptions = {}) {}
+  constructor(options: FMCStoreOptions = {}) {}
 
-  async idFromRequest(request: JFMCCacheContent["request"]): Promise<string> {
+  async idFromRequest(request: FMCCacheContent["request"]): Promise<string> {
     let id = request.url;
 
-    const ids = await JFMCStore.uniqueRequestIdentifiers(request);
+    const ids = await FMCStore.uniqueRequestIdentifiers(request);
     if (ids)
       id +=
         "[" +
@@ -58,14 +58,14 @@ export default class JFMCStore {
   }
 
   async fetchContent(
-    request: JFMCCacheContent["request"],
-  ): Promise<JFMCCacheContent | null | undefined> {
+    request: FMCCacheContent["request"],
+  ): Promise<FMCCacheContent | null | undefined> {
     throw new Error("Not implemented");
   }
 
-  async storeContent(content: JFMCCacheContent): Promise<void> {
+  async storeContent(content: FMCCacheContent): Promise<void> {
     throw new Error("Not implemented");
   }
 }
 
-export type { JFMCCacheContent };
+export type { FMCCacheContent };

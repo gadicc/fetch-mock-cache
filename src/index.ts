@@ -1,9 +1,9 @@
 import _debug from "debug";
-import type { JFMCCacheContent } from "./cache";
+import type { FMCCacheContent } from "./cache";
 import { serializeHeaders, unserializeHeaders } from "./headers";
-import JFMCNodeFSStore from "./stores/nodeFs";
-export { JFMCNodeFSStore as NodeFSStore };
-import JFMCStore from "./store";
+import FMCNodeFSStore from "./stores/nodeFs";
+export { FMCNodeFSStore as NodeFSStore };
+import FMCStore from "./store";
 
 const debug = _debug("jest-fetch-mock-cache:core");
 const origFetch = fetch;
@@ -11,7 +11,7 @@ const origFetch = fetch;
 export function createCachingMock({
   store,
   fetch,
-}: { store?: JFMCStore; fetch?: typeof origFetch } = {}) {
+}: { store?: FMCStore; fetch?: typeof origFetch } = {}) {
   if (!store)
     throw new Error(
       "No `store` option was provided, but is required.  See docs.",
@@ -32,7 +32,7 @@ export function createCachingMock({
     const url = fetchRequest.url;
 
     const clonedRequest = fetchRequest.clone();
-    const cacheContentRequest: JFMCCacheContent["request"] = {
+    const cacheContentRequest: FMCCacheContent["request"] = {
       url,
       method: fetchRequest.method,
     };
@@ -55,12 +55,12 @@ export function createCachingMock({
 
     const existingContent = await store.fetchContent(cacheContentRequest);
     if (existingContent) {
-      debug("[jsmc] Using cached copy of %o", url);
+      debug("[fmc] Using cached copy of %o", url);
       const bodyText = existingContent.response.bodyJson
         ? JSON.stringify(existingContent.response.bodyJson)
         : existingContent.response.bodyText;
 
-      existingContent.response.headers["X-JFMC-Cache"] = "HIT";
+      existingContent.response.headers["X-FMC-Cache"] = "HIT";
 
       return new Response(bodyText, {
         status: existingContent.response.status,
@@ -69,12 +69,12 @@ export function createCachingMock({
       });
     }
 
-    debug("[jsmc] Fetching and caching %o", url);
+    debug("[fmc] Fetching and caching %o", url);
 
     const p = fetch(url, options);
     const response = await p;
 
-    const newContent: JFMCCacheContent = {
+    const newContent: FMCCacheContent = {
       request: cacheContentRequest,
       response: {
         ok: response.ok,
@@ -92,7 +92,7 @@ export function createCachingMock({
     await store.storeContent(newContent);
 
     const headers = new Headers(response.headers);
-    headers.set("X-JFMC-Cache", "MISS");
+    headers.set("X-FMC-Cache", "MISS");
 
     return new Response(bodyText, {
       status: response.status,

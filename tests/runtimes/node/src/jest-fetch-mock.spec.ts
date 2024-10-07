@@ -24,7 +24,7 @@ describe("jest-fetch-mock", () => {
       const response = await fetch(url);
       const data = await response.json();
       const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
-      expect(response.headers.get("X-JFMC-Cache")).toBe(expectedCacheHeader);
+      expect(response.headers.get("X-FMC-Cache")).toBe(expectedCacheHeader);
       expect(data).toEqual(expectedResponse);
     }
   });
