@@ -55,7 +55,7 @@ export function createCachingMock({
 
     const existingContent = await store.fetchContent(cacheContentRequest);
     if (existingContent) {
-      debug("[fmc] Using cached copy of %o", url);
+      debug("Using cached copy of %o", url);
       const bodyText = existingContent.response.bodyJson
         ? JSON.stringify(existingContent.response.bodyJson)
         : existingContent.response.bodyText;
@@ -69,7 +69,7 @@ export function createCachingMock({
       });
     }
 
-    debug("[fmc] Fetching and caching %o", url);
+    debug("Fetching and caching %o", url);
 
     const p = fetch(url, options);
     const response = await p;
