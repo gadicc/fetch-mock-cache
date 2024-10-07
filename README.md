@@ -13,10 +13,12 @@ call in your code, maybe you'd like to perform a real `fetch()` once,
 cache the result, and use that cache result for future calls. **Super
 useful for TDD against existing APIs!!**
 
-Note: v3 is active development. v2 (csm & jest only) is more stable but
-is no longer being worked on. See [MIGRATING.md](./MIGRATING.md) for how
-to upgrade. v3 works but you may want to wait a bit before any serious
-use. Feature requests welcome!
+Note: This README refer to **v3** which is in active development. **v2**
+(CommonJS & Jest only, see
+[old README](https://github.com/gadicc/fetch-mock-cache/tree/1.x))
+is more stable but is no longer being worked on.
+See [MIGRATING.md](./MIGRATING.md) for how to upgrade. v3 works but you
+may want to wait a bit before any serious use. Feature requests welcome!
 
 ## Quick Start
 
