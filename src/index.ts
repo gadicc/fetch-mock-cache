@@ -5,7 +5,7 @@ import FMCNodeFSStore from "./stores/nodeFs";
 export { FMCNodeFSStore as NodeFSStore };
 import FMCStore from "./store";
 
-const debug = _debug("jest-fetch-mock-cache:core");
+const debug = _debug("fetch-mock-cache:core");
 const origFetch = fetch;
 
 export function createCachingMock({
