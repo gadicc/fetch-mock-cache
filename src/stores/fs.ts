@@ -65,7 +65,7 @@ class FMCFileSystemStore extends FMCStore {
     await fs.writeFile(path, JSON.stringify(content, null, 2));
   }
 
-  async readFile(path: string) {
+  async readFile(path: string): Promise<string> {
     throw new Error(
       "Please overide the `readFile` method or use an fs subclass store",
     );
