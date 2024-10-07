@@ -24,6 +24,7 @@
     "jest": "^29.7.0",
     "jest-fetch-mock": "^3.0.3",
     "tsx": "^4.19.1",
-    "vitest": "^2.1.2"
+    "vitest": "^2.1.2",
+    "vitest-fetch-mock": "^0.3.0"
   }
 }
