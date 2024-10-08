@@ -1,5 +1,5 @@
 "use strict";
-import { expect, describe, test } from "bun:test";
+import { expect, describe, test, mock } from "bun:test";
 
 // import createCachingMock from "fetch-mock-cache"
 // import FMCMemoryStore from "fetch-mock-cache/stores/memory";
@@ -13,7 +13,7 @@ describe("bun:test - direct mock", () => {
 
   test("memoryStore", async () => {
     const origFetch = global.fetch;
-    global.fetch = fetchCache;
+    global.fetch = mock(fetchCache);
 
     for (let i = 0; i < 2; i++) {
       const response = await fetch(url);
