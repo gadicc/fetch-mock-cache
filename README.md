@@ -66,7 +66,7 @@ Click on the "Quick Start / Example" links to see a working implementation for y
 |                                 | [`jest`](https://jestjs.io/)                    |        | [direct](./tests/runtimes/node/src/jest-direct-mock.spec.ts) or with [jest-fetch-mock](./tests/runtimes/node/src/jest-fetch-mock.spec.ts)       |
 |                                 | [`vitest`](https://vitest.dev/)                 |        | [direct](./tests/runtimes/node/src/vitest-direct-mock.spec.ts) or with [vitest-fetch-mock](./tests/runtimes/node/src/vitest-fetch-mock.spec.ts) |
 | [Deno](https://deno.com/)       |
-| [Bun](https://bun.sh/)          |
+| [Bun](https://bun.sh/)          | [`bun:test`](https://bun.sh/docs/cli/test)      |        | [direct](./tests/runtimes/bun/src/direct.spec.ts), maybe soon [`bun-bagel`](https://github.com/DRFR0ST/bun-bagel)                               |
 
 ## What's cached
 
