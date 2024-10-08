@@ -14,7 +14,7 @@ cache the result, and use that cache result for future calls. **Super
 useful for TDD against existing APIs!!**
 
 Note: This README refer to **v3** which is in active development. **v2**
-(CommonJS & Jest only, see
+(CommonJS & Node/Jest only, see
 [old README](https://github.com/gadicc/fetch-mock-cache/tree/1.x))
 is more stable but is no longer being worked on.
 See [MIGRATING.md](./MIGRATING.md) for how to upgrade. v3 works but you
