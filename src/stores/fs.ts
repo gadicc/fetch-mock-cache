@@ -38,7 +38,9 @@ class FMCFileSystemStore extends FMCStore {
     return path.join(this._location, filename);
   }
 
-  async idFromRequest(request: FMCCacheContent["request"]): Promise<string> {
+  override async idFromRequest(
+    request: FMCCacheContent["request"],
+  ): Promise<string> {
     const id = await super.idFromRequest(request);
     const parts = id.match(/^(.*?)(\[.*\])?$/);
     if (!parts) throw new Error("Invalid id");
@@ -49,7 +51,7 @@ class FMCFileSystemStore extends FMCStore {
     return await this.cache_dir(await this.idFromRequest(request));
   }
 
-  async fetchContent(request: FMCCacheContent["request"]) {
+  override async fetchContent(request: FMCCacheContent["request"]) {
     const path = await this.pathFromRequest(request);
     try {
       const content = await fs.readFile(path, "utf8");
@@ -59,7 +61,7 @@ class FMCFileSystemStore extends FMCStore {
     }
   }
 
-  async storeContent(content: FMCCacheContent) {
+  override async storeContent(content: FMCCacheContent) {
     const path = await this.pathFromRequest(content.request);
     await fs.writeFile(path, JSON.stringify(content, null, 2));
   }
