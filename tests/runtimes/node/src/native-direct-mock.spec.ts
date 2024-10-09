@@ -4,7 +4,7 @@ import { expect } from "expect";
 
 // import createCachingMock from "fetch-mock-cache"
 // import FMCMemoryStore from "fetch-mock-cache/stores/memory";
-import createCachingFetch from "../../../../src/index.js";
+import createCachingFetch from "../../../../src/runtimes/node.js";
 import FMCMemoryStore from "../../../../src/stores/memory.js";
 
 describe("node:test - direct mock", () => {

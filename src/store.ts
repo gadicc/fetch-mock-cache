@@ -1,22 +1,25 @@
+import type { CachingMockImplementation } from "./fetch-mock.js";
 import type { FMCCacheContent } from "./cache.js";
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface FMCStoreOptions {}
 
-const localCrypto =
-  typeof crypto === "undefined" ? require("node:crypto").webcrypto : crypto;
-
 export default class FMCStore {
-  static async hash(input: string, length?: number) {
-    const utf8 = new TextEncoder().encode(input);
-    const hashBuffer = await localCrypto.subtle.digest("SHA-256", utf8);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray
-      .map((bytes) => bytes.toString(16).padStart(2, "0"))
-      .join("");
-    return length ? hashHex.substring(0, length) : hashHex;
+  // Assigned by createCachingMock when passed to it as `store` instance.
+  fetchCache: CachingMockImplementation | null = null;
+  runtime() {
+    if (!this.fetchCache) throw new Error("fetchCache not set");
+    return this.fetchCache.runtime;
   }
 
-  static async uniqueRequestIdentifiers(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  constructor(options: FMCStoreOptions = {}) {}
+
+  async hash(input: string, length = 7): Promise<string> {
+    return this.runtime().sha256(input, length);
+  }
+
+  async uniqueRequestIdentifiers(
     request: FMCCacheContent["request"],
     hashLen = 7,
   ) {
@@ -40,12 +43,10 @@ export default class FMCStore {
     return Object.keys(ids).length > 0 ? ids : null;
   }
 
-  constructor(options: FMCStoreOptions = {}) {}
-
   async idFromRequest(request: FMCCacheContent["request"]): Promise<string> {
     let id = request.url;
 
-    const ids = await FMCStore.uniqueRequestIdentifiers(request);
+    const ids = await this.uniqueRequestIdentifiers(request);
     if (ids)
       id +=
         "[" +
@@ -58,11 +59,13 @@ export default class FMCStore {
   }
 
   async fetchContent(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     request: FMCCacheContent["request"],
   ): Promise<FMCCacheContent | null | undefined> {
     throw new Error("Not implemented");
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async storeContent(content: FMCCacheContent): Promise<void> {
     throw new Error("Not implemented");
   }

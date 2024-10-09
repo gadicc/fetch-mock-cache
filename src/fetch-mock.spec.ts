@@ -1,7 +1,7 @@
 import { describe, test as it } from "node:test";
 import { expect } from "expect";
 
-import { createCachingMock } from "./index.js";
+import createCachingMock from "./runtimes/node.js";
 // import FMCNodeFSStore from "./stores/nodeFs.js";
 import FMCMemoryStore from "./stores/memory.js";
 

@@ -4,7 +4,7 @@ import { describe, test, expect, jest } from "@jest/globals";
 // import createCachingMock from "fetch-mock-cache"
 // import FMCMemoryStore from "fetch-mock-cache/stores/memory";
 // @ts-expect-error: .js
-import createCachingFetch from "../../../../src/index";
+import createCachingFetch from "../../../../src/runtimes/node";
 // @ts-expect-error: .js
 import FMCMemoryStore from "../../../../src/stores/memory";
 

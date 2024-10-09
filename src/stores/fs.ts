@@ -1,12 +1,8 @@
-// NB: this is just the generalized filesystem store components, it won't work
-// on it's own.  You need to extend it and implement `readFile` and `writeFile`
-// methods.
-import fs from "fs/promises";
 import path from "path";
+import filenamifyUrl from "filenamify-url";
 
 import FMCStore from "../store.js";
 import type { FMCCacheContent, FMCStoreOptions } from "../store.js";
-import filenamifyUrl from "filenamify-url";
 
 interface FMCFileStoreOptions extends FMCStoreOptions {
   location?: string;
@@ -33,7 +29,7 @@ class FMCFileSystemStore extends FMCStore {
   async cache_dir(filename: string) {
     if (!this._createdCacheDir) {
       this._createdCacheDir = true;
-      await fs.mkdir(this._location, { recursive: true });
+      await this.runtime().fs.mkdir(this._location, { recursive: true });
     }
     return path.join(this._location, filename);
   }
@@ -54,28 +50,16 @@ class FMCFileSystemStore extends FMCStore {
   override async fetchContent(request: FMCCacheContent["request"]) {
     const path = await this.pathFromRequest(request);
     try {
-      const content = await fs.readFile(path, "utf8");
+      const content = await this.runtime().fs.readFile(path);
       return JSON.parse(content) as FMCCacheContent;
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   }
 
   override async storeContent(content: FMCCacheContent) {
     const path = await this.pathFromRequest(content.request);
-    await fs.writeFile(path, JSON.stringify(content, null, 2));
-  }
-
-  async readFile(path: string): Promise<string> {
-    throw new Error(
-      "Please overide the `readFile` method or use an fs subclass store",
-    );
-  }
-
-  async writeFile(path: string, content: string) {
-    throw new Error(
-      "Please overide the `writeFile` method or use an fs subclass store",
-    );
+    await this.runtime().fs.writeFile(path, JSON.stringify(content, null, 2));
   }
 }
 

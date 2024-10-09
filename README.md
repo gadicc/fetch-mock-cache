@@ -60,13 +60,13 @@ describe("cachingMock", () => {
 
 Click on the "Quick Start / Example" links to see a working implementation for your framework of choice.
 
-| Runtime                         | Framework                                       | Status | Quick Start / Example                                                                                                                           |
-| ------------------------------- | ----------------------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Node](https://nodejs.org/) 20+ | [`node:test`](https://nodejs.org/api/test.html) |        | [direct](./tests/runtimes/node/src/native-direct-mock.spec.ts) or with [fetch-mock](./tests/runtimes/node/src/native-fetch-mock.spec.ts)        |
-|                                 | [`jest`](https://jestjs.io/)                    |        | [direct](./tests/runtimes/node/src/jest-direct-mock.spec.ts) or with [jest-fetch-mock](./tests/runtimes/node/src/jest-fetch-mock.spec.ts)       |
-|                                 | [`vitest`](https://vitest.dev/)                 |        | [direct](./tests/runtimes/node/src/vitest-direct-mock.spec.ts) or with [vitest-fetch-mock](./tests/runtimes/node/src/vitest-fetch-mock.spec.ts) |
-| [Deno](https://deno.com/)       |
-| [Bun](https://bun.sh/)          | [`bun:test`](https://bun.sh/docs/cli/test)      |        | [direct](./tests/runtimes/bun/src/direct.spec.ts), maybe soon [`bun-bagel`](https://github.com/DRFR0ST/bun-bagel)                               |
+| Runtime                         | Framework                                                          | Status | Quick Start / Example                                                                                                                           |
+| ------------------------------- | ------------------------------------------------------------------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Node](https://nodejs.org/) 20+ | [`node:test`](https://nodejs.org/api/test.html)                    |        | [direct](./tests/runtimes/node/src/native-direct-mock.spec.ts) or with [fetch-mock](./tests/runtimes/node/src/native-fetch-mock.spec.ts)        |
+|                                 | [`jest`](https://jestjs.io/)                                       |        | [direct](./tests/runtimes/node/src/jest-direct-mock.spec.ts) or with [jest-fetch-mock](./tests/runtimes/node/src/jest-fetch-mock.spec.ts)       |
+|                                 | [`vitest`](https://vitest.dev/)                                    |        | [direct](./tests/runtimes/node/src/vitest-direct-mock.spec.ts) or with [vitest-fetch-mock](./tests/runtimes/node/src/vitest-fetch-mock.spec.ts) |
+| [Deno](https://deno.com/)       | [`deno test`](https://docs.deno.com/runtime/fundamentals/testing/) |        | [direct](./tests/runtimes/deno/src/direct-mock.test.ts)                                                                                         |
+| [Bun](https://bun.sh/)          | [`bun:test`](https://bun.sh/docs/cli/test)                         |        | [direct](./tests/runtimes/bun/src/direct.spec.ts), maybe soon [`bun-bagel`](https://github.com/DRFR0ST/bun-bagel)                               |
 
 ## What's cached
 

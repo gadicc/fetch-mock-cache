@@ -1,9 +1,9 @@
 "use strict";
 import { expect, describe, test, mock } from "bun:test";
 
-// import createCachingMock from "fetch-mock-cache"
-// import FMCMemoryStore from "fetch-mock-cache/stores/memory";
-import createCachingFetch from "../../../../src/index.js";
+// import createCachingMock from "fetch-mock-cache/runtimes/bun.js"
+// import FMCMemoryStore from "fetch-mock-cache/stores/memory.js";
+import createCachingFetch from "../../../../src/runtimes/bun.js";
 import FMCMemoryStore from "../../../../src/stores/memory.js";
 
 describe("bun:test - direct mock", () => {

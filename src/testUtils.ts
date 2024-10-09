@@ -1,6 +1,6 @@
 import { test as it } from "node:test";
 import { expect } from "expect";
-import { createCachingMock } from "./index.js";
+import createCachingMock from "./runtimes/node.js";
 
 export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
   it("works with a Request as first argument", async (t) => {
