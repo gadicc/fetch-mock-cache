@@ -3,7 +3,7 @@
 #!/bin/sh
 
 rm -f results.yaml
-echo "- bun:" >> results.yaml
+echo "bun:" >> results.yaml
 
 resultToStatus() {
   if [ $1 -eq 0 ]; then

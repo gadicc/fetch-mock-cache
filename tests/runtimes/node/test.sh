@@ -1,7 +1,7 @@
 #!/bin/sh
 
 rm -f results.yaml
-echo "- node:" >> results.yaml
+echo "node:" >> results.yaml
 
 resultToStatus() {
   if [ $1 -eq 0 ]; then
@@ -10,6 +10,8 @@ resultToStatus() {
     echo "fail"
   fi
 }
+
+npm install
 
 npm run test:native
 echo "    native: $(resultToStatus $?)" >> results.yaml

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 rm -f results.yaml
-echo "- deno:" >> results.yaml
+echo "deno:" >> results.yaml
 
 resultToStatus() {
   if [ $1 -eq 0 ]; then
