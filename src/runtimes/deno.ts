@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import _createCachingMock, {
   CreateCachingMockOptions,
   Runtime,

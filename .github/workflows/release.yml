@@ -1,11 +1,11 @@
-name: Release
+name: Test & Release
 on:
   push:
     branches:
       - main
 jobs:
   release:
-    name: Release
+    name: Test & Release
     runs-on: ubuntu-latest
     environment: default
 
@@ -29,6 +29,11 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile # optional, --immutable
+
+      - uses: oven-sh/setup-bun@v2
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
 
       - name: Run CI script (tests)
         run: yarn ci
@@ -58,7 +63,14 @@ jobs:
           color: ${{ steps.coverageComment.outputs.color }}
           # namedLogo: javascript
 
-      - name: Release
+      - name: Save runtime tests result to gist
+        uses: exuanbo/actions-deploy-gist@v1
+        with:
+          token: ${{ secrets.GH_TOKEN_GISTS }}
+          gist_id: f66f0ad9395e4019ec5209719377650b
+          file_path: ./tests/runtimes/results.yaml
+
+      - name: Release if relevant
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
