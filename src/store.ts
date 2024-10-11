@@ -1,7 +1,6 @@
 import type { Runtime } from "./fetch-mock.js";
 import type { FMCCacheContent } from "./cache.js";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface FMCStoreOptions {
   runtime: Runtime;
 }
@@ -9,7 +8,6 @@ export interface FMCStoreOptions {
 export default class FMCStore {
   runtime: Runtime;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor(options: FMCStoreOptions) {
     this.runtime = options.runtime;
   }
