@@ -3,6 +3,7 @@
 #!/bin/sh
 
 rm -f results.yaml
+rm -rf tests/fixtures/http
 echo "bun:" >> results.yaml
 
 resultToStatus() {

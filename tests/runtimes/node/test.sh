@@ -1,6 +1,7 @@
 #!/bin/sh
 
 rm -f results.yaml
+rm -rf tests/fixtures/http
 echo "node:" >> results.yaml
 
 resultToStatus() {

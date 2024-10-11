@@ -1,15 +1,15 @@
 "use strict";
 import { describe, test, expect, vi } from "vitest";
 
-// import createCachingMock from "fetch-mock-cache"
+// import createFetchCache from "fetch-mock-cache"
 // import FMCMemoryStore from "fetch-mock-cache/stores/memory";
 // @ts-expect-error: .js
-import createCachingFetch from "../../../../src/runtimes/node";
+import createFetchCache from "../../../../src/runtimes/node";
 // @ts-expect-error: .js
-import FMCMemoryStore from "../../../../src/stores/memory";
+import MemoryStore from "../../../../src/stores/memory";
 
 describe("vitest-fetch-mock", () => {
-  const fetchCache = createCachingFetch({ store: new FMCMemoryStore() });
+  const fetchCache = createFetchCache({ Store: MemoryStore });
   const url = "http://echo.jsontest.com/key/value/one/two";
   const expectedResponse = { one: "two", key: "value" };
 

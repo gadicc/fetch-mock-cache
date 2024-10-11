@@ -2,19 +2,36 @@
 import { describe, test } from "node:test";
 import { expect } from "expect";
 
-// import createCachingMock from "fetch-mock-cache"
-// import FMCMemoryStore from "fetch-mock-cache/stores/memory";
-import createCachingFetch from "../../../../src/runtimes/node.js";
-import FMCMemoryStore from "../../../../src/stores/memory.js";
+// import createFetchCache from "fetch-mock-cache"
+// import MemoryStore from "fetch-mock-cache/stores/memory";
+import createFetchCache from "../../../../src/runtimes/node.js";
+import MemoryStore from "../../../../src/stores/memory.js";
+import FsStore from "../../../../src/stores/fs.js";
 
 describe("node:test - direct mock", () => {
-  const fetchCache = createCachingFetch({ store: new FMCMemoryStore() });
   const url = "http://echo.jsontest.com/key/value/one/two";
   const expectedResponse = { one: "two", key: "value" };
 
   test("memoryStore", async (t) => {
+    const fetchCache = createFetchCache({ Store: MemoryStore });
+    t.mock.method(globalThis, "fetch", fetchCache);
+
     for (let i = 0; i < 2; i++) {
-      t.mock.method(globalThis, "fetch", fetchCache);
+      const response = await fetch(url);
+      const data = await response.json();
+      const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
+      expect(response.headers.get("X-FMC-Cache")).toBe(expectedCacheHeader);
+      expect(data).toEqual(expectedResponse);
+    }
+  });
+
+  // NB, this is ONLY in native-direct-mock.spec.ts, because we only need to
+  // test once for node.
+  test("fs store", async (t) => {
+    const fetchCache = createFetchCache({ Store: FsStore });
+    t.mock.method(globalThis, "fetch", fetchCache);
+
+    for (let i = 0; i < 2; i++) {
       const response = await fetch(url);
       const data = await response.json();
       const expectedCacheHeader = i === 0 ? "MISS" : "HIT";

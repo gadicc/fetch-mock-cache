@@ -1,3 +1,5 @@
+import * as path from "jsr:@std/path";
+
 import _createCachingMock, {
   CreateCachingMockOptions,
   Runtime,
@@ -27,6 +29,10 @@ export const runtime: Runtime = {
       return Deno.writeFile(path, data);
     },
     mkdir: Deno.mkdir,
+  },
+  cwd: Deno.cwd,
+  path: {
+    join: path.join,
   },
 };
 

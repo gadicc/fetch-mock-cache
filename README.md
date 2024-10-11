@@ -22,15 +22,16 @@ may want to wait a bit before any serious use. Feature requests welcome!
 
 ## Quick Start
 
-Generally your code will look something like this, but, **see further below**
+Generally your code will look something like this, but,
+[**see further below**](#runtimes)
 for the exact code for different runtimes and testing frameworks.
 
 ```ts
-import createCachingMock from "fetch-mock-cache";
+import createFetchCache from "fetch-mock-cache";
 // See list of possible stores, below.
-import Store from "fetch-mock-cache/lib/stores/nodeFs";
+import Store from "fetch-mock-cache/lib/stores/fs";
 
-const fetchCache = createCachingMock({ store: new Store() });
+const fetchCache = createFetchCache({ Store });
 
 describe("cachingMock", () => {
   it("works with a JSON response", async (t) => {
@@ -42,7 +43,7 @@ describe("cachingMock", () => {
       const response = await fetch(url);
       const data = await response.json();
       const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
-      expect(response.headers.get("X-JFMC-Cache")).toBe(expectedCacheHeader);
+      expect(response.headers.get("X-FMC-Cache")).toBe(expectedCacheHeader);
       expect(data).toEqual(expectedResponse);
     }
   });
@@ -55,6 +56,8 @@ describe("cachingMock", () => {
 
 - **Subsequent requests** will return the cached copy without
   making an HTTP request.
+
+<a name="runtimes"></a>
 
 ## Supported runtimes and test frameworks
 

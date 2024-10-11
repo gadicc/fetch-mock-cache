@@ -5,6 +5,7 @@
     "jsr:@std/assert@^1.0.6": "1.0.6",
     "jsr:@std/expect@*": "1.0.4",
     "jsr:@std/internal@^1.0.4": "1.0.4",
+    "jsr:@std/path@*": "1.0.6",
     "jsr:@std/testing@*": "1.0.3",
     "npm:@types/node@*": "22.5.4",
     "npm:debug@*": "4.3.7",
@@ -26,6 +27,9 @@
     },
     "@std/internal@1.0.4": {
       "integrity": "62e8e4911527e5e4f307741a795c0b0a9e6958d0b3790716ae71ce085f755422"
+    },
+    "@std/path@1.0.6": {
+      "integrity": "ab2c55f902b380cf28e0eec501b4906e4c1960d13f00e11cfbcd21de15f18fed"
     },
     "@std/testing@1.0.3": {
       "integrity": "f98c2bee53860a5916727d7e7d3abe920dd6f9edace022e2d059f00d05c2cf42",

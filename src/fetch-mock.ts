@@ -18,6 +18,10 @@ export interface Runtime {
       options: { recursive?: boolean },
     ): Promise<string | undefined | void>;
   };
+  path: {
+    join(...paths: string[]): string;
+  };
+  cwd: () => string;
 }
 
 export interface CachingMockImplementation {
@@ -30,20 +34,24 @@ export interface CachingMockImplementation {
 
 export interface CreateCachingMockOptions {
   runtime: Runtime;
-  store?: FMCStore;
+  Store?: typeof FMCStore;
   fetch?: typeof origFetch;
 }
 
 export function createCachingMock({
-  store,
+  Store,
   fetch,
   runtime,
 }: CreateCachingMockOptions) {
-  if (!store)
+  if (!Store)
     throw new Error(
-      "No `store` option was provided, but is required.  See docs.",
+      "No `Store` option was provided, but is required.  See docs.",
     );
   if (!fetch) fetch = origFetch;
+
+  const store = Array.isArray(Store)
+    ? new Store[0]({ ...Store[1], runtime })
+    : new Store({ runtime });
 
   const cachingMockImplementation: CachingMockImplementation = Object.assign(
     async function cachingMockImplementation(

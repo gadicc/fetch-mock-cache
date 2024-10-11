@@ -1,6 +1,7 @@
 #!/bin/sh
 
 rm -f results.yaml
+rm -rf tests/fixtures/http
 echo "deno:" >> results.yaml
 
 resultToStatus() {
@@ -11,6 +12,6 @@ resultToStatus() {
   fi
 }
 
-deno test --unstable-sloppy-imports --allow-env --allow-net
+deno test --unstable-sloppy-imports --allow-env --allow-net --allow-read --allow-write
 echo "    native: $(resultToStatus $?)" >> results.yaml
 

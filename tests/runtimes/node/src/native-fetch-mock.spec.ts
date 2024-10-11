@@ -3,13 +3,13 @@ import { describe, test } from "node:test";
 import { expect } from "expect";
 import fetchMock from "fetch-mock";
 
-// import createCachingMock from "fetch-mock-cache"
-// import FMCMemoryStore from "fetch-mock-cache/stores/memory";
-import createCachingFetch from "../../../../src/runtimes/node.js";
-import FMCMemoryStore from "../../../../src/stores/memory.js";
+// import createFetchCache from "fetch-mock-cache"
+// import MemoryStore from "fetch-mock-cache/stores/memory";
+import createFetchCache from "../../../../src/runtimes/node.js";
+import MemoryStore from "../../../../src/stores/memory.js";
 
 describe("node:test - fetch-mock", () => {
-  const fetchCache = createCachingFetch({ store: new FMCMemoryStore() });
+  const fetchCache = createFetchCache({ Store: MemoryStore });
   const url = "http://echo.jsontest.com/key/value/one/two";
   const expectedResponse = { one: "two", key: "value" };
 

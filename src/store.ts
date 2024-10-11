@@ -1,22 +1,21 @@
-import type { CachingMockImplementation } from "./fetch-mock.js";
+import type { Runtime } from "./fetch-mock.js";
 import type { FMCCacheContent } from "./cache.js";
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface FMCStoreOptions {}
+export interface FMCStoreOptions {
+  runtime: Runtime;
+}
 
 export default class FMCStore {
-  // Assigned by createCachingMock when passed to it as `store` instance.
-  fetchCache: CachingMockImplementation | null = null;
-  runtime() {
-    if (!this.fetchCache) throw new Error("fetchCache not set");
-    return this.fetchCache.runtime;
-  }
+  runtime: Runtime;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  constructor(options: FMCStoreOptions = {}) {}
+  constructor(options: FMCStoreOptions) {
+    this.runtime = options.runtime;
+  }
 
   async hash(input: string, length = 7): Promise<string> {
-    return this.runtime().sha256(input, length);
+    return this.runtime.sha256(input, length);
   }
 
   async uniqueRequestIdentifiers(

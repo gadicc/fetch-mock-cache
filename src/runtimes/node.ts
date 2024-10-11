@@ -1,3 +1,4 @@
+import path from "node:path";
 import process from "node:process";
 import crypto from "node:crypto";
 import fs from "node:fs";
@@ -23,6 +24,10 @@ export const runtime: Runtime = {
     writeFile: fs.promises.writeFile,
     mkdir: fs.promises.mkdir,
   },
+  path: {
+    join: path.join,
+  },
+  cwd: process.cwd,
 };
 
 export default function createCachingMock(

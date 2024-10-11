@@ -1,4 +1,3 @@
-import path from "path";
 import filenamifyUrl from "filenamify-url";
 
 import FMCStore from "../store.js";
@@ -8,18 +7,20 @@ interface FMCFileStoreOptions extends FMCStoreOptions {
   location?: string;
 }
 
-const defaults = {
-  location: path.join("tests", "fixtures", "http"),
-};
-
 class FMCFileSystemStore extends FMCStore {
   _createdCacheDir = false;
-  _cwd = process.cwd();
+  _cwd: string;
   _location: string;
 
-  constructor(options: FMCFileStoreOptions = {}) {
-    super();
-    this._location = path.join(
+  constructor(options: FMCFileStoreOptions) {
+    super(options);
+
+    const defaults = {
+      location: this.runtime.path.join("tests", "fixtures", "http"),
+    };
+
+    this._cwd = this.runtime.cwd();
+    this._location = this.runtime.path.join(
       this._cwd,
       options.location || defaults.location,
     );
@@ -29,9 +30,9 @@ class FMCFileSystemStore extends FMCStore {
   async cache_dir(filename: string) {
     if (!this._createdCacheDir) {
       this._createdCacheDir = true;
-      await this.runtime().fs.mkdir(this._location, { recursive: true });
+      await this.runtime.fs.mkdir(this._location, { recursive: true });
     }
-    return path.join(this._location, filename);
+    return this.runtime.path.join(this._location, filename);
   }
 
   override async idFromRequest(
@@ -50,7 +51,7 @@ class FMCFileSystemStore extends FMCStore {
   override async fetchContent(request: FMCCacheContent["request"]) {
     const path = await this.pathFromRequest(request);
     try {
-      const content = await this.runtime().fs.readFile(path);
+      const content = await this.runtime.fs.readFile(path);
       return JSON.parse(content) as FMCCacheContent;
     } catch (_error) {
       return null;
@@ -59,7 +60,7 @@ class FMCFileSystemStore extends FMCStore {
 
   override async storeContent(content: FMCCacheContent) {
     const path = await this.pathFromRequest(content.request);
-    await this.runtime().fs.writeFile(path, JSON.stringify(content, null, 2));
+    await this.runtime.fs.writeFile(path, JSON.stringify(content, null, 2));
   }
 }
 
