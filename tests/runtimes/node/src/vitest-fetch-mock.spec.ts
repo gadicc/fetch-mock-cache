@@ -4,10 +4,8 @@ import createFetchMock from "vitest-fetch-mock";
 
 // import createFetchCache from "fetch-mock-cache"
 // import FMCMemoryStore from "fetch-mock-cache/stores/memory";
-// @ts-expect-error: .js
-import createFetchCache from "../../../../src/runtimes/node";
-// @ts-expect-error: .js
-import MemoryStore from "../../../../src/stores/memory";
+import createFetchCache from "../../../../src/runtimes/node.js";
+import MemoryStore from "../../../../src/stores/memory.js";
 
 const fetchMocker = createFetchMock(vi);
 fetchMocker.enableMocks();
@@ -19,7 +17,6 @@ describe("jest-fetch-mock", () => {
 
   test("memoryStore", async () => {
     for (let i = 0; i < 2; i++) {
-      // If you get a TypeError here, make sure @types/jest is instaled.
       fetchMock.mockImplementationOnce(fetchCache);
       const response = await fetch(url);
       const data = await response.json();

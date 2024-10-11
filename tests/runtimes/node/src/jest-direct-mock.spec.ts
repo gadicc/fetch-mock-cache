@@ -3,10 +3,8 @@ import { describe, test, expect, jest } from "@jest/globals";
 
 // import createFetchCache from "fetch-mock-cache"
 // import MemoryStore from "fetch-mock-cache/stores/memory";
-// @ts-expect-error: .js
-import createFetchCache from "../../../../src/runtimes/node";
-// @ts-expect-error: .js
-import MemoryStore from "../../../../src/stores/memory";
+import createFetchCache from "../../../../src/runtimes/node.js";
+import MemoryStore from "../../../../src/stores/memory.js";
 
 describe("jest-fetch-mock", () => {
   const fetchCache = createFetchCache({ Store: MemoryStore });

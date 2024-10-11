@@ -4,10 +4,8 @@ import _fetchMock from "jest-fetch-mock";
 
 // import createFetchCache from "fetch-mock-cache"
 // import MemoryStore from "fetch-mock-cache/stores/memory";
-// @ts-expect-error: .js
-import createFetchCache from "../../../../src/runtimes/node";
-// @ts-expect-error: .js
-import MemoryStore from "../../../../src/stores/memory";
+import createFetchCache from "../../../../src/runtimes/node.js";
+import MemoryStore from "../../../../src/stores/memory.js";
 
 const fetchMock = _fetchMock.default;
 fetchMock.enableMocks();

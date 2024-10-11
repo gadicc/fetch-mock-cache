@@ -26,7 +26,7 @@ export interface Runtime {
 
 export interface CachingMockImplementation {
   (
-    urlOrRequest: string | Request | URL,
+    urlOrRequest: string | Request | URL | undefined,
     options: RequestInit | undefined,
   ): Promise<Response>;
   runtime: Runtime;
@@ -55,7 +55,7 @@ export function createCachingMock({
 
   const cachingMockImplementation: CachingMockImplementation = Object.assign(
     async function cachingMockImplementation(
-      urlOrRequest: string | Request | URL,
+      urlOrRequest: string | Request | URL | undefined,
       options: RequestInit | undefined,
     ) {
       if (!urlOrRequest) throw new Error("urlOrRequest is undefined");
