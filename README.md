@@ -57,6 +57,9 @@ describe("cachingMock", () => {
 - **Subsequent requests** will return the cached copy without
   making an HTTP request.
 
+- **Commit `tests/fixtures/http`** (default) to your repo for
+  super fast tests in the future for all contributors and CI.
+
 <a name="runtimes"></a>
 
 ## Supported runtimes and test frameworks
