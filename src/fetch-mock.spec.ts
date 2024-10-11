@@ -2,16 +2,16 @@ import { describe, test as it } from "node:test";
 import { expect } from "expect";
 
 import createCachingMock from "./runtimes/node.js";
-// import FMCNodeFSStore from "./stores/nodeFs.js";
-import FMCMemoryStore from "./stores/memory.js";
+// import FsStore from "./stores/nodeFs.js";
+import MemoryStore from "./stores/memory.js";
 
-const fetchCache = createCachingMock({ store: new FMCMemoryStore() });
+const fetchCache = createCachingMock({ Store: MemoryStore });
 
 describe("fetch-mock-cache", () => {
   describe("createCachingMock", () => {
     it("should throw if no store is provided", () => {
       expect(() => createCachingMock()).toThrow(
-        /No `store` option was provided/,
+        /No `Store` option was provided/,
       );
     });
   });

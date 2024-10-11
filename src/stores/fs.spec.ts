@@ -1,11 +1,11 @@
 import { describe, before } from "node:test";
 import fs from "fs/promises";
 
-import createCachingMock from "../runtimes/node.js";
+import createFetchCache from "../runtimes/node.js";
 import FsStore from "./fs.js";
 import { createTestsForMock } from "../testUtils.js";
 
-const nodeFsCacheMock = createCachingMock({ store: new FsStore() });
+const nodeFsCacheMock = createFetchCache({ Store: FsStore });
 
 describe("fsStore", () => {
   describe("standard tests", () => {

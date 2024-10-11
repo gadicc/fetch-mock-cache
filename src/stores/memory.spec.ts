@@ -1,10 +1,10 @@
 import { describe } from "node:test";
 
-import createCachingMock from "../runtimes/node.js";
-import JSMCMemoryStore from "./memory.js";
+import createFetchCache from "../runtimes/node.js";
+import MemoryStore from "./memory.js";
 import { createTestsForMock } from "../testUtils.js";
 
-const memoryCacheMock = createCachingMock({ store: new JSMCMemoryStore() });
+const memoryCacheMock = createFetchCache({ Store: MemoryStore });
 
 describe("memoryStore", () => {
   describe("standard tests", () => createTestsForMock(memoryCacheMock));
