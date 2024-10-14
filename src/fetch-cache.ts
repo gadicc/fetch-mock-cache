@@ -24,15 +24,12 @@ export interface Runtime {
   cwd: () => string;
 }
 
-export interface CachingMockImplementation {
-  (
-    urlOrRequest: string | Request | URL | undefined,
-    options: RequestInit | undefined,
-  ): Promise<Response>;
-  runtime: Runtime;
-}
+export type FetchCache = (
+  urlOrRequest: string | Request | URL | undefined,
+  options: RequestInit | undefined,
+) => Promise<Response>;
 
-export interface CreateCachingMockOptions {
+export interface CreateFetchCacheOptions {
   runtime: Runtime;
   Store?: typeof FMCStore;
   fetch?: typeof origFetch;
@@ -42,7 +39,7 @@ export function createCachingMock({
   Store,
   fetch,
   runtime,
-}: CreateCachingMockOptions) {
+}: CreateFetchCacheOptions) {
   if (!Store)
     throw new Error(
       "No `Store` option was provided, but is required.  See docs.",
@@ -53,7 +50,7 @@ export function createCachingMock({
     ? new Store[0]({ ...Store[1], runtime })
     : new Store({ runtime });
 
-  const cachingMockImplementation: CachingMockImplementation = Object.assign(
+  const fetchCache: FetchCache = Object.assign(
     async function cachingMockImplementation(
       urlOrRequest: string | Request | URL | undefined,
       options: RequestInit | undefined,
@@ -141,8 +138,7 @@ export function createCachingMock({
     },
   );
 
-  store.fetchCache = cachingMockImplementation;
-  return cachingMockImplementation;
+  return fetchCache;
 }
 
 export default createCachingMock;

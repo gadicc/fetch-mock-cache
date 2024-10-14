@@ -1,4 +1,4 @@
-import type { Runtime } from "./fetch-mock.js";
+import type { Runtime } from "./fetch-cache.js";
 import type { FMCCacheContent } from "./cache.js";
 
 export interface FMCStoreOptions {

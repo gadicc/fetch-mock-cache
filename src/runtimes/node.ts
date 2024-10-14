@@ -3,9 +3,9 @@ import process from "node:process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import _createCachingMock, {
-  CreateCachingMockOptions,
+  CreateFetchCacheOptions,
   Runtime,
-} from "../fetch-mock.js";
+} from "../fetch-cache.js";
 
 export const runtime: Runtime = {
   name: "node",
@@ -31,7 +31,7 @@ export const runtime: Runtime = {
 };
 
 export default function createCachingMock(
-  options: Partial<CreateCachingMockOptions> = {},
+  options: Partial<CreateFetchCacheOptions> = {},
 ) {
   return _createCachingMock({ ...options, runtime });
 }
