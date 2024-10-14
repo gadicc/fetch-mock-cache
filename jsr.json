@@ -1,0 +1,19 @@
+{
+  "name": "@gadicc/fetch-mock-cache",
+  "version": "1.0.0",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.ts",
+    "./runtimes/node.js": "./src/runtimes/node.ts",
+    "./runtimes/node.ts": "./src/runtimes/node.ts",
+    "./runtimes/deno.js": "./src/runtimes/deno.ts",
+    "./runtimes/deno.ts": "./src/runtimes/deno.ts",
+    "./runtimes/bun.js": "./src/runtimes/bun.ts",
+    "./runtimes/bun.ts": "./src/runtimes/bun.ts",
+    "./stores/memory.js": "./src/stores/memory.ts",
+    "./stores/memory.ts": "./src/stores/memory.ts",
+    "./stores/fs.js": "./src/stores/fs.ts",
+    "./stores/fs.ts": "./src/stores/fs.ts"
+  },
+  "exclude": ["node_modules", "lib", "coverage", "tests"]
+}
