@@ -5,13 +5,12 @@ jobs:
   release:
     name: Test & Release
     runs-on: ubuntu-latest
-    environment: default
-
     permissions:
       # https://github.com/semantic-release/semantic-release/issues/2469
       contents: write # create releases
       issues: write # issue comments and labels
       pull-requests: write # ditto
+      id-token: write # The OIDC ID token is used for authentication with JSR.
 
     steps:
       - name: Checkout
@@ -23,10 +22,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "yarn"
+          cache: "npm"
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile # optional, --immutable
+        run: npm ci
 
       - uses: oven-sh/setup-bun@v2
       - uses: denoland/setup-deno@v2
@@ -34,7 +33,7 @@ jobs:
           deno-version: v2.x
 
       - name: Run CI script (tests)
-        run: yarn ci
+        run: npm run ci
 
       - name: Jest Coverage Comment
         id: coverageComment
