@@ -35,30 +35,11 @@ jobs:
       - name: Run CI script (tests)
         run: npm run ci
 
-      - name: Jest Coverage Comment
-        id: coverageComment
-        uses: MishaKav/jest-coverage-comment@main
+      - name: Upload coverage to gist
+        uses: gaelgirodon/ci-badges-action@v1
         with:
-          hide-comment: true
-          coverage-summary-path: ./coverage/coverage-summary.json
-
-      - name: Check the output coverage
-        run: |
-          echo "Coverage Percentage - ${{ steps.coverageComment.outputs.coverage }}"
-          echo "Coverage Color - ${{ steps.coverageComment.outputs.color }}"
-          echo "Summary HTML - ${{ steps.coverageComment.outputs.summaryHtml }}"
-
-      - name: Create the badge
-        if: github.ref == 'refs/heads/main'
-        uses: schneegans/dynamic-badges-action@v1.7.0
-        with:
-          auth: ${{ secrets.GH_TOKEN_GISTS }}
-          gistID: 26d0f88b04b6883e1a6bba5b9b344fab
-          filename: jest-coverage-comment__main.json
-          label: Coverage
-          message: ${{ steps.coverageComment.outputs.coverage }}%
-          color: ${{ steps.coverageComment.outputs.color }}
-          # namedLogo: javascript
+          gist-id: 26d0f88b04b6883e1a6bba5b9b344fab
+          token: ${{ secrets.GH_TOKEN_GISTS }}
 
       - name: Save runtime tests result to gist
         uses: exuanbo/actions-deploy-gist@v1

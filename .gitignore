@@ -6,3 +6,4 @@ coverage
 lib
 results.yaml
 tests/fixtures/http
+lcov.info
