@@ -36,7 +36,7 @@ jobs:
         run: npm run ci
 
       - name: Upload coverage to gist
-        uses: gaelgirodon/ci-badges-action@v1
+        uses: gaelgirodon/ci-badges-action@4059134f9f9e113d77dd4f05a47db8b62c09848c
         with:
           gist-id: 26d0f88b04b6883e1a6bba5b9b344fab
           token: ${{ secrets.GH_TOKEN_GISTS }}
