@@ -2,6 +2,7 @@ import * as path from "jsr:@std/path@1";
 
 import _createCachingMock, {
   CreateFetchCacheOptions,
+  FetchCache,
   Runtime,
 } from "../fetch-cache.js";
 
@@ -38,6 +39,6 @@ export const runtime: Runtime = {
 
 export default function createCachingMock(
   options: Partial<CreateFetchCacheOptions> = {},
-) {
+): FetchCache {
   return _createCachingMock({ ...options, runtime });
 }

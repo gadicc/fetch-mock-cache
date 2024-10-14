@@ -19,7 +19,7 @@ export default class FMCStore {
   async uniqueRequestIdentifiers(
     request: FMCCacheContent["request"],
     hashLen = 7,
-  ) {
+  ): Promise<Record<string, string> | null> {
     const ids: Record<string, string> = {};
 
     if (request.method && request.method !== "GET") {

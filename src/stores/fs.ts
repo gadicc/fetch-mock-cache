@@ -27,7 +27,7 @@ class FMCFileSystemStore extends FMCStore {
   }
 
   // Cache in a sub-folder in the tests folder.
-  async cache_dir(filename: string) {
+  async cache_dir(filename: string): Promise<string> {
     if (!this._createdCacheDir) {
       this._createdCacheDir = true;
       await this.runtime.fs.mkdir(this._location, { recursive: true });
@@ -48,7 +48,9 @@ class FMCFileSystemStore extends FMCStore {
     return await this.cache_dir(await this.idFromRequest(request));
   }
 
-  override async fetchContent(request: FMCCacheContent["request"]) {
+  override async fetchContent(
+    request: FMCCacheContent["request"],
+  ): Promise<FMCCacheContent | null> {
     const path = await this.pathFromRequest(request);
     try {
       const content = await this.runtime.fs.readFile(path);
@@ -58,7 +60,7 @@ class FMCFileSystemStore extends FMCStore {
     }
   }
 
-  override async storeContent(content: FMCCacheContent) {
+  override async storeContent(content: FMCCacheContent): Promise<void> {
     const path = await this.pathFromRequest(content.request);
     await this.runtime.fs.writeFile(path, JSON.stringify(content, null, 2));
   }
