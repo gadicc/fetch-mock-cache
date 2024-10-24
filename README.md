@@ -4,7 +4,14 @@ Caching mock fetch implementation for all runtimes and frameworks.
 
 Copyright (c) 2023 by Gadi Cohen. [MIT Licensed](./LICENSE.txt).
 
-![npm](https://img.shields.io/npm/v/jest-fetch-mock-cache) ![JSR Version](https://img.shields.io/jsr/v/%40gadicc/fetch-mock-cache) ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/gadicc/jest-fetch-mock-cache/release.yml) ![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/gadicc/26d0f88b04b6883e1a6bba5b9b344fab/raw/fetch-mock-cache-lcov-coverage.json) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release) [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![NPM Version](https://img.shields.io/npm/v/fetch-mock-cache?logo=npm)](https://www.npmjs.com/package/fetch-mock-cache)
+[![JSR](https://jsr.io/badges/@gadicc/fetch-mock-cache)](https://jsr.io/@gadicc/fetch-mock-cache)
+[![JSR Score](https://jsr.io/badges/@gadicc/fetch-mock-cache/score)](https://jsr.io/@gadicc/fetch-mock-cache)
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/gadicc/jest-fetch-mock-cache/release.yml)
+![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/gadicc/26d0f88b04b6883e1a6bba5b9b344fab/raw/fetch-mock-cache-lcov-coverage.json)
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+[![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
 ## Introduction
 
@@ -128,46 +135,37 @@ $ jest
 
 ## Available Stores
 
-```ts
-import createCachingMock from "fetch-mock-cache";
+- [`stores/fs`](./src/stores/fs.ts) - use your runtime's FileSystem API to
+  store cached requests to the filesystem, for persistance. These can be
+  committed to your projects repository / source control for faster future
+  testing, including for CI.
 
-// Use Node's FS API to store as (creating paths as necessary)
-// `${process.cwd()}/tests/fixtures/${filenamifyUrl(url)}`.
-// https://github.com/sindresorhus/filenamify-url
-import FMCNodeFSStore from "./stores/nodeFs";
-const fileCacheMock = createCachingMock({ store: new FMCNodeFSStore() });
-fetchMock.mockImplementationOnce(fileCacheMock);
-// To override the store location, init with store with e.g.:
-// new JFMCNodeFSStore({ location: "tests/other/location" })
-
-// Keep in memory
-import FMCMemoryStore from "./stores/memory";
-const memoryCacheMock = createCachingMock({ store: new JSMCMemoryStore() });
-fetchMock.mockImplementationOnce(memoryCacheMock);
-```
+- [`stores/memory`](./src/stores/memory.ts) - keep the cache in memory.
+  The cache will not persist and will be created again from scratch each
+  time you run your code.
 
 ### Create your own Store
 
+See also the [`store`](./src/store.ts) "root" class. Don't instantiate
+directly; rather extend this class overriding at least `fetchContent` and
+`storeContent`, and perhaps, `idFromRequest`, the constructor and others
+according to your needs. Here's an example to combine with a database:
+
 ```ts
-import FMCStore from "fetch-mock-cache/lib/store";
-import type { FMCCacheContent } from "jest-fetch-mock-cache/lib/store";
+import FMCStore from "fetch-mock-cache/store";
+import type { FMCCacheContent, FMCStoreOptions } from "fetch-mock-cache/store";
 import db from "./db"; // your existing db
 
-class MyCustomStore extends FMCStore {
-  async fetchContent(
-    request: FMCCacheContent["request"],
-  ): Promise<FMCCacheContent | undefined> {
-    const key = await this.idFromRequest(request);
-    return (await db.collection("fmc").findOne({ _id: key })).content;
+export default class MyStore extends FMCStore {
+  async fetchContent(req: FMCCacheContent["request"]) {
+    const _id = await this.idFromRequest(request);
+    return (await db.collection("fmc").findOne({ _id })).content;
   }
-
-  async storeContent(content: FMCCacheContent): Promise<void> {
-    const key = await this.idFromRequest(content.request);
-    await db.collection("jfmc").insertOne({ _id: key, content });
+  async storeContent(content: FMCCacheContent) {
+    const _id = await this.idFromRequest(content.request);
+    await db.collection("jfmc").insertOne({ _id, content });
   }
 }
-
-export default MyCustomStore;
 ```
 
 ## TODO

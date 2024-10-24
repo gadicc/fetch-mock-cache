@@ -1,8 +1,12 @@
+/**
+ * Entry point for using fetch-mock-cache with the Node runtime.
+ * @module
+ */
 import path from "node:path";
 import process from "node:process";
 import crypto from "node:crypto";
 import fs from "node:fs";
-import _createCachingMock, {
+import _createFetchCache, {
   CreateFetchCacheOptions,
   FetchCache,
   Runtime,
@@ -31,8 +35,15 @@ export const runtime: Runtime = {
   cwd: process.cwd,
 };
 
-export default function createCachingMock(
+/**
+ * @example
+ * ```ts
+ * import createFetchCache from "fetch-mock-cache/runtimes/node.js"
+ * import Store from "fetch-mock-cache/stores/memory";
+ * const fetchCache = createFetchCache({ Store });
+ */
+export default function createFetchCache(
   options: Partial<CreateFetchCacheOptions> = {},
 ): FetchCache {
-  return _createCachingMock({ ...options, runtime });
+  return _createFetchCache({ ...options, runtime });
 }

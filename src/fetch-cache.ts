@@ -6,6 +6,10 @@ import FMCStore from "./store.js";
 const debug = _debug("fetch-mock-cache:core");
 const origFetch = fetch;
 
+/**
+ * A runtime interface with the required subset of built-in runtime functions
+ * needed for fech-mock-cache, e.g. `env`, `sha256`, `fs`, `path`, `cwd`.
+ */
 export interface Runtime {
   name: string;
   env: Record<string, string | undefined>;
@@ -24,18 +28,33 @@ export interface Runtime {
   cwd: () => string;
 }
 
+/**
+ * Function signature for the created `fetch` / `fetchCache` function.
+ * Used to make sure the runtime implementation is compliant.
+ */
 export type FetchCache = (
   urlOrRequest: string | Request | URL | undefined,
   options: RequestInit | undefined,
 ) => Promise<Response>;
 
+/**
+ * Options for `createFetchCache`.  `Store` is required.  `runtime` is
+ * generally passed automatically by each runtime entry point.  `fetch`
+ * is optional and defaults to the built-in `fetch` as available at
+ * module load time.
+ */
 export interface CreateFetchCacheOptions {
   runtime: Runtime;
   Store?: typeof FMCStore;
   fetch?: typeof origFetch;
 }
 
-export function createCachingMock({
+/**
+ * Creates a new caching fetch implementation.  Generally not used directly,
+ * instead use the same named function provided by the various run-time entry
+ * points.
+ */
+export default function createCachingMock({
   Store,
   fetch,
   runtime,
@@ -140,5 +159,3 @@ export function createCachingMock({
 
   return fetchCache;
 }
-
-export default createCachingMock;

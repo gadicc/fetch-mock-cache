@@ -4,6 +4,8 @@
   "license": "MIT",
   "exports": {
     ".": "./src/index.ts",
+    "./store.js": "./src/store.ts",
+    "./store.ts": "./src/store.ts",
     "./runtimes/node.js": "./src/runtimes/node.ts",
     "./runtimes/node.ts": "./src/runtimes/node.ts",
     "./runtimes/deno.js": "./src/runtimes/deno.ts",

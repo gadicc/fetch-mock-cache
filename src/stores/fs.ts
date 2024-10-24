@@ -1,3 +1,11 @@
+/**
+ * File system store.  Cached content will be written to the file system and
+ * can potentially be committed to your project's repository / source control,
+ * as fits your needs.  The store is runtime agnostic, as the relevant file
+ * system operations are abstracted by the using the correct runtime entry
+ * point.
+ * @module
+ */
 import filenamifyUrl from "filenamify-url";
 
 import FMCStore from "../store.js";
@@ -7,7 +15,18 @@ interface FMCFileStoreOptions extends FMCStoreOptions {
   location?: string;
 }
 
-class FMCFileSystemStore extends FMCStore {
+/**
+ * Used to instantiate a new file system store.
+ * @param options e.g. { location: "./tests/fixtures/http" }
+ * @returns fs store instance, to pass to `createCachingMock`
+ * @example
+ * ```ts
+ * import createFetchCache from "fetch-mock-cache"; // or /runtimes/deno.js etc
+ * import Store from "fetch-mock-cache/stores/fs";
+ * const fetchCache = createFetchCache({ Store });
+ * ```
+ */
+export default class FMCFileSystemStore extends FMCStore {
   _createdCacheDir = false;
   _cwd: string;
   _location: string;
@@ -65,5 +84,3 @@ class FMCFileSystemStore extends FMCStore {
     await this.runtime.fs.writeFile(path, JSON.stringify(content, null, 2));
   }
 }
-
-export default FMCFileSystemStore;
