@@ -18,14 +18,17 @@ Copyright (c) 2023 by Gadi Cohen. [MIT Licensed](./LICENSE.txt).
 Instead of individually handcrafting a mock for each and every `fetch()`
 call in your code, maybe you'd like to perform a real `fetch()` once,
 cache the result, and use that cache result for future calls. **Super
-useful for TDD against existing APIs!!**
+useful for TDD against existing APIs!!** ("Test Driven Development").
 
-Note: This README refer to **v3** which is in active development. **v2**
-(CommonJS & Node/Jest only, see
-[old README](https://github.com/gadicc/fetch-mock-cache/tree/1.x))
-is more stable but is no longer being worked on.
-See [MIGRATING.md](./MIGRATING.md) for how to upgrade. v3 works but you
-may want to wait a bit before any serious use. Feature requests welcome!
+Not only do you get a muuuch faster feedback loop, but you can commit
+the cache to your repository / source control so your entire team
+benefits, and for CI. Based off earlier work in
+[yahoo-finance2](https://www.npmjs.com/package/yahoo-finance2) where
+we test 1400+ API "calls" in < 3s on every commit. Feature requests welcome!
+
+NB: if you're still using **v1** (formerly `jest-fetch-mock-cache`),
+see the [old README](https://github.com/gadicc/fetch-mock-cache/tree/1.x)
+and/or [MIGRATING.md](./MIGRATING.md) for how to upgrade.
 
 ## Quick Start
 
