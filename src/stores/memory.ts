@@ -7,6 +7,7 @@
  */
 import FMCStore from "../store.js";
 import type { FMCCacheContent } from "../store.js";
+import type { FetchCacheOptions } from "../fetch-cache.js";
 
 // TODO LRU cache
 
@@ -26,13 +27,17 @@ export default class FMCMemoryStore extends FMCStore {
 
   override async fetchContent(
     req: FMCCacheContent["request"],
+    options?: FetchCacheOptions,
   ): Promise<FMCCacheContent | undefined> {
-    const key = await this.idFromRequest(req);
+    const key = await this.idFromRequest(req, options);
     return this.store.get(key);
   }
 
-  override async storeContent(content: FMCCacheContent): Promise<void> {
-    const key = await this.idFromRequest(content.request);
+  override async storeContent(
+    content: FMCCacheContent,
+    options?: FetchCacheOptions,
+  ): Promise<void> {
+    const key = await this.idFromRequest(content.request, options);
     this.store.set(key, content);
   }
 }

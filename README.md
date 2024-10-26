@@ -168,6 +168,50 @@ export default class MyStore extends FMCStore {
 }
 ```
 
+## Internal and Experimental Features
+
+Internal and experimental features are generally prefixed by an underscore ("`_`").
+You're welcome to use them, however, they are not part of our API contract - as such,
+they may change or disappear at any time, _without following semantic versioning_.
+
+Often these are used for new ideas that are still in development, where, we'd like
+you to have easy access to them (and appreciate your feedback!), but, they're not
+(yet) considered stable.
+
+Current experiments:
+
+### Passing options to be used for the next fetch call
+
+```ts
+// These will be used for the next fetch call ONCE only.  However, `_once()`
+// may be called multiple times to queue options for multiple future calls.
+fetchCache._once({
+  /* options */
+});
+```
+
+### Manually specifying an ID
+
+Generally we don't need to think about cache IDs, as we can reliably
+generate them from the `Request` object (e.g. based on URL and hashes
+of the headers, body, etc.).
+
+But sometimes, we may want to specify this manually, e.g.
+
+1. **We'd rather use the _test name_** as the id, vs something URL-based.
+2. **It can't be reliably generated**, e.g. formData with a random boundary.
+
+In this case, we can:
+
+```ts
+fetchCache._once({ id: "mytest" });
+fetch(/* ... */); // or code that uses fetch();
+```
+
+Make sure the `id` is relevant for your store. e.g. if using the fs store,
+make sure `id` is a valid file name (the fs store will still append `.json`
+at the end).
+
 ## TODO
 
 - [x] Cache request headers too and hash them in filename / key / id.

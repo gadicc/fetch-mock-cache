@@ -29,13 +29,28 @@ export interface Runtime {
 }
 
 /**
+ * Options to control the behaviour of the `fetch()` calls.
+ * Can be passed with experimental fetch._once(options).
+ */
+export interface FetchCacheOptions {
+  id?: string;
+}
+
+/**
  * Function signature for the created `fetch` / `fetchCache` function.
  * Used to make sure the runtime implementation is compliant.
  */
-export type FetchCache = (
-  urlOrRequest: string | Request | URL | undefined,
-  options: RequestInit | undefined,
-) => Promise<Response>;
+export interface FetchCache {
+  (
+    urlOrRequest: string | Request | URL | undefined,
+    options: RequestInit | undefined,
+  ): Promise<Response>;
+
+  runtime: Runtime;
+  _options?: FetchCacheOptions | FetchCacheOptions[];
+  _store?: FMCStore;
+  _once: (options: FetchCacheOptions) => void;
+}
 
 /**
  * Options for `createFetchCache`.  `Store` is required.  `runtime` is
@@ -45,7 +60,7 @@ export type FetchCache = (
  */
 export interface CreateFetchCacheOptions {
   runtime: Runtime;
-  Store?: typeof FMCStore;
+  Store?: typeof FMCStore | [typeof FMCStore, Record<string, unknown>];
   fetch?: typeof origFetch;
 }
 
@@ -65,20 +80,26 @@ export default function createCachingMock({
     );
   if (!fetch) fetch = origFetch;
 
-  const store = Array.isArray(Store)
+  // Init with options if passed as [ Store, { /* ... */ } ]
+  const store: FMCStore = Array.isArray(Store)
     ? new Store[0]({ ...Store[1], runtime })
     : new Store({ runtime });
 
   const fetchCache: FetchCache = Object.assign(
     async function cachingMockImplementation(
       urlOrRequest: string | Request | URL | undefined,
-      options: RequestInit | undefined,
+      requestInit: RequestInit | undefined,
     ) {
       if (!urlOrRequest) throw new Error("urlOrRequest is undefined");
 
+      // TODO, main options?  merge?
+      const options = Array.isArray(fetchCache._options)
+        ? fetchCache._options.shift()
+        : fetchCache._options;
+
       const fetchRequest =
         typeof urlOrRequest === "string" || urlOrRequest instanceof URL
-          ? new Request(urlOrRequest, options)
+          ? new Request(urlOrRequest, requestInit)
           : urlOrRequest;
 
       const url = fetchRequest.url;
@@ -105,7 +126,10 @@ export default function createCachingMock({
         else cacheContentRequest.bodyText = bodyText;
       }
 
-      const existingContent = await store.fetchContent(cacheContentRequest);
+      const existingContent = await store.fetchContent(
+        cacheContentRequest,
+        options,
+      );
       if (existingContent) {
         debug("Using cached copy of %o", url);
         const bodyText = existingContent.response.bodyJson
@@ -123,7 +147,7 @@ export default function createCachingMock({
 
       debug("Fetching and caching %o", url);
 
-      const p = fetch(url, options);
+      const p = fetch(url, requestInit);
       const response = await p;
 
       const newContent: FMCCacheContent = {
@@ -141,7 +165,7 @@ export default function createCachingMock({
         newContent.response.bodyJson = JSON.parse(bodyText);
       else newContent.response.bodyText = bodyText;
 
-      await store.storeContent(newContent);
+      await store.storeContent(newContent, options);
 
       const headers = new Headers(response.headers);
       headers.set("X-FMC-Cache", "MISS");
@@ -154,8 +178,16 @@ export default function createCachingMock({
     },
     {
       runtime,
+      _store: store,
+      _options: [] as FetchCacheOptions[], // TODO
+      _once(options: FetchCacheOptions) {
+        if (!Array.isArray(this._options)) this._options = [];
+        this._options.push(options);
+      },
     },
   );
+
+  // store.setFetchCache(fetchCache);
 
   return fetchCache;
 }

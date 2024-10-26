@@ -10,6 +10,7 @@ import filenamifyUrl from "filenamify-url";
 
 import FMCStore from "../store.js";
 import type { FMCCacheContent, FMCStoreOptions } from "../store.js";
+import { FetchCacheOptions } from "../fetch-cache.js";
 
 interface FMCFileStoreOptions extends FMCStoreOptions {
   location?: string;
@@ -56,21 +57,27 @@ export default class FMCFileSystemStore extends FMCStore {
 
   override async idFromRequest(
     request: FMCCacheContent["request"],
+    options?: FetchCacheOptions,
   ): Promise<string> {
+    if (options?.id) return options?.id + ".json";
     const id = await super.idFromRequest(request);
     const parts = id.match(/^(.*?)(\[.*\])?$/);
     if (!parts) throw new Error("Invalid id");
     return filenamifyUrl(parts[1]) + (parts[2] || "") + ".json";
   }
 
-  async pathFromRequest(request: FMCCacheContent["request"]): Promise<string> {
-    return await this.cache_dir(await this.idFromRequest(request));
+  async pathFromRequest(
+    request: FMCCacheContent["request"],
+    options?: FetchCacheOptions,
+  ): Promise<string> {
+    return await this.cache_dir(await this.idFromRequest(request, options));
   }
 
   override async fetchContent(
     request: FMCCacheContent["request"],
+    options?: FetchCacheOptions,
   ): Promise<FMCCacheContent | null> {
-    const path = await this.pathFromRequest(request);
+    const path = await this.pathFromRequest(request, options);
     try {
       const content = await this.runtime.fs.readFile(path);
       return JSON.parse(content) as FMCCacheContent;
@@ -79,8 +86,11 @@ export default class FMCFileSystemStore extends FMCStore {
     }
   }
 
-  override async storeContent(content: FMCCacheContent): Promise<void> {
-    const path = await this.pathFromRequest(content.request);
+  override async storeContent(
+    content: FMCCacheContent,
+    options?: FetchCacheOptions,
+  ): Promise<void> {
+    const path = await this.pathFromRequest(content.request, options);
     await this.runtime.fs.writeFile(path, JSON.stringify(content, null, 2));
   }
 }

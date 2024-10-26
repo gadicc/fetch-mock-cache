@@ -7,6 +7,7 @@
  */
 import type { Runtime } from "./fetch-cache.js";
 import type { FMCCacheContent } from "./cache.js";
+import type { FetchCacheOptions } from "./fetch-cache.js";
 
 /**
  * The "root" options for any store.  You can extend these with store-specific
@@ -40,10 +41,21 @@ export interface FMCStoreOptions {
  */
 export default class FMCStore {
   runtime: Runtime;
+  // fetchCache?: FetchCache;
 
   constructor(options: FMCStoreOptions) {
     this.runtime = options.runtime;
   }
+
+  /* **
+   * Sets a ref back to fetchCache immediately after instantiation, so the
+   * store can easily refer back to this.fetchCache in its methods.
+   * @param fetchCache
+   */ /*
+  setFetchCache(fetchCache: FetchCache) {
+    this.fetchCache = fetchCache;
+  }
+  */
 
   /**
    * Given an input string, return a SHA-256 hash of the string, truncated to
@@ -97,7 +109,12 @@ export default class FMCStore {
    * @param request An FMCCacheContent.request object
    * @returns A unique string id
    */
-  async idFromRequest(request: FMCCacheContent["request"]): Promise<string> {
+  async idFromRequest(
+    request: FMCCacheContent["request"],
+    options?: FetchCacheOptions,
+  ): Promise<string> {
+    if (options?.id) return options?.id;
+
     let id = request.url;
 
     const ids = await this.uniqueRequestIdentifiers(request);
@@ -121,6 +138,8 @@ export default class FMCStore {
   async fetchContent(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     request: FMCCacheContent["request"],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    options?: FetchCacheOptions,
   ): Promise<FMCCacheContent | null | undefined> {
     throw new Error("Not implemented");
   }
@@ -129,8 +148,12 @@ export default class FMCStore {
    * Given an FMCCacheContent object, store it in the store.
    * @param {FMCCacheContent} content
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async storeContent(content: FMCCacheContent): Promise<void> {
+  async storeContent(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    content: FMCCacheContent,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    options?: FetchCacheOptions,
+  ): Promise<void> {
     throw new Error("Not implemented");
   }
 }
