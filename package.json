@@ -7,7 +7,7 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "test": "node --experimental-vm-modules --test --import tsx `glob 'src/**/*.spec.ts'`",
-    "test:all": "npm run test && npm run tsc && npm run lint",
+    "test:all": "npm run test && npm run build && npm run lint",
     "lint": "eslint src",
     "prettier": "prettier -w src",
     "build": "tsc",
