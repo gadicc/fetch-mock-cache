@@ -8,7 +8,7 @@ import MemoryStore from "../../../../src/stores/memory.js";
 
 describe("vitest-fetch-mock", () => {
   const fetchCache = createFetchCache({ Store: MemoryStore });
-  const url = "http://echo.jsontest.com/key/value/one/two";
+  const url = "https://echo.free.beeceptor.com/?one=two&key=value";
   const expectedResponse = { one: "two", key: "value" };
 
   test("memoryStore", async () => {
@@ -18,7 +18,7 @@ describe("vitest-fetch-mock", () => {
       const data = await response.json();
       const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
       expect(response.headers.get("X-FMC-Cache")).toBe(expectedCacheHeader);
-      expect(data).toEqual(expectedResponse);
+      expect(data.parsedQueryParams).toEqual(expectedResponse);
     }
     vi.unstubAllGlobals();
   });
