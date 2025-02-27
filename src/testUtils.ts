@@ -4,11 +4,11 @@ import createCachingMock from "./runtimes/node.js";
 
 export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
   it("works with a Request as first argument", async (t) => {
-    const url = "http://echo.jsontest.com/id/test1";
+    const url = "https://echo.free.beeceptor.com/?id=test1";
     const expectedResponse = { id: "test1" };
     t.mock.method(globalThis, "fetch", mock);
     const data = await (await fetch(new Request(url))).json();
-    expect(data).toEqual(expectedResponse);
+    expect(data.parsedQueryParams).toEqual(expectedResponse);
   });
 
   it("works with text response (non-JSON)", async (t) => {
@@ -27,7 +27,7 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
   });
 
   it("works with a JSON response", async (t) => {
-    const url = "http://echo.jsontest.com/key/value/one/two";
+    const url = "https://echo.free.beeceptor.com/?one=two&key=value";
     const expectedResponse = { one: "two", key: "value" };
     t.mock.method(globalThis, "fetch", mock);
 
@@ -36,12 +36,12 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
       const data = await response.json();
       const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
       expect(response.headers.get("X-FMC-Cache")).toBe(expectedCacheHeader);
-      expect(data).toEqual(expectedResponse);
+      expect(data.parsedQueryParams).toEqual(expectedResponse);
     }
   });
 
   it("differentiates requests by headers", async (t) => {
-    const url = "http://echo.jsontest.com/key/value/one/two";
+    const url = "https://echo.free.beeceptor.com/?one=two&key=value";
     const expectedResponse = { one: "two", key: "value" };
     t.mock.method(globalThis, "fetch", mock);
 
@@ -50,7 +50,7 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
       const data = await response.json();
       const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
       expect(response.headers.get("X-FMC-Cache")).toBe(expectedCacheHeader);
-      expect(data).toEqual(expectedResponse);
+      expect(data.parsedQueryParams).toEqual(expectedResponse);
     }
 
     for (let i = 0; i < 2; i++) {
@@ -58,7 +58,7 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
       const data = await response.json();
       const expectedCacheHeader = i === 0 ? "MISS" : "HIT";
       expect(response.headers.get("X-FMC-Cache")).toBe(expectedCacheHeader);
-      expect(data).toEqual(expectedResponse);
+      expect(data.parsedQueryParams).toEqual(expectedResponse);
     }
   });
 
