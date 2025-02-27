@@ -2,6 +2,7 @@
  * Entry point for using fetch-mock-cache with the Deno runtime.
  * @module
  */
+// @ts-expect-error: ok
 import * as path from "jsr:@std/path@1";
 
 import _createFetchCache, {
@@ -12,6 +13,7 @@ import _createFetchCache, {
 
 export const runtime: Runtime = {
   name: "node",
+  // @ts-expect-error: ok
   env: Deno.env.toObject(),
   async sha256(input: string, length?: number) {
     const utf8 = new TextEncoder().encode(input);
@@ -24,6 +26,7 @@ export const runtime: Runtime = {
   },
   fs: {
     async readFile(path: string) {
+      // @ts-expect-error: ok
       const data = await Deno.readFile(path);
       const decoder = new TextDecoder("utf-8");
       return decoder.decode(data);
@@ -31,10 +34,13 @@ export const runtime: Runtime = {
     async writeFile(path: string, content: string) {
       const encoder = new TextEncoder();
       const data = encoder.encode(content);
+      // @ts-expect-error: ok
       return Deno.writeFile(path, data);
     },
+    // @ts-expect-error: ok
     mkdir: Deno.mkdir,
   },
+  // @ts-expect-error: ok
   cwd: Deno.cwd,
   path: {
     join: path.join,
