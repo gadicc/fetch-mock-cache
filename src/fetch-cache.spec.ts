@@ -30,9 +30,10 @@ describe("fetch-mock-cache", () => {
       const store = fetchCache._store! as MemoryStore;
       const fetchContent = (store.fetchContent = t.mock.fn(store.fetchContent));
 
+      // Baseline, no opts
       await fetch("http://www.example.com/");
       let optionsArg = fetchContent.mock.calls[0].arguments[1];
-      expect(optionsArg).toBe(undefined);
+      expect(Object.getOwnPropertyNames(optionsArg)).toHaveLength(0);
 
       // fetchCache._options = [{ id: "id" }];
       fetchCache._once({ id: "id" });
@@ -40,9 +41,10 @@ describe("fetch-mock-cache", () => {
       optionsArg = fetchContent.mock.calls[1].arguments[1];
       expect(optionsArg).toMatchObject({ id: "id" });
 
+      // Now let's make sure the options are cleared
       await fetch("http://www.example.com/");
       optionsArg = fetchContent.mock.calls[2].arguments[1];
-      expect(optionsArg).toBe(undefined);
+      expect(Object.getOwnPropertyNames(optionsArg)).toHaveLength(0);
     });
   });
 });

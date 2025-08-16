@@ -1,7 +1,7 @@
 import _debug from "debug";
 import type { FMCCacheContent } from "./cache.js";
 import { serializeHeaders, unserializeHeaders } from "./headers.js";
-import FMCStore from "./store.js";
+import type FMCStore from "./store.js";
 
 const debug = _debug("fetch-mock-cache:core");
 const origFetch = fetch;
@@ -33,7 +33,26 @@ export interface Runtime {
  * Can be passed with experimental fetch._once(options).
  */
 export interface FetchCacheOptions {
+  /** Manually specify a cache key (usually auto computed from URL) */
   id?: string;
+  /** True (default): use cached response if available; false: always fetch from network.
+   * You can also provide a function that returns a boolean or promise.
+   */
+  readCache?:
+    | boolean
+    | Promise<boolean>
+    | ((...args: Parameters<FMCStore["fetchContent"]>) => Promise<boolean>);
+  /** If a fetch was performed, should we write it to the cache?  Can be a boolean, a
+   * promise, or a function that returns a boolean or promise.  In the case of a promise,
+   * the write will open occur when the promise resolves, and AFTER the response is
+   * returned.  This allows for more complex patterns, where e.g. you could rely on the
+   * further processing of the response in other functions before deciding whether to
+   * cache it or not, but does require some extra care.
+   */
+  writeCache?:
+    | boolean
+    | Promise<boolean>
+    | ((...args: Parameters<FMCStore["storeContent"]>) => Promise<boolean>);
 }
 
 /**
@@ -93,9 +112,13 @@ export default function createCachingMock({
       if (!urlOrRequest) throw new Error("urlOrRequest is undefined");
 
       // TODO, main options?  merge?
-      const options = Array.isArray(fetchCache._options)
-        ? fetchCache._options.shift()
-        : fetchCache._options;
+      const options =
+        (Array.isArray(fetchCache._options)
+          ? fetchCache._options.shift()
+          : fetchCache._options) || {};
+
+      let readCache = "readCache" in options ? options.readCache : true;
+      let writeCache = "writeCache" in options ? options.writeCache : true;
 
       const fetchRequest =
         typeof urlOrRequest === "string" || urlOrRequest instanceof URL
@@ -126,10 +149,12 @@ export default function createCachingMock({
         else cacheContentRequest.bodyText = bodyText;
       }
 
-      const existingContent = await store.fetchContent(
-        cacheContentRequest,
-        options,
-      );
+      if (typeof readCache === "function")
+        readCache = await readCache(cacheContentRequest, options);
+
+      const existingContent =
+        readCache && (await store.fetchContent(cacheContentRequest, options));
+
       if (existingContent) {
         debug("Using cached copy of %o", url);
         const bodyText = existingContent.response.bodyJson
@@ -145,7 +170,7 @@ export default function createCachingMock({
         });
       }
 
-      debug("Fetching and caching %o", url);
+      debug("Fetching %o", url);
 
       const p = fetch(url, requestInit);
       const response = await p;
@@ -165,7 +190,23 @@ export default function createCachingMock({
         newContent.response.bodyJson = JSON.parse(bodyText);
       else newContent.response.bodyText = bodyText;
 
-      await store.storeContent(newContent, options);
+      if (typeof writeCache === "function")
+        writeCache = writeCache(newContent, options);
+
+      if (writeCache instanceof Promise) {
+        writeCache
+          .then(async (shouldWrite: boolean) => {
+            if (shouldWrite) {
+              await store.storeContent(newContent, options);
+            }
+          })
+          .catch((error) => {
+            console.error(
+              "Error occurred while deciding to cache response: %o",
+              error,
+            );
+          });
+      } else if (writeCache) await store.storeContent(newContent, options);
 
       const headers = new Headers(response.headers);
       headers.set("X-FMC-Cache", "MISS");
