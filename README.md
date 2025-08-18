@@ -215,8 +215,132 @@ Make sure the `id` is relevant for your store. e.g. if using the fs store,
 make sure `id` is a valid file name (the fs store will still append `.json`
 at the end).
 
+### Manually controlling cache behaviour
+
+You can also pass the following to `fetchCache._once`:
+
+```ts
+{
+  id?: string; // as above
+  /** True (default): use cached response if available; false: always fetch from network.
+   * You can also provide a promise or function that returns a boolean or promise.
+   */
+  readCache?:
+    | boolean
+    | Promise<boolean>
+    | ((...args: Parameters<FMCStore["fetchContent"]>) => Promise<boolean>);
+  /** If a fetch was performed, should we write it to the cache?  Can be a boolean, a
+   * promise, or a function that returns a boolean or promise.  In the case of a promise,
+   * the write will open occur when the promise resolves, and AFTER the response is
+   * returned.  This allows for more complex patterns, where e.g. you could rely on the
+   * further processing of the response in other functions before deciding whether to
+   * cache it or not, but does require some extra care.
+   */
+  writeCache?:
+    | boolean
+    | Promise<boolean>
+    | ((...args: Parameters<FMCStore["storeContent"]>) => Promise<boolean>);
+}
+```
+
+See below in Tips & Tricks on how you can leverage this to conditionally replace the
+cache for failing tests.
+
+## Tips & Tricks
+
+### Rewrite the cache only for failing tests.
+
+1. Let's wrap the `it()` function to allow a callback after the test
+
+   ```ts
+   import { it as _it } from "..."; // your fave library
+
+   export const it = function wrappedIt(
+     suite: string,
+     fn: (
+       t: Parameters<typeof _it>[0],
+       onFinish: (cb: (error?: unknown) => void | Promise<void>) => void,
+     ) => void | Promise<void>,
+   ) {
+     const finishCallbacks = [] as Array<(error?: unknown) => void>;
+
+     const onFinish = (cb: (error?: unknown) => void) => {
+       finishCallbacks.push(cb);
+     };
+
+     const finish = (error?: unknown) => {
+       for (const cb of finishCallbacks) {
+         cb(error);
+       }
+     };
+
+     const wrappedFn = (t: Deno.TestContext) => {
+       let result: ReturnType<typeof fn>;
+       try {
+         result = fn(t, onFinish);
+       } catch (error) {
+         finish(error);
+         throw error;
+       }
+
+       if (result === undefined) {
+         finish();
+         return undefined;
+       }
+
+       if (result instanceof Promise) {
+         return result.then(finish).catch((error) => {
+           finish(error);
+           throw error;
+         });
+       }
+
+       throw new Error(
+         `Test "${name}" failed with unexpected result: ${result}`,
+       );
+     };
+
+     _it(suite, wrappedFn);
+   };
+   ```
+
+2. Now do something like this:
+
+   ```ts
+   import { it } from "above";
+   import fetchCache from "wherever-you-set-it-up";
+
+   function conditionalCache(onFinish) {
+     if (process.env.FETCH_CACHE === "recache")
+       // i.e. if the test fails and has an error, then `writeCache` resolves to "true"
+       fetchCache._once({ readCache: false, writeCache: onFinish.then(error => !!error)})
+   }
+
+   it("rewrites the cache on fail", async(_t, onFinish) => {
+     conditionalCache(onFinish);
+     const response = await fetch(...);
+     const result = await response.json();
+     expect(result).toMatch({
+       success: true
+     });
+   })
+   ```
+
+3. Now, by default, we'll use the cache as normal. However, if you set
+   `FETCH_CACHE="recache"`, we won't use the cache, and if the test fails,
+   we'll replace the cached result.
+
+   This is super useful for testing if API response (and not your code)
+   has changed, commit the new responses, and then adapt your code as
+   necessary. You'd only do this after first making sure all your existing
+   tests are passing.
+
 ## TODO
 
 - [x] Cache request headers too and hash them in filename / key / id.
 - [ ] Browser-environment support. Please open an issue if you need this, and in what cases. jsdom?
 - [ ] Handle and store invalid JSON too?
+
+```
+
+```

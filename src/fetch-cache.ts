@@ -36,7 +36,7 @@ export interface FetchCacheOptions {
   /** Manually specify a cache key (usually auto computed from URL) */
   id?: string;
   /** True (default): use cached response if available; false: always fetch from network.
-   * You can also provide a function that returns a boolean or promise.
+   * You can also provide a promise or function that returns a boolean or promise.
    */
   readCache?:
     | boolean
