@@ -7,10 +7,9 @@
  * @module
  */
 import filenamifyUrl from "filenamify-url";
-
-import FMCStore from "../store.js";
-import type { FMCCacheContent, FMCStoreOptions } from "../store.js";
 import { FetchCacheOptions } from "../fetch-cache.js";
+import type { FMCCacheContent, FMCStoreOptions } from "../store.js";
+import FMCStore from "../store.js";
 
 interface FMCFileStoreOptions extends FMCStoreOptions {
   location?: string;

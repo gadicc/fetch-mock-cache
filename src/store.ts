@@ -5,9 +5,9 @@
  *
  * @module
  */
-import type { Runtime } from "./fetch-cache.js";
+
 import type { FMCCacheContent } from "./cache.js";
-import type { FetchCacheOptions } from "./fetch-cache.js";
+import type { FetchCacheOptions, Runtime } from "./fetch-cache.js";
 
 /**
  * The "root" options for any store.  You can extend these with store-specific

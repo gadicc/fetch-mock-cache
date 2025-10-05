@@ -3,14 +3,13 @@
  * @module
  */
 
-// For now, bun is just so awesomely compatible out of the box that there's
-// nothing to do.  But, consider bun-optimized calls in the future, if needed.
-import { runtime } from "./node.js";
-
 import _createFetchCache, {
   CreateFetchCacheOptions,
   FetchCache,
 } from "../fetch-cache.js";
+// For now, bun is just so awesomely compatible out of the box that there's
+// nothing to do.  But, consider bun-optimized calls in the future, if needed.
+import { runtime } from "./node.js";
 
 /**
  * @example

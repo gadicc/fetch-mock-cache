@@ -1,9 +1,9 @@
-import { describe, before } from "node:test";
+import { before, describe } from "node:test";
 import fs from "fs/promises";
 
 import createFetchCache from "../runtimes/node.js";
-import FsStore from "./fs.js";
 import { createTestsForMock } from "../testUtils.js";
+import FsStore from "./fs.js";
 
 const nodeFsCacheMock = createFetchCache({ Store: FsStore });
 

@@ -5,9 +5,10 @@
  * files to your project's repository / source control.
  * @module
  */
-import FMCStore from "../store.js";
-import type { FMCCacheContent } from "../store.js";
+
 import type { FetchCacheOptions } from "../fetch-cache.js";
+import type { FMCCacheContent } from "../store.js";
+import FMCStore from "../store.js";
 
 // TODO LRU cache
 

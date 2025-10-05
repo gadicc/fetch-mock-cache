@@ -11,7 +11,7 @@
     {
       "label": "build -w",
       "type": "shell",
-      "command": "yarn build -w",
+      "command": "pnpm build -w",
       "isBackground": true,
       "problemMatcher": [],
       "runOptions": {
