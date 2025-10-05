@@ -7,13 +7,13 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "test": "node --experimental-vm-modules --test --import tsx `glob 'src/**/*.spec.ts'`",
-    "test:all": "npm run test && npm run build && npm run lint",
+    "test:all": "pnpm run test && pnpm run build && pnpm run lint",
     "lint": "eslint src",
     "prettier": "prettier -w src",
     "build": "tsc",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "pnpm run build",
     "coverage": "node --experimental-vm-modules --test --import tsx --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=lcov.info `glob 'src/**/*.spec.ts'`",
-    "ci": "tsc --noEmit && npm run lint && npm run coverage && cd tests/runtimes && ./test.sh"
+    "ci": "tsc --noEmit && pnpm run lint && pnpm run coverage && cd tests/runtimes && ./test.sh"
   },
   "repository": {
     "type": "git",
