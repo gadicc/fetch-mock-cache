@@ -1,10 +1,9 @@
 "use strict";
+// biome-ignore assist/source/organizeImports: organized by hand
 import { describe, expect, test, vi } from "vitest";
 
-// import createFetchCache from "fetch-mock-cache"
-// import FMCMemoryStore from "fetch-mock-cache/stores/memory";
-import createFetchCache from "../../../../src/runtimes/node.js";
-import MemoryStore from "../../../../src/stores/memory.js";
+import createFetchCache from "fetch-mock-cache";
+import MemoryStore from "fetch-mock-cache/stores/memory";
 
 describe("vitest-fetch-mock", () => {
   const fetchCache = createFetchCache({ Store: MemoryStore });

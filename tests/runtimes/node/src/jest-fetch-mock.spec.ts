@@ -1,11 +1,10 @@
 "use strict";
-import { describe, expect, test } from "@jest/globals";
+// biome-ignore assist/source/organizeImports: organized by hand
 import _fetchMock from "jest-fetch-mock";
+import { describe, expect, test } from "@jest/globals";
 
-// import createFetchCache from "fetch-mock-cache"
-// import MemoryStore from "fetch-mock-cache/stores/memory";
-import createFetchCache from "../../../../src/runtimes/node.js";
-import MemoryStore from "../../../../src/stores/memory.js";
+import createFetchCache from "fetch-mock-cache";
+import MemoryStore from "fetch-mock-cache/stores/memory";
 
 const fetchMock = _fetchMock.default;
 fetchMock.enableMocks();

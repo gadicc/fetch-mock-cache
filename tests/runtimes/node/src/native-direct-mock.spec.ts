@@ -2,11 +2,9 @@
 import { describe, test } from "node:test";
 import { expect } from "expect";
 
-// import createFetchCache from "fetch-mock-cache"
-// import MemoryStore from "fetch-mock-cache/stores/memory";
-import createFetchCache from "../../../../src/runtimes/node.js";
-import FsStore from "../../../../src/stores/fs.js";
-import MemoryStore from "../../../../src/stores/memory.js";
+import createFetchCache from "fetch-mock-cache/runtimes/node";
+import FsStore from "fetch-mock-cache/stores/fs";
+import MemoryStore from "fetch-mock-cache/stores/memory";
 
 describe("node:test - direct mock", () => {
   const url = "https://echo.free.beeceptor.com/?one=two&key=value";

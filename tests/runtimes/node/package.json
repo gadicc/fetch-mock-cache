@@ -21,6 +21,7 @@
     "@types/jest": "^29.5.13",
     "expect": "^29.7.0",
     "fetch-mock": "^11.1.5",
+    "fetch-mock-cache": "file:../../../",
     "jest": "^29.7.0",
     "jest-fetch-mock": "^3.0.3",
     "tsx": "^4.19.1",

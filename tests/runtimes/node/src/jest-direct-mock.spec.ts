@@ -1,10 +1,8 @@
 "use strict";
 import { describe, expect, jest, test } from "@jest/globals";
 
-// import createFetchCache from "fetch-mock-cache"
-// import MemoryStore from "fetch-mock-cache/stores/memory";
-import createFetchCache from "../../../../src/runtimes/node.js";
-import MemoryStore from "../../../../src/stores/memory.js";
+import createFetchCache from "fetch-mock-cache";
+import MemoryStore from "fetch-mock-cache/stores/memory";
 
 describe("jest-fetch-mock", () => {
   const fetchCache = createFetchCache({ Store: MemoryStore });
