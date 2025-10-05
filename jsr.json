@@ -16,7 +16,7 @@
     "./runtimes/bun": "./src/runtimes/bun.ts",
     "./runtimes/bun.js": "./src/runtimes/bun.ts",
     "./runtimes/bun.ts": "./src/runtimes/bun.ts",
-    "./store": "./src/stores.ts",
+    "./store": "./src/store.ts",
     "./store.js": "./src/store.ts",
     "./store.ts": "./src/store.ts",
     "./stores/memory": "./src/stores/memory.ts",
