@@ -1,11 +1,9 @@
 "use strict";
 import { describe, expect, mock, test } from "bun:test";
 
-// import createFetchCache from "fetch-mock-cache/runtimes/bun.js"
-// import FMCMemoryStore from "fetch-mock-cache/stores/memory.js";
-import createFetchCache from "../../../../src/runtimes/bun.js";
-import FsStore from "../../../../src/stores/fs.js";
-import MemoryStore from "../../../../src/stores/memory.js";
+import createFetchCache from "fetch-mock-cache/runtimes/bun.js";
+import FsStore from "fetch-mock-cache/stores/fs.js";
+import MemoryStore from "fetch-mock-cache/stores/memory.js";
 
 describe("bun:test - direct mock", () => {
   const url = "https://echo.free.beeceptor.com/?one=two&key=value";
