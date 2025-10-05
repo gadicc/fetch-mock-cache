@@ -96,10 +96,7 @@ export default class FMCStore {
 
     const body = await deserializeBody(request);
     if (body instanceof Uint8Array && body.length > 0) {
-      ids.body = await this.hash(
-        new TextDecoder().decode(body),
-        hashLen,
-      );
+      ids.body = await this.hash(new TextDecoder().decode(body), hashLen);
     } else {
       ids.body = await this.hash(String(body), hashLen);
     }
@@ -123,7 +120,8 @@ export default class FMCStore {
 
     const ids = await this.uniqueRequestIdentifiers(request);
     if (ids) {
-      id += "[" +
+      id +=
+        "[" +
         Object.entries(ids)
           .map(([k, v]) => k + "=" + v)
           .join(",") +

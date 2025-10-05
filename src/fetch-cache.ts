@@ -146,8 +146,8 @@ export default function createCachingMock({
         readCache = await readCache(cacheContentRequest, options);
       }
 
-      const existingContent = readCache &&
-        (await store.fetchContent(cacheContentRequest, options));
+      const existingContent =
+        readCache && (await store.fetchContent(cacheContentRequest, options));
 
       if (existingContent) {
         debug("Using cached copy of %o", url);

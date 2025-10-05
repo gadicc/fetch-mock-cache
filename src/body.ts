@@ -66,7 +66,9 @@ export async function serializeBody(
     const charCode = bodyText.charCodeAt(i);
     // Control characters except for common whitespace
     if (
-      (charCode <= 0x1f && charCode !== 0x09 && charCode !== 0x0a &&
+      (charCode <= 0x1f &&
+        charCode !== 0x09 &&
+        charCode !== 0x0a &&
         charCode !== 0x0d) ||
       charCode === 0x7f
     ) {

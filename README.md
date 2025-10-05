@@ -32,14 +32,15 @@ and/or [MIGRATING.md](./MIGRATING.md) for how to upgrade.
 
 ## Quick Start
 
-Generally your code will look something like this, but,
-[**see further below**](#runtimes)
-for the exact code for different runtimes and testing frameworks.
+Generally your code will look something like this, but, **see further below** for
+the [**exact code for different runtimes and testing frameworks**](#runtimes)
+.
 
 ```ts
+// Default for node runtime, see grid below for bun/deno.
 import createFetchCache from "fetch-mock-cache";
 // See list of possible stores, below.
-import Store from "fetch-mock-cache/lib/stores/fs";
+import Store from "fetch-mock-cache/stores/fs";
 
 const fetchCache = createFetchCache({ Store });
 
