@@ -1,13 +1,12 @@
 "use strict";
-import { expect } from "jsr:@std/expect";
-import { describe, it } from "jsr:@std/testing/bdd";
-import { spy } from "jsr:@std/testing/mock";
+// biome-ignore assist/source/organizeImports: organized by hand
+import { expect } from "@std/expect";
+import { describe, it } from "@std/testing/bdd";
+import { spy } from "@std/testing/mock";
 
-// import createFetchCache from "fetch-mock-cache/runtimes/deno.ts"
-// import MemoryStore from "fetch-mock-cache/stores/memory.ts";
-import createFetchCache from "../../../../src/runtimes/deno.ts";
-import FsStore from "../../../../src/stores/fs.ts";
-import MemoryStore from "../../../../src/stores/memory.ts";
+import createFetchCache from "@gadicc/fetch-mock-cache/runtimes/deno.ts";
+import FsStore from "@gadicc/fetch-mock-cache/stores/fs.ts";
+import MemoryStore from "@gadicc/fetch-mock-cache/stores/memory.ts";
 
 describe("deno - direct mock", () => {
   const url = "https://echo.free.beeceptor.com/?one=two&key=value";
