@@ -13,18 +13,23 @@ Copyright (c) 2023 by Gadi Cohen. [MIT Licensed](./LICENSE.txt).
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-## Introduction
 
-Instead of individually handcrafting a mock for each and every `fetch()`
-call in your code, maybe you'd like to perform a real `fetch()` once,
-cache the result, and use that cache result for future calls. **Super
-useful for TDD against existing APIs!!** ("Test Driven Development").
+## 🏁 Introduction
 
-Not only do you get a muuuch faster feedback loop, but you can commit
-the cache to your repository / source control so your entire team
-benefits, and for CI. Based off earlier work in
-[yahoo-finance2](https://www.npmjs.com/package/yahoo-finance2) where
-we test 1400+ API "calls" in < 3s on every commit. Feature requests welcome!
+- 💡 **Tired of writing mocks?**  
+  Skip manually crafting `fetch()` mocks — just run a real `fetch()` once and auto cache the result.
+
+- ⚡ **Fast feedback loop**  
+  Cached responses make tests run *much* faster — ideal for TDD (Test Driven Development) against real APIs.
+
+- 👥 **Team & CI friendly**  
+  Commit the cache to your repo so everyone (and your CI) benefits from consistent, speedy tests.
+
+- 🔧 **Proven approach**  
+  Used by [yahoo-finance2](https://www.npmjs.com/package/yahoo-finance2) to test 1400+ API calls in < 1s on every commit.
+
+- 💬 **Open to ideas**  
+  Feature requests and contributions welcome!
 
 NB: if you're still using **v1** (formerly `jest-fetch-mock-cache`),
 see the [old README](https://github.com/gadicc/fetch-mock-cache/tree/1.x)
