@@ -1,17 +1,15 @@
+import type { SerializedBody } from "./body.js";
+
 export interface FMCCacheContent {
   request: {
     url: string;
     headers?: Record<string, string | string[]>;
     method?: RequestInit["method"];
-    bodyJson?: Record<string, unknown>;
-    bodyText?: string;
-  };
+  } & (SerializedBody | {});
   response: {
     ok: boolean;
     status: number;
     statusText: string;
     headers: Record<string, string | string[]>;
-    bodyJson?: Record<string, unknown>;
-    bodyText?: string;
-  };
+  } & (SerializedBody | {});
 }

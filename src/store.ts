@@ -6,6 +6,7 @@
  * @module
  */
 
+import { deserializeBody } from "./body.js";
 import type { FMCCacheContent } from "./cache.js";
 import type { FetchCacheOptions, Runtime } from "./fetch-cache.js";
 
@@ -51,7 +52,8 @@ export default class FMCStore {
    * Sets a ref back to fetchCache immediately after instantiation, so the
    * store can easily refer back to this.fetchCache in its methods.
    * @param fetchCache
-   */ /*
+   */
+  /*
   setFetchCache(fetchCache: FetchCache) {
     this.fetchCache = fetchCache;
   }
@@ -91,13 +93,15 @@ export default class FMCStore {
     if (request.headers) {
       ids.headers = await this.hash(JSON.stringify(request.headers), hashLen);
     }
-    if (request.bodyJson) {
-      const body = JSON.stringify(request.bodyJson);
-      ids.body = await this.hash(body, hashLen);
-    }
-    if (request.bodyText) {
-      const body = request.bodyText;
-      ids.body = await this.hash(body, hashLen);
+
+    const body = await deserializeBody(request);
+    if (body instanceof Uint8Array && body.length > 0) {
+      ids.body = await this.hash(
+        new TextDecoder().decode(body),
+        hashLen,
+      );
+    } else {
+      ids.body = await this.hash(String(body), hashLen);
     }
 
     return Object.keys(ids).length > 0 ? ids : null;
@@ -118,13 +122,13 @@ export default class FMCStore {
     let id = request.url;
 
     const ids = await this.uniqueRequestIdentifiers(request);
-    if (ids)
-      id +=
-        "[" +
+    if (ids) {
+      id += "[" +
         Object.entries(ids)
           .map(([k, v]) => k + "=" + v)
           .join(",") +
         "]";
+    }
 
     return id;
   }

@@ -1,6 +1,6 @@
 import { describe, test as it } from "node:test";
 import { expect } from "expect";
-import { serializeHeaders, unserializeHeaders } from "./headers.js";
+import { deserializeHeaders, serializeHeaders } from "./headers.js";
 
 describe("headers", () => {
   it("serializeHeaders", () => {
@@ -22,7 +22,7 @@ describe("headers", () => {
       "set-cookie": ["a", "b"],
     };
 
-    const headers = unserializeHeaders(serialized);
+    const headers = deserializeHeaders(serialized);
 
     expect(headers.get("x-test")).toBe("1");
     expect(headers.getSetCookie()).toEqual(["a", "b"]);

@@ -31,12 +31,12 @@ export function serializeHeaders(headers: Headers): Record<string, string> {
 /**
  * Given a Record<string, string | string[]>, return a Headers object.
  */
-export function unserializeHeaders(
+export function deserializeHeaders(
   serialized: Record<string, string | string[]>,
 ): Headers {
   const headers = new Headers();
   for (const [key, value] of Object.entries(serialized)) {
-    if (Array.isArray(value)) for (const v of value) headers.append(key, v);
+    if (Array.isArray(value)) { for (const v of value) headers.append(key, v); }
     else headers.set(key, value);
   }
   return headers;

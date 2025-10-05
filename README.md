@@ -118,8 +118,9 @@ $ cat tests/fixtures/http/echo.jsontest.com\!key\!value\!one\!two
 }
 ```
 
-For non-JSON bodies, a `bodyText` is stored as a string. We store an
-object as `bodyJson` for readability reasons.
+JSON bodies are stored as a decoded object in `bodyJSON` for increased
+readability.  Text bodies are stored as a string in `bodyText`, and
+binary bodies are stored as a Base64 encoded string in `bodyBase64`.
 
 ## Debugging
 

@@ -1,6 +1,7 @@
 import _debug from "debug";
+import { deserializeBody, serializeBody } from "./body.js";
 import type { FMCCacheContent } from "./cache.js";
-import { serializeHeaders, unserializeHeaders } from "./headers.js";
+import { deserializeHeaders, serializeHeaders } from "./headers.js";
 import type FMCStore from "./store.js";
 
 const debug = _debug("fetch-mock-cache:core");
@@ -93,10 +94,11 @@ export default function createCachingMock({
   fetch,
   runtime,
 }: CreateFetchCacheOptions) {
-  if (!Store)
+  if (!Store) {
     throw new Error(
       "No `Store` option was provided, but is required.  See docs.",
     );
+  }
   if (!fetch) fetch = origFetch;
 
   // Init with options if passed as [ Store, { /* ... */ } ]
@@ -131,42 +133,28 @@ export default function createCachingMock({
       const cacheContentRequest: FMCCacheContent["request"] = {
         url,
         method: fetchRequest.method,
+        ...(clonedRequest.body && (await serializeBody(clonedRequest))),
+        ...(Array.from(fetchRequest.headers.keys()).length > 0 && {
+          // Not really necessary as set-cookie never appears in the REQUEST headers.
+          headers: serializeHeaders(fetchRequest.headers),
+        }),
       };
 
-      if (Array.from(fetchRequest.headers.keys()).length > 0) {
-        // Not really necessary as set-cookie never appears in the REQUEST headers.
-        cacheContentRequest.headers = serializeHeaders(fetchRequest.headers);
-      }
-
-      if (clonedRequest.body) {
-        const bodyText = await clonedRequest.text();
-        if (
-          clonedRequest.headers
-            .get("Content-Type")
-            ?.startsWith("application/json")
-        )
-          cacheContentRequest.bodyJson = JSON.parse(bodyText);
-        else cacheContentRequest.bodyText = bodyText;
-      }
-
-      if (typeof readCache === "function")
+      if (typeof readCache === "function") {
         readCache = await readCache(cacheContentRequest, options);
+      }
 
-      const existingContent =
-        readCache && (await store.fetchContent(cacheContentRequest, options));
+      const existingContent = readCache &&
+        (await store.fetchContent(cacheContentRequest, options));
 
       if (existingContent) {
         debug("Using cached copy of %o", url);
-        const bodyText = existingContent.response.bodyJson
-          ? JSON.stringify(existingContent.response.bodyJson)
-          : existingContent.response.bodyText;
-
         existingContent.response.headers["X-FMC-Cache"] = "HIT";
 
-        return new Response(bodyText, {
+        return new Response(await deserializeBody(existingContent.response), {
           status: existingContent.response.status,
           statusText: existingContent.response.statusText,
-          headers: unserializeHeaders(existingContent.response.headers),
+          headers: deserializeHeaders(existingContent.response.headers),
         });
       }
 
@@ -182,16 +170,13 @@ export default function createCachingMock({
           status: response.status,
           statusText: response.statusText,
           headers: serializeHeaders(response.headers),
+          ...(await serializeBody(response)),
         },
       };
 
-      const bodyText = await response.text();
-      if (response.headers.get("Content-Type")?.startsWith("application/json"))
-        newContent.response.bodyJson = JSON.parse(bodyText);
-      else newContent.response.bodyText = bodyText;
-
-      if (typeof writeCache === "function")
+      if (typeof writeCache === "function") {
         writeCache = writeCache(newContent, options);
+      }
 
       if (writeCache instanceof Promise) {
         writeCache
@@ -211,7 +196,7 @@ export default function createCachingMock({
       const headers = new Headers(response.headers);
       headers.set("X-FMC-Cache", "MISS");
 
-      return new Response(bodyText, {
+      return new Response(await deserializeBody(newContent.response), {
         status: response.status,
         statusText: response.statusText,
         headers,

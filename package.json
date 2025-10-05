@@ -12,6 +12,7 @@
     "format": "pnpm format --write src",
     "build": "tsc",
     "prepublishOnly": "pnpm run build",
+    "coverage:output": "node --experimental-vm-modules --test --import tsx --experimental-test-coverage `glob 'src/**/*.spec.ts'`",
     "coverage": "node --experimental-vm-modules --test --import tsx --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=lcov.info `glob 'src/**/*.spec.ts'`",
     "ci": "tsc --noEmit && pnpm biome ci && pnpm run coverage && cd tests/runtimes && ./test.sh"
   },
