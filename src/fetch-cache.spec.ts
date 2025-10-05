@@ -36,7 +36,7 @@ describe("fetch-mock-cache", () => {
       expect(Object.getOwnPropertyNames(optionsArg)).toHaveLength(0);
 
       // fetchCache._options = [{ id: "id" }];
-      fetchCache._once({ id: "id" });
+      fetchCache.once({ id: "id" });
       await fetch("http://www.example.com/");
       optionsArg = fetchContent.mock.calls[1].arguments[1];
       expect(optionsArg).toMatchObject({ id: "id" });

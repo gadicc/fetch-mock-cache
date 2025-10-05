@@ -69,6 +69,8 @@ export interface FetchCache {
   runtime: Runtime;
   _options?: FetchCacheOptions | FetchCacheOptions[];
   _store?: FMCStore;
+  once: (options: FetchCacheOptions) => void;
+  /** @deprecated Use once() instead */
   _once: (options: FetchCacheOptions) => void;
 }
 
@@ -206,9 +208,15 @@ export default function createCachingMock({
       runtime,
       _store: store,
       _options: [] as FetchCacheOptions[], // TODO
-      _once(options: FetchCacheOptions) {
+      once(options: FetchCacheOptions) {
         if (!Array.isArray(this._options)) this._options = [];
         this._options.push(options);
+      },
+      _once(options: FetchCacheOptions) {
+        console.warn(
+          "_fetchCache._once() is deprecated, use _fetchCache.once()",
+        );
+        return this.once(options);
       },
     },
   );

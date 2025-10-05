@@ -172,24 +172,14 @@ export default class MyStore extends FMCStore {
 }
 ```
 
-## Internal and Experimental Features
+## Overriding the Default Caching Behaviour
 
-Internal and experimental features are generally prefixed by an underscore ("`_`").
-You're welcome to use them, however, they are not part of our API contract - as such,
-they may change or disappear at any time, _without following semantic versioning_.
-
-Often these are used for new ideas that are still in development, where, we'd like
-you to have easy access to them (and appreciate your feedback!), but, they're not
-(yet) considered stable.
-
-Current experiments:
-
-### Passing options to be used for the next fetch call
+### Passing options to be used for the next `fetch()` call
 
 ```ts
-// These will be used for the next fetch call ONCE only.  However, `_once()`
+// These will be used for the next fetch call ONCE only.  However, `once()`
 // may be called multiple times to queue options for multiple future calls.
-fetchCache._once({
+fetchCache.once({
   /* options */
 });
 ```
@@ -208,7 +198,7 @@ But sometimes, we may want to specify this manually, e.g.
 In this case, we can:
 
 ```ts
-fetchCache._once({ id: "mytest" });
+fetchCache.once({ id: "mytest" });
 fetch(/* ... */); // or code that uses fetch();
 ```
 
@@ -218,7 +208,7 @@ at the end).
 
 ### Manually controlling cache behaviour
 
-You can also pass the following to `fetchCache._once`:
+You can also pass the following to `fetchCache.once`:
 
 ```ts
 {
@@ -246,6 +236,25 @@ You can also pass the following to `fetchCache._once`:
 
 See below in Tips & Tricks on how you can leverage this to conditionally replace the
 cache for failing tests.
+
+
+## Internal and Experimental Features
+
+Internal and experimental features are generally prefixed by an underscore ("`_`").
+You're welcome to use them, however, they are not part of our API contract - as such,
+they may change or disappear at any time, _without following semantic versioning_.
+
+Often these are used for new ideas that are still in development, where, we'd like
+you to have easy access to them (and appreciate your feedback!), but, they're not
+(yet) considered stable.
+
+Current experiments:
+
+None.
+
+Previous experiments:
+
+*  `_once()` has been promoted to `_once()` after a long, succesful testing period.
 
 ## Tips & Tricks
 
@@ -314,7 +323,7 @@ cache for failing tests.
    function conditionalCache(onFinish) {
      if (process.env.FETCH_CACHE === "recache")
        // i.e. if the test fails and has an error, then `writeCache` resolves to "true"
-       fetchCache._once({ readCache: false, writeCache: onFinish.then(error => !!error)})
+       fetchCache.once({ readCache: false, writeCache: onFinish.then(error => !!error)})
    }
 
    it("rewrites the cache on fail", async(_t, onFinish) => {
