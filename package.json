@@ -9,7 +9,7 @@
     "test": "node --experimental-vm-modules --test --import tsx `glob 'src/**/*.spec.ts'`",
     "test:all": "pnpm run test && pnpm run build && pnpm run lint",
     "lint": "pnpm biome lint src",
-    "format": "pnpm format --write src",
+    "format": "pnpm biome format --write src",
     "build": "tsc",
     "prepublishOnly": "pnpm run build",
     "coverage:output": "node --experimental-vm-modules --test --import tsx --experimental-test-coverage `glob 'src/**/*.spec.ts'`",
