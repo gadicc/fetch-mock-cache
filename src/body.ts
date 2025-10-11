@@ -9,7 +9,8 @@ const textMimeWhitelist = {
 export type SerializedBody =
   | { bodyText: string }
   | { bodyJson: object }
-  | { bodyBase64: string };
+  | { bodyBase64: string }
+  | { body: null };
 
 function isTextMime(contentType: string): boolean {
   const [type, subtype] = contentType.split("/");
@@ -34,6 +35,8 @@ const fatalTextDecoder = new TextDecoder("utf-8", { fatal: true });
 export async function serializeBody(
   response: Response | Request,
 ): Promise<SerializedBody> {
+  if (response.body === null) return { body: null };
+
   const contentType = response.headers.get("content-type")?.split(";")[0] || "";
 
   // Possibly consider honoring this but maybe more useful for our use case to inspect
@@ -82,7 +85,13 @@ export async function serializeBody(
 export async function deserializeBody(
   objWithBody: FMCCacheContent["response"] | FMCCacheContent["request"],
 ): Promise<BodyInit | null> {
-  if ("bodyText" in objWithBody) {
+  if ("body" in objWithBody) {
+    if (objWithBody.body === null) {
+      return null;
+    } else {
+      throw new Error("Invalid body: null expected");
+    }
+  } else if ("bodyText" in objWithBody) {
     return objWithBody.bodyText;
   } else if ("bodyJson" in objWithBody) {
     return JSON.stringify(objWithBody.bodyJson);

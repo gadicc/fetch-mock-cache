@@ -97,8 +97,13 @@ export default class FMCStore {
     const body = await deserializeBody(request);
     if (body instanceof Uint8Array && body.length > 0) {
       ids.body = await this.hash(new TextDecoder().decode(body), hashLen);
-    } else {
+    } else if (typeof body === "string" && body.length > 0) {
       ids.body = await this.hash(String(body), hashLen);
+    } else if (body === null || body === undefined) {
+      // Should we hash `undefined` and `null` differently?
+      // For now, we just treat them both equally as "no body".
+    } else {
+      throw new Error("Unexpected body type");
     }
 
     return Object.keys(ids).length > 0 ? ids : null;

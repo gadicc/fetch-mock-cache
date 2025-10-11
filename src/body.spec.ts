@@ -33,6 +33,24 @@ describe("body", () => {
     expect(serialized).toEqual({ bodyBase64: "AQIDBAU=" });
   });
 
+  it("serializeBody with no Response body", async () => {
+    const serialized = await serializeBody(
+      new Response(null, {
+        headers: { "Content-Type": "application/octet-stream" },
+      }),
+    );
+    expect(serialized).toEqual({ body: null });
+  });
+
+  it("serializeBody with no Request body", async () => {
+    const serialized = await serializeBody(
+      new Request("http://www.example.com/", {
+        headers: { "Content-Type": "application/octet-stream" },
+      }),
+    );
+    expect(serialized).toEqual({ body: null });
+  });
+
   it("deserializeBody with text", async () => {
     const body = "Hello, world!";
     // @ts-expect-error: test stub
@@ -57,5 +75,12 @@ describe("body", () => {
     expect(new Uint8Array(arrayBuffer)).toEqual(
       new Uint8Array([1, 2, 3, 4, 5]),
     );
+  });
+
+  it("deserializeBody with no body", async () => {
+    // @ts-expect-error: test stub
+    const deserialized = await deserializeBody({ body: null });
+    const text = await new Response(deserialized).text();
+    expect(text).toBe("");
   });
 });
