@@ -29,6 +29,7 @@ the release workflow.
 | 010 | Author CLAUDE.md | P2 | S | — (content reflects 001's status) | TODO |
 | 011 | Spike: cache modes (record/replay/auto/off) design | P3 | M | 003 | TODO |
 | 012 | Spike: browser/jsdom support design | P3 | S | — | TODO |
+| 013 | Redact sensitive query params before caching (security) | P1 | M | 001, 005 (soft) | TODO |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
 
@@ -48,6 +49,12 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJE
 - **011 after 003**: the cache-modes design builds on `readCache`/`writeCache`
   behaving as documented (promise form currently broken).
 - 007, 009, 010, 012 are independent and can run anytime, in parallel.
+- **013 after 001, ideally right after 005** (added 2026-07-05 at `a092fef`):
+  013 extends 005's redact-before-hash design from headers to URL query
+  params (which reach fs-store *filenames*). Mechanically independent of 005
+  (different choke points), but both touch `CreateFetchCacheOptions` and the
+  same README section, and both are breaking (`feat(security)!`) — ship them
+  in one release so users re-record fixtures once.
 
 ## Findings considered and rejected
 
@@ -66,6 +73,10 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJE
 - **`fetch(requestObject, requestInit)` init-merging** (init ignored when
   first arg is a Request): real spec deviation but rare usage; deferred —
   noted in plan 002's maintenance notes rather than planned.
+- **URL userinfo credentials (`https://user:pass@host/`)**: nothing to
+  redact — the WHATWG fetch spec makes `new Request(url)` throw a TypeError
+  for credentialed URLs, so they can never reach the cache. (Considered
+  during plan 013.)
 - **`filenamify-url` major-version upgrade** (pinned exact at 2.1.2): newer
   majors could change generated cache filenames, invalidating every user's
   committed fixtures. Cost outweighs benefit; unflagged by audit. Leave

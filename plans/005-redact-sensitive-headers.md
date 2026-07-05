@@ -195,3 +195,4 @@ Stop and report back if:
 - Anyone adding a new place where headers get serialized into cache content must route it through the same redaction helper — reviewer should grep for `serializeHeaders(` call sites (exactly two in `src/fetch-cache.ts` today).
 - Follow-ups deferred: body redaction (hard, needs schema knowledge); per-`once()` redaction overrides; a warn-mode that detects likely secrets in bodies.
 - Release note must call out the one-time cache invalidation for authenticated requests.
+- **Companion plan**: plans/013-redact-sensitive-query-params.md extends the same redact-before-hash design to URL query params (`?apikey=…`), which additionally reach fs-store filenames. Option naming is deliberately parallel (`redactHeaders` / `redactSearchParams`); ship both in one release so users pay the fixture-invalidation cost once.
