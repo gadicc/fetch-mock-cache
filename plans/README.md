@@ -26,7 +26,7 @@ the release workflow.
 | 007 | README: fix broken custom-store example + typos | P2 | S | — | DONE |
 | 008 | Misc debt cleanup (deno name, header types, HIT mutation, mkdir race, dead code) | P3 | S | 002–006 (ordering only) | DONE |
 | 009 | Clear dev-dependency audit advisories | P2 | S | — | DONE |
-| 010 | Author CLAUDE.md | P2 | S | — (content reflects 001's status) | TODO |
+| 010 | Author CLAUDE.md | P2 | S | — (content reflects 001's status) | DONE |
 | 011 | Spike: cache modes (record/replay/auto/off) design | P3 | M | 003 | TODO |
 | 012 | Spike: browser/jsdom support design | P3 | S | — | TODO |
 | 013 | Redact sensitive query params before caching (security) | P1 | M | 001, 005 (soft) | TODO |

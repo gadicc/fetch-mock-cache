@@ -10,6 +10,10 @@ colocated as `*.spec.ts` beside the code they cover. Cross-runtime examples and
 smoke tests live under `tests/runtimes/{node,deno,bun}/`. Build output is
 generated into `lib/`; do not edit generated files directly.
 
+Any new public module needs matching entries in `package.json#exports` (pointing
+at `./lib/*.js`) and `jsr.json#exports` (pointing at `./src/*.ts`), including
+the `.js` and `.ts` extension variants.
+
 ## Build, Test, and Development Commands
 
 Use pnpm 10.x, as declared in `package.json`.
