@@ -35,6 +35,15 @@ NB: if you're still using **v1** (formerly `jest-fetch-mock-cache`),
 see the [old README](https://github.com/gadicc/fetch-mock-cache/tree/1.x)
 and/or [MIGRATING.md](./MIGRATING.md) for how to upgrade.
 
+## AI Agent Skill
+
+Using an AI coding agent? This repo includes a
+[fetch-mock-cache skill](./skills/fetch-mock-cache) with setup guidance:
+
+```bash
+npx skills add gadicc/fetch-mock-cache
+```
+
 ## Quick Start
 
 Generally your code will look something like this, but, **see further below** for

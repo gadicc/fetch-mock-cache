@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fetch Mock Cache"
+  short_description: "Use fetch-mock-cache in test suites"
+  default_prompt: "Use $fetch-mock-cache to add cached fetch fixtures to this test suite."
