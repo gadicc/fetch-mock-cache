@@ -8,6 +8,10 @@ import {
   DEFAULT_REDACTED_HEADERS,
 } from "./headers.js";
 import type FMCStore from "./store.js";
+import {
+  redactSearchParams as redactUrlSearchParams,
+  DEFAULT_REDACTED_SEARCH_PARAMS,
+} from "./url.js";
 
 const debug = _debug("fetch-mock-cache:core");
 const origFetch = fetch;
@@ -93,6 +97,12 @@ export interface CreateFetchCacheOptions {
    * Defaults to DEFAULT_REDACTED_HEADERS.  Pass `false` to disable
    * redaction entirely, or an array to replace the default list. */
   redactHeaders?: string[] | false;
+  /** Query param names whose values are redacted from cached URLs —
+   * fixture filenames, stored content, and cache-key derivation all see
+   * the redacted URL; the real network request is unaffected.  Defaults
+   * to DEFAULT_REDACTED_SEARCH_PARAMS.  Pass `false` to disable, or an
+   * array to replace the default list. */
+  redactSearchParams?: string[] | false;
 }
 
 /**
@@ -105,6 +115,7 @@ export default function createCachingMock({
   fetch,
   runtime,
   redactHeaders,
+  redactSearchParams,
 }: CreateFetchCacheOptions) {
   if (!Store) {
     throw new Error(
@@ -117,6 +128,11 @@ export default function createCachingMock({
     redactHeaders === false
       ? null
       : (redactHeaders ?? DEFAULT_REDACTED_HEADERS);
+
+  const paramRedactList =
+    redactSearchParams === false
+      ? null
+      : (redactSearchParams ?? DEFAULT_REDACTED_SEARCH_PARAMS);
 
   const serializeAndRedactHeaders = (headers: Headers) => {
     const serialized = serializeHeaders(headers);
@@ -150,10 +166,13 @@ export default function createCachingMock({
           : urlOrRequest;
 
       const url = fetchRequest.url;
+      const cacheUrl = paramRedactList
+        ? redactUrlSearchParams(url, paramRedactList)
+        : url;
 
       const clonedRequest = fetchRequest.clone();
       const cacheContentRequest: FMCCacheContent["request"] = {
-        url,
+        url: cacheUrl,
         method: fetchRequest.method,
         ...(clonedRequest.body && (await serializeBody(clonedRequest))),
         ...(Array.from(fetchRequest.headers.keys()).length > 0 && {
@@ -172,7 +191,7 @@ export default function createCachingMock({
         readCache && (await store.fetchContent(cacheContentRequest, options));
 
       if (existingContent) {
-        debug("Using cached copy of %o", url);
+        debug("Using cached copy of %o", cacheUrl);
         const headers = deserializeHeaders(existingContent.response.headers);
         headers.set("X-FMC-Cache", "HIT");
 
@@ -183,7 +202,7 @@ export default function createCachingMock({
         });
       }
 
-      debug("Fetching %o", url);
+      debug("Fetching %o", cacheUrl);
 
       const response = await fetch(fetchRequest);
 

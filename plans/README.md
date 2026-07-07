@@ -29,7 +29,7 @@ the release workflow.
 | 010 | Author CLAUDE.md | P2 | S | — (content reflects 001's status) | DONE |
 | 011 | Spike: cache modes (record/replay/auto/off) design | P3 | M | 003 | DONE |
 | 012 | Spike: browser/jsdom support design | P3 | S | — | DONE |
-| 013 | Redact sensitive query params before caching (security) | P1 | M | 001, 005 (soft) | TODO |
+| 013 | Redact sensitive query params before caching (security) | P1 | M | 001, 005 (soft) | DONE |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
 

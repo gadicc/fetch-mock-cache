@@ -242,44 +242,66 @@ You can also pass the following to `fetchCache.once`:
 See below in Tips & Tricks on how you can leverage this to conditionally replace the
 cache for failing tests.
 
-### Sensitive headers are redacted by default
+### Sensitive headers and query parameters are redacted by default
 
-To prevent committing sensitive credentials (like session cookies or API keys) to source control, the library automatically redacts values for the following headers in both the stored cache files and the computed cache-key hashes:
+To prevent committing sensitive credentials (like session cookies, auth tokens, or API keys) to source control, the library automatically redacts values for both headers and query parameters in both the stored cache files and the computed cache-key hashes.
+
+#### Redacted Headers
+By default, the following headers are redacted:
 - `authorization`
 - `proxy-authorization`
 - `cookie`
 - `set-cookie`
 - `x-api-key`
 
-Redacting these headers before hashing ensures key stability (e.g. CI runs without a real token still replay cached fixtures recorded with one).
+#### Redacted Query Parameters
+By default, the following query parameters (matched case-insensitively) are redacted:
+- `apikey`
+- `api_key`
+- `api-key`
+- `access_token`
+- `token`
+- `client_secret`
+- `secret`
+- `password`
+- `signature`
+- `sig`
+- `x-amz-signature`
+- `x-amz-security-token`
+- `x-amz-credential`
+
+Redacting these headers and query parameters before hashing ensures key stability (e.g. CI runs without a real token or API key still replay cached fixtures recorded with one).
 
 > [!WARNING]
-> Because redaction alters the cache key, existing cache files for requests that carried any of these sensitive headers will get new cache IDs. You will need to delete those old cache files and re-record them.
+> Because redaction alters the cache key, existing cache files for requests that carried any of these sensitive headers or query parameters will get new cache IDs and file names. You will need to delete those old cache files and re-record them.
 
 #### Customizing or disabling redaction
 
-Redaction can be configured when initializing the caching mock via the global `redactHeaders` option:
+Redaction can be configured when initializing the caching mock via the global `redactHeaders` and `redactSearchParams` options:
 
 ```ts
 import createFetchCache from "fetch-mock-cache/runtimes/node";
 import Store from "fetch-mock-cache/stores/fs";
 
-// Disable redaction entirely
+// Disable all redactions
 const fetchCache = createFetchCache({
   Store,
   redactHeaders: false,
+  redactSearchParams: false,
 });
 
-// Customize the list of redacted headers
+// Customize redacted headers and search params
 const fetchCacheCustom = createFetchCache({
   Store,
-  redactHeaders: ["x-custom-secret-header", "x-another-one"],
+  redactHeaders: ["x-custom-secret-header"],
+  redactSearchParams: ["custom_api_key", "session_token"],
 });
 ```
 
-#### Limitation
+#### Limitations
 
-Only request and response headers are redacted by default. Values inside the request or response **bodies** (e.g., a JSON payload containing a `token` or `password`) are NOT redacted. Be careful not to send sensitive information in request bodies if you plan to commit the fixtures.
+- **Request/Response Bodies**: Payload bodies (e.g., a JSON request payload containing a `token` or `password`) are NOT redacted.
+- **Path-segment Secrets**: Secrets embedded in URL path segments (e.g., Slack webhook URLs like `/services/T.../B.../xxx` or Telegram `/bot<token>/` paths) cannot be automatically detected by name and are not redacted. Use custom cache IDs via `fetchCache.once({ id: "my-custom-id" })` to manually name such fixtures.
 
 ## Internal and Experimental Features
 

@@ -217,4 +217,108 @@ describe("fetch-mock-cache", () => {
       });
     });
   });
+
+  describe("redactSearchParams option", () => {
+    it("redacts query params from stored URL and store key", async (t) => {
+      const fakeFetch = async () => new Response("hello");
+      const fetchCache = createFetchCache({
+        Store: MemoryStore,
+        fetch: fakeFetch,
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      await fetch("https://api.example.com/eod?apikey=sk-live-123&symbol=AAPL");
+
+      const store = fetchCache._store! as MemoryStore;
+      const cached = Array.from(store.store.values())[0];
+      expect(cached.request.url).toBe(
+        "https://api.example.com/eod?apikey=REDACTED&symbol=AAPL",
+      );
+
+      const storeKey = Array.from(store.store.keys())[0];
+      expect(storeKey).toContain("apikey=REDACTED");
+      expect(storeKey).not.toContain("sk-live-123");
+    });
+
+    it("has key stability across different secret values", async (t) => {
+      let fetchCount = 0;
+      const fakeFetch = async () => {
+        fetchCount++;
+        return new Response("hello");
+      };
+      const fetchCache = createFetchCache({
+        Store: MemoryStore,
+        fetch: fakeFetch,
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      // First fetch with key AAA
+      const res1 = await fetch("https://api.example.com/eod?apikey=AAA&symbol=AAPL");
+      expect(res1.headers.get("X-FMC-Cache")).toBe("MISS");
+      expect(fetchCount).toBe(1);
+
+      // Second fetch with key BBB
+      const res2 = await fetch("https://api.example.com/eod?apikey=BBB&symbol=AAPL");
+      expect(res2.headers.get("X-FMC-Cache")).toBe("HIT");
+      expect(fetchCount).toBe(1);
+    });
+
+    it("presence still distinguishes requests", async (t) => {
+      let fetchCount = 0;
+      const fakeFetch = async () => {
+        fetchCount++;
+        return new Response("hello");
+      };
+      const fetchCache = createFetchCache({
+        Store: MemoryStore,
+        fetch: fakeFetch,
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      // First fetch with apikey
+      await fetch("https://api.example.com/eod?apikey=AAA&symbol=AAPL");
+      expect(fetchCount).toBe(1);
+
+      // Second fetch without apikey
+      const res2 = await fetch("https://api.example.com/eod?symbol=AAPL");
+      expect(res2.headers.get("X-FMC-Cache")).toBe("MISS");
+      expect(fetchCount).toBe(2);
+    });
+
+    it("disables param redaction when redactSearchParams is false", async (t) => {
+      const fakeFetch = async () => new Response("hello");
+      const fetchCache = createFetchCache({
+        Store: MemoryStore,
+        fetch: fakeFetch,
+        redactSearchParams: false,
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      await fetch("https://api.example.com/eod?apikey=sk-live-123&symbol=AAPL");
+
+      const store = fetchCache._store! as MemoryStore;
+      const cached = Array.from(store.store.values())[0];
+      expect(cached.request.url).toBe(
+        "https://api.example.com/eod?apikey=sk-live-123&symbol=AAPL",
+      );
+    });
+
+    it("supports custom list of param names to redact", async (t) => {
+      const fakeFetch = async () => new Response("hello");
+      const fetchCache = createFetchCache({
+        Store: MemoryStore,
+        fetch: fakeFetch,
+        redactSearchParams: ["custom"],
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      await fetch("https://api.example.com/eod?apikey=sk-live-123&custom=abc");
+
+      const store = fetchCache._store! as MemoryStore;
+      const cached = Array.from(store.store.values())[0];
+      expect(cached.request.url).toBe(
+        "https://api.example.com/eod?apikey=sk-live-123&custom=REDACTED",
+      );
+    });
+  });
 });
