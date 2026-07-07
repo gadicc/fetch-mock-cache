@@ -144,6 +144,8 @@ export default function createCachingMock({
 
       if (typeof readCache === "function") {
         readCache = await readCache(cacheContentRequest, options);
+      } else if (readCache instanceof Promise) {
+        readCache = await readCache;
       }
 
       const existingContent =

@@ -19,7 +19,7 @@ the release workflow.
 |------|-------|----------|--------|------------|--------|
 | 001 | Offline, deterministic, non-destructive test suite | P1 | M | — | DONE |
 | 002 | Send full Request on cache miss (method/headers/body loss) | P1 | S | 001 (soft) | DONE |
-| 003 | Await promise-valued `readCache` | P1 | S | 001 (soft) | TODO |
+| 003 | Await promise-valued `readCache` | P1 | S | 001 (soft) | DONE |
 | 004 | Invalid-JSON body → text fallback | P2 | S | 001 (soft) | TODO |
 | 005 | Redact sensitive headers before caching (security) | P1 | M | 001 | TODO |
 | 006 | fs store: only ENOENT/NotFound is a cache miss | P2 | S | 001 (soft) | TODO |

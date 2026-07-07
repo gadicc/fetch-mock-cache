@@ -51,5 +51,66 @@ describe("fetch-mock-cache", () => {
       expect(Object.getOwnPropertyNames(optionsArg)).toHaveLength(0);
     });
   });
-});
 
+  describe("readCache option", () => {
+    it("promise resolving false skips the cache", async (t) => {
+      const fakeFetch = createFakeFetch();
+      const fetchCache = createFetchCache({
+        Store: MemoryStore,
+        fetch: fakeFetch,
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      // Prime the cache
+      const res1 = await fetch("https://fmc.test/");
+      expect(res1.headers.get("X-FMC-Cache")).toBe("MISS");
+      expect(fakeFetch.calls).toBe(1);
+
+      // Promise resolving false skips cache
+      fetchCache.once({ readCache: Promise.resolve(false) });
+      const res2 = await fetch("https://fmc.test/");
+      expect(res2.headers.get("X-FMC-Cache")).toBe("MISS");
+      expect(fakeFetch.calls).toBe(2);
+    });
+
+    it("promise resolving true uses the cache", async (t) => {
+      const fakeFetch = createFakeFetch();
+      const fetchCache = createFetchCache({
+        Store: MemoryStore,
+        fetch: fakeFetch,
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      // Prime the cache
+      const res1 = await fetch("https://fmc.test/");
+      expect(res1.headers.get("X-FMC-Cache")).toBe("MISS");
+      expect(fakeFetch.calls).toBe(1);
+
+      // Promise resolving true uses cache
+      fetchCache.once({ readCache: Promise.resolve(true) });
+      const res2 = await fetch("https://fmc.test/");
+      expect(res2.headers.get("X-FMC-Cache")).toBe("HIT");
+      expect(fakeFetch.calls).toBe(1);
+    });
+
+    it("boolean false skips the cache", async (t) => {
+      const fakeFetch = createFakeFetch();
+      const fetchCache = createFetchCache({
+        Store: MemoryStore,
+        fetch: fakeFetch,
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      // Prime the cache
+      const res1 = await fetch("https://fmc.test/");
+      expect(res1.headers.get("X-FMC-Cache")).toBe("MISS");
+      expect(fakeFetch.calls).toBe(1);
+
+      // Boolean false skips cache
+      fetchCache.once({ readCache: false });
+      const res2 = await fetch("https://fmc.test/");
+      expect(res2.headers.get("X-FMC-Cache")).toBe("MISS");
+      expect(fakeFetch.calls).toBe(2);
+    });
+  });
+});
