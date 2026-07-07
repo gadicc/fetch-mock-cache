@@ -11,6 +11,7 @@
     "lint": "pnpm biome lint src",
     "format": "pnpm biome format --write src",
     "build": "tsc",
+    "typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build",
     "coverage:output": "node --experimental-vm-modules --test --import tsx --experimental-test-coverage `glob 'src/**/*.spec.ts'`",
     "coverage": "node --experimental-vm-modules --test --import tsx --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=lcov.info `glob 'src/**/*.spec.ts'`",
