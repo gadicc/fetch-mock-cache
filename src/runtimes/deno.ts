@@ -13,7 +13,7 @@ import _createFetchCache, {
 } from "../fetch-cache.js";
 
 export const runtime: Runtime = {
-  name: "node",
+  name: "deno",
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore: for typescript parsing outside of deno
   env: Deno.env.toObject(),
