@@ -17,7 +17,7 @@ the release workflow.
 
 | Plan | Title | Priority | Effort | Depends on | Status |
 |------|-------|----------|--------|------------|--------|
-| 001 | Offline, deterministic, non-destructive test suite | P1 | M | — | TODO |
+| 001 | Offline, deterministic, non-destructive test suite | P1 | M | — | DONE |
 | 002 | Send full Request on cache miss (method/headers/body loss) | P1 | S | 001 (soft) | TODO |
 | 003 | Await promise-valued `readCache` | P1 | S | 001 (soft) | TODO |
 | 004 | Invalid-JSON body → text fallback | P2 | S | 001 (soft) | TODO |

@@ -44,7 +44,7 @@ describe("body", () => {
 
   it("serializeBody with no Request body", async () => {
     const serialized = await serializeBody(
-      new Request("http://www.example.com/", {
+      new Request("https://fmc.test/", {
         headers: { "Content-Type": "application/octet-stream" },
       }),
     );

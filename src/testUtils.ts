@@ -2,9 +2,36 @@ import { test as it } from "node:test";
 import { expect } from "expect";
 import createCachingMock from "./runtimes/node.js";
 
+export function createFakeFetch() {
+  const fn = async (
+    input: string | URL | Request,
+    init?: RequestInit,
+  ): Promise<Response> => {
+    fn.calls++;
+    const request = input instanceof Request ? input : new Request(input, init);
+    const url = new URL(request.url);
+    // /text endpoint returns plain text; everything else echoes JSON
+    if (url.pathname === "/text")
+      return new Response("hello", {
+        status: 200,
+        headers: { "content-type": "text/plain" },
+      });
+    const body = request.body ? await request.text() : null;
+    return new Response(
+      JSON.stringify({
+        parsedQueryParams: Object.fromEntries(url.searchParams.entries()),
+        parsedBody: body ? JSON.parse(body) : undefined,
+      }),
+      { status: 200, headers: { "content-type": "application/json" } },
+    );
+  };
+  fn.calls = 0;
+  return fn;
+}
+
 export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
   it("works with a Request as first argument", async (t) => {
-    const url = "https://echo.free.beeceptor.com/?id=test1";
+    const url = "https://fmc.test/?id=test1";
     const expectedResponse = { id: "test1" };
     t.mock.method(globalThis, "fetch", mock);
     const data = await (await fetch(new Request(url))).json();
@@ -12,8 +39,7 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
   });
 
   it("works with text response (non-JSON)", async (t) => {
-    const url =
-      "https://echoserver.dev/server?query=%7B%22headers%22%3A%5B%5D%2C%22body%22%3A%7B%22type%22%3A%22text%22%2C%22data%22%3A%22hello%22%7D%2C%22status%22%3A200%7D";
+    const url = "https://fmc.test/text";
     const expectedResponse = "hello";
     t.mock.method(globalThis, "fetch", mock);
 
@@ -27,7 +53,7 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
   });
 
   it("works with a JSON response", async (t) => {
-    const url = "https://echo.free.beeceptor.com/?one=two&key=value";
+    const url = "https://fmc.test/?one=two&key=value";
     const expectedResponse = { one: "two", key: "value" };
     t.mock.method(globalThis, "fetch", mock);
 
@@ -41,7 +67,7 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
   });
 
   it("differentiates requests by headers", async (t) => {
-    const url = "https://echo.free.beeceptor.com/?one=two&key=value";
+    const url = "https://fmc.test/?one=two&key=value";
     const expectedResponse = { one: "two", key: "value" };
     t.mock.method(globalThis, "fetch", mock);
 
@@ -63,7 +89,7 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
   });
 
   it("differentiates requests by body", async (t) => {
-    const url = "http://echo.free.beeceptor.com/sample-request";
+    const url = "https://fmc.test/sample-request";
     const jsonInit = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -95,3 +121,4 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
     }
   });
 }
+

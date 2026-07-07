@@ -19,7 +19,7 @@ describe("Store", () => {
       const store = new Store({});
 
       const ids = await store.uniqueRequestIdentifiers({
-        url: "https://echo.free.beeceptor.com/?id=test1",
+        url: "https://fmc.test/?id=test1",
         method: "GET",
       });
       expect(ids).toBeNull();

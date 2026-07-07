@@ -1,0 +1,19 @@
+{
+  "request": {
+    "url": "https://fmc.test/?id=test1",
+    "method": "GET"
+  },
+  "response": {
+    "ok": true,
+    "status": 200,
+    "statusText": "",
+    "headers": {
+      "content-type": "application/json"
+    },
+    "bodyJson": {
+      "parsedQueryParams": {
+        "id": "test1"
+      }
+    }
+  }
+}
