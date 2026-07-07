@@ -63,6 +63,13 @@ committing secrets in recorded requests or headers.
 - If the exact assistant name, model and reasoning level are unknown and cannot
   be inferred, ask the user before committing and then reuse that answer for the
   rest of the session.
+- Keep commit body's line lengths below 72 characters and wrap as needed.
+
+## Coherence
+
+For all changes, ensure the `README.md`, `skills/fetch-mock-cache/SKILL.md`,
+examples, related files, jsdoc, and everything else relevant remains relevant
+and up-to-date.
 
 ## Security & Configuration Tips
 
