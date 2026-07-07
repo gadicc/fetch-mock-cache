@@ -52,6 +52,11 @@ committing secrets in recorded requests or headers.
   This is important since the repo uses `semantic-release` to bump versions
   appropriately according to commit messages.  Breaking changes MUST include
   a "BREAKING CHANGE: <explanation>" in the commit's footer.
+- Before committing, run Biome formatting/organize-imports on changed files
+  with `pnpm biome check --write <paths>`. Use this instead of relying only on
+  `pnpm run format`, since that script currently formats `src/` but not
+  runtime fixtures or other changed files. Then run `pnpm biome ci`; for
+  behavior, test, package, or runtime changes, also run `pnpm run ci`.
 - In the body, include the motivation, summary of changes, and anything else of
   note.  Also list verification commands run, link related issues, and call ou
   compatibility impact for Node, Deno, or Bun when relevant.
