@@ -38,8 +38,7 @@ and/or [MIGRATING.md](./MIGRATING.md) for how to upgrade.
 ## Quick Start
 
 Generally your code will look something like this, but, **see further below** for
-the [**exact code for different runtimes and testing frameworks**](#runtimes)
-.
+the [**exact code for different runtimes and testing frameworks**](#runtimes).
 
 ```ts
 // Default for node runtime, see grid below for bun/deno.
@@ -167,13 +166,13 @@ import type { FMCCacheContent, FMCStoreOptions } from "fetch-mock-cache/store";
 import db from "./db"; // your existing db
 
 export default class MyStore extends FMCStore {
-  async fetchContent(req: FMCCacheContent["request"]) {
+  async fetchContent(request: FMCCacheContent["request"]) {
     const _id = await this.idFromRequest(request);
-    return (await db.collection("fmc").findOne({ _id })).content;
+    return (await db.collection("fmc").findOne({ _id }))?.content;
   }
   async storeContent(content: FMCCacheContent) {
     const _id = await this.idFromRequest(content.request);
-    await db.collection("jfmc").insertOne({ _id, content });
+    await db.collection("fmc").insertOne({ _id, content });
   }
 }
 ```
@@ -298,7 +297,7 @@ None.
 
 Previous experiments:
 
-*  `_once()` has been promoted to `_once()` after a long, succesful testing period.
+*  `_once()` has been promoted to `once()` after a long, successful testing period.
 
 ## Tips & Tricks
 
@@ -394,7 +393,3 @@ Previous experiments:
 - [x] Cache request headers too and hash them in filename / key / id.
 - [ ] Browser-environment support. Please open an issue if you need this, and in what cases. jsdom?
 - [x] Handle and store invalid JSON too?
-
-```
-
-```
