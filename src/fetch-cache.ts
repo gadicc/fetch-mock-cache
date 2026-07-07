@@ -162,8 +162,7 @@ export default function createCachingMock({
 
       debug("Fetching %o", url);
 
-      const p = fetch(url, requestInit);
-      const response = await p;
+      const response = await fetch(fetchRequest);
 
       const newContent: FMCCacheContent = {
         request: cacheContentRequest,

@@ -120,5 +120,19 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
       expect(data.parsedBody).toEqual(body);
     }
   });
+
+  it("sends method/headers/body on miss when called with a Request object", async (t) => {
+    const url = "https://fmc.test/request-object-post";
+    t.mock.method(globalThis, "fetch", mock);
+    const body = { hello: "req" };
+    const request = new Request(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const response = await fetch(request);
+    const data = await response.json();
+    expect(data.parsedBody).toEqual(body);
+  });
 }
 
