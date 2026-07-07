@@ -77,11 +77,21 @@ export default class FMCFileSystemStore extends FMCStore {
     options?: FetchCacheOptions,
   ): Promise<FMCCacheContent | null> {
     const path = await this.pathFromRequest(request, options);
+    let content: string;
     try {
-      const content = await this.runtime.fs.readFile(path);
+      content = await this.runtime.fs.readFile(path);
+    } catch (error) {
+      if (isNotFound(error)) return null;
+      throw error;
+    }
+    try {
       return JSON.parse(content) as FMCCacheContent;
-    } catch (_error) {
-      return null;
+    } catch (error) {
+      throw new Error(
+        `fetch-mock-cache: cache file exists but is not valid JSON: ${path} (${
+          error instanceof Error ? error.message : String(error)
+        })`,
+      );
     }
   }
 
@@ -92,4 +102,13 @@ export default class FMCFileSystemStore extends FMCStore {
     const path = await this.pathFromRequest(content.request, options);
     await this.runtime.fs.writeFile(path, JSON.stringify(content, null, 2));
   }
+}
+
+function isNotFound(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    (("code" in error && error.code === "ENOENT") || // node, bun
+      ("name" in error && error.name === "NotFound")) // deno
+  );
 }
