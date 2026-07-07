@@ -27,5 +27,9 @@
     "tsx": "^4.23.0",
     "vitest": "^4.1.10",
     "vitest-fetch-mock": "^0.4.5"
+  },
+  "overrides": {
+    "glob": "^13.0.6",
+    "test-exclude": "^8.0.0"
   }
 }
