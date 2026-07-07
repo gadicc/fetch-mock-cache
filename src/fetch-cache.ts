@@ -243,7 +243,5 @@ export default function createCachingMock({
     },
   );
 
-  // store.setFetchCache(fetchCache);
-
   return fetchCache;
 }

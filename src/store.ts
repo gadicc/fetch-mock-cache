@@ -42,22 +42,10 @@ export interface FMCStoreOptions {
  */
 export default class FMCStore {
   runtime: Runtime;
-  // fetchCache?: FetchCache;
 
   constructor(options: FMCStoreOptions) {
     this.runtime = options.runtime;
   }
-
-  /* **
-   * Sets a ref back to fetchCache immediately after instantiation, so the
-   * store can easily refer back to this.fetchCache in its methods.
-   * @param fetchCache
-   */
-  /*
-  setFetchCache(fetchCache: FetchCache) {
-    this.fetchCache = fetchCache;
-  }
-  */
 
   /**
    * Given an input string, return a SHA-256 hash of the string, truncated to

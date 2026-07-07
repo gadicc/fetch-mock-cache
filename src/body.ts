@@ -39,9 +39,7 @@ export async function serializeBody(
 
   const contentType = response.headers.get("content-type")?.split(";")[0] || "";
 
-  // Possibly consider honoring this but maybe more useful for our use case to inspect
-  const _nosniff =
-    response.headers.get("x-content-type-options")?.toLowerCase() === "nosniff";
+  // Possibly consider honoring response.headers.get("x-content-type-options")?.toLowerCase() === "nosniff" but maybe more useful for our use case to inspect
 
   if (contentType === "application/json") {
     const bodyText = await response.text();

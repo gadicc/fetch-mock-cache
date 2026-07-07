@@ -2,7 +2,6 @@ import { describe, test as it } from "node:test";
 import { expect } from "expect";
 
 import createFetchCache from "./runtimes/node.js";
-// import FsStore from "./stores/nodeFs.js";
 import MemoryStore from "./stores/memory.js";
 import { createFakeFetch } from "./testUtils.js";
 
