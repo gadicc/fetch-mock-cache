@@ -13,7 +13,7 @@ resultToStatus() {
   fi
 }
 
-bun install --frozen-lockfile
+bun install --frozen-lockfile --ignore-scripts
 result=$?
 if [ $result -ne 0 ]; then
   status=1
