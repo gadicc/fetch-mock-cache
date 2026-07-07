@@ -10,12 +10,15 @@
  * Given a Headers object, return a plain object with the headers.
  * The "set-cookie" header is handled differently in different environments.
  */
-export function serializeHeaders(headers: Headers): Record<string, string> {
-  const serialized = Object.fromEntries(headers.entries());
+export function serializeHeaders(
+  headers: Headers,
+): Record<string, string | string[]> {
+  const serialized: Record<string, string | string[]> = Object.fromEntries(
+    headers.entries(),
+  );
 
   if (serialized["set-cookie"]) {
     if (typeof headers.getSetCookie === "function") {
-      // @ts-expect-error: no type guard for typeof === "function"
       serialized["set-cookie"] = headers.getSetCookie();
 
       // @ts-expect-error: node-fetch package
