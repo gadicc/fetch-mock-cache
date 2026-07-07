@@ -64,14 +64,6 @@ committing secrets in recorded requests or headers.
   be inferred, ask the user before committing and then reuse that answer for the
   rest of the session.
 
-
-Git history uses Conventional Commit-style messages, for example
-`fix(store): better handling of null body` and `chore(pkg): fix lint script`.
-Use a concise scope when useful: `fix(cache): ...`, `chore(readme): ...`.
-Pull requests should describe the behavior change, list verification commands
-run, link related issues, and call out compatibility impact for Node, Deno, or
-Bun when relevant.
-
 ## Security & Configuration Tips
 
 This package records HTTP request and response data for tests. Review fixture
