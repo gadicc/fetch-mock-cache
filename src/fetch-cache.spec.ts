@@ -10,6 +10,37 @@ const fetchCache = createFetchCache({
   fetch: createFakeFetch(),
 });
 
+function createCountingTextFetch() {
+  const fn = async (): Promise<Response> => {
+    fn.calls++;
+    return new Response(`call-${fn.calls}`);
+  };
+  fn.calls = 0;
+  return fn;
+}
+
+async function withFmcCacheMode<T>(
+  mode: string | undefined,
+  fn: () => Promise<T>,
+): Promise<T> {
+  const previous = process.env.FMC_CACHE_MODE;
+  if (mode === undefined) {
+    delete process.env.FMC_CACHE_MODE;
+  } else {
+    process.env.FMC_CACHE_MODE = mode;
+  }
+
+  try {
+    return await fn();
+  } finally {
+    if (previous === undefined) {
+      delete process.env.FMC_CACHE_MODE;
+    } else {
+      process.env.FMC_CACHE_MODE = previous;
+    }
+  }
+}
+
 describe("fetch-mock-cache", () => {
   describe("createFetchCache", () => {
     it("should throw if no store is provided", () => {
@@ -73,6 +104,152 @@ describe("fetch-mock-cache", () => {
       const cached = Array.from(store.store.values())[0];
       expect(cached.response.headers).not.toHaveProperty("X-FMC-Cache");
       expect(cached.response.headers).not.toHaveProperty("x-fmc-cache");
+    });
+  });
+
+  describe("cache mode", () => {
+    it("record mode skips reads and writes fresh content", async (t) => {
+      const fakeFetch = createCountingTextFetch();
+      const fetchCache = createFetchCache({
+        Store: MemoryStore,
+        fetch: fakeFetch,
+        mode: "record",
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      const res1 = await fetch("https://fmc.test/record");
+      expect(res1.headers.get("X-FMC-Cache")).toBe("MISS");
+      expect(await res1.text()).toBe("call-1");
+
+      const res2 = await fetch("https://fmc.test/record");
+      expect(res2.headers.get("X-FMC-Cache")).toBe("MISS");
+      expect(await res2.text()).toBe("call-2");
+      expect(fakeFetch.calls).toBe(2);
+
+      fetchCache.options = { mode: "replay" };
+      const res3 = await fetch("https://fmc.test/record");
+      expect(res3.headers.get("X-FMC-Cache")).toBe("HIT");
+      expect(await res3.text()).toBe("call-2");
+      expect(fakeFetch.calls).toBe(2);
+    });
+
+    it("replay mode throws on a cache miss before network fetch", async (t) => {
+      class LocatedMemoryStore extends MemoryStore {
+        _location = "tests/fixtures/http";
+      }
+
+      const fakeFetch = createCountingTextFetch();
+      const fetchCache = createFetchCache({
+        Store: LocatedMemoryStore,
+        fetch: fakeFetch,
+        mode: "replay",
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      fetchCache.once({ id: "fixture" });
+      await expect(fetch("https://fmc.test/endpoint")).rejects.toThrow(
+        [
+          "fetch-mock-cache: cache miss in replay mode for GET https://fmc.test/endpoint",
+          "Store: LocatedMemoryStore (location: tests/fixtures/http)",
+          "Computed cache id: fixture",
+          'To record this fixture, set FMC_CACHE_MODE=record or createFetchCache({ mode: "record" }).',
+        ].join("\n"),
+      );
+      expect(fakeFetch.calls).toBe(0);
+    });
+
+    it("off mode skips reads and writes", async (t) => {
+      const fakeFetch = createCountingTextFetch();
+      const fetchCache = createFetchCache({
+        Store: MemoryStore,
+        fetch: fakeFetch,
+        mode: "off",
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      const res1 = await fetch("https://fmc.test/off");
+      expect(res1.headers.get("X-FMC-Cache")).toBe("MISS");
+      expect(await res1.text()).toBe("call-1");
+
+      const res2 = await fetch("https://fmc.test/off");
+      expect(res2.headers.get("X-FMC-Cache")).toBe("MISS");
+      expect(await res2.text()).toBe("call-2");
+      expect(fakeFetch.calls).toBe(2);
+    });
+
+    it("reads FMC_CACHE_MODE case-insensitively at fetch time", async (t) => {
+      const fakeFetch = createCountingTextFetch();
+      const fetchCache = createFetchCache({
+        Store: MemoryStore,
+        fetch: fakeFetch,
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      await withFmcCacheMode(" RePlAy ", async () => {
+        await expect(fetch("https://fmc.test/env-replay")).rejects.toThrow(
+          /cache miss in replay mode/,
+        );
+        expect(fakeFetch.calls).toBe(0);
+      });
+    });
+
+    it("throws on an invalid selected FMC_CACHE_MODE", async (t) => {
+      await withFmcCacheMode("invalid", async () => {
+        const fakeFetch = createCountingTextFetch();
+        const fetchCache = createFetchCache({
+          Store: MemoryStore,
+          fetch: fakeFetch,
+        });
+        t.mock.method(globalThis, "fetch", fetchCache);
+
+        await expect(fetch("https://fmc.test/invalid-mode")).rejects.toThrow(
+          'fetch-mock-cache: invalid cache mode "invalid" from FMC_CACHE_MODE. Valid modes: auto, replay, record, off.',
+        );
+        expect(fakeFetch.calls).toBe(0);
+      });
+    });
+
+    it("resolves mode precedence as once, options, env, default", async (t) => {
+      await withFmcCacheMode("invalid", async () => {
+        const fakeFetch = createCountingTextFetch();
+        const fetchCache = createFetchCache({
+          Store: MemoryStore,
+          fetch: fakeFetch,
+          mode: "off",
+        });
+        t.mock.method(globalThis, "fetch", fetchCache);
+
+        const globalRes = await fetch("https://fmc.test/precedence");
+        expect(globalRes.headers.get("X-FMC-Cache")).toBe("MISS");
+        expect(await globalRes.text()).toBe("call-1");
+
+        fetchCache.options = { mode: "replay" };
+        fetchCache.once({ mode: "off" });
+        const onceRes = await fetch("https://fmc.test/precedence");
+        expect(onceRes.headers.get("X-FMC-Cache")).toBe("MISS");
+        expect(await onceRes.text()).toBe("call-2");
+        expect(fakeFetch.calls).toBe(2);
+      });
+    });
+
+    it("lets explicit read and write options override replay mode", async (t) => {
+      const fakeFetch = createCountingTextFetch();
+      const fetchCache = createFetchCache({
+        Store: MemoryStore,
+        fetch: fakeFetch,
+        mode: "replay",
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      fetchCache.once({ readCache: false, writeCache: true });
+      const res1 = await fetch("https://fmc.test/replay-override");
+      expect(res1.headers.get("X-FMC-Cache")).toBe("MISS");
+      expect(await res1.text()).toBe("call-1");
+
+      const res2 = await fetch("https://fmc.test/replay-override");
+      expect(res2.headers.get("X-FMC-Cache")).toBe("HIT");
+      expect(await res2.text()).toBe("call-1");
+      expect(fakeFetch.calls).toBe(1);
     });
   });
 

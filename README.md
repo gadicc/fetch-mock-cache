@@ -179,6 +179,42 @@ export default class MyStore extends FMCStore {
 
 ## Overriding the Default Caching Behaviour
 
+### Cache modes
+
+By default, `fetch-mock-cache` runs in `auto` mode, which preserves the
+original behavior: read from cache when possible, otherwise fetch from the
+network and write the response to cache.
+
+You can set a mode globally when creating the mock, change it later with
+`fetchCache.options`, override it for the next call with `fetchCache.once`, or
+set `FMC_CACHE_MODE` in the environment:
+
+```ts
+const fetchCache = createFetchCache({
+  Store,
+  mode: "replay",
+});
+
+fetchCache.options = { mode: "record" };
+fetchCache.once({ mode: "off" });
+```
+
+```bash
+FMC_CACHE_MODE=replay pnpm test
+```
+
+Precedence is: `fetchCache.once(...)`, then `fetchCache.options`, then
+`FMC_CACHE_MODE`, then the built-in `auto` default. `FMC_CACHE_MODE` is
+case-insensitive after trimming whitespace. Invalid selected values throw a
+configuration error before any network request is made.
+
+| Mode | Reads cache | Writes cache | Cache miss behavior |
+| ---- | ----------- | ------------ | ------------------- |
+| `auto` | yes | yes | Fetch from network and cache the response |
+| `replay` | yes | no | Throw before reaching the network |
+| `record` | no | yes | Fetch from network and overwrite the cache |
+| `off` | no | no | Fetch from network without touching the cache |
+
 ### Passing options to be used for the next `fetch()` call
 
 ```ts
@@ -218,13 +254,14 @@ You can also pass the following to `fetchCache.once`:
 ```ts
 {
   id?: string; // as above
+  mode?: "auto" | "replay" | "record" | "off";
   /** True (default): use cached response if available; false: always fetch from network.
    * You can also provide a promise or function that returns a boolean or promise.
    */
   readCache?:
     | boolean
     | Promise<boolean>
-    | ((...args: Parameters<FMCStore["fetchContent"]>) => Promise<boolean>);
+    | ((...args: Parameters<FMCStore["fetchContent"]>) => boolean | Promise<boolean>);
   /** If a fetch was performed, should we write it to the cache?  Can be a boolean, a
    * promise, or a function that returns a boolean or promise.  In the case of a promise,
    * the write will open occur when the promise resolves, and AFTER the response is
@@ -235,12 +272,13 @@ You can also pass the following to `fetchCache.once`:
   writeCache?:
     | boolean
     | Promise<boolean>
-    | ((...args: Parameters<FMCStore["storeContent"]>) => Promise<boolean>);
+    | ((...args: Parameters<FMCStore["storeContent"]>) => boolean | Promise<boolean>);
 }
 ```
 
-See below in Tips & Tricks on how you can leverage this to conditionally replace the
-cache for failing tests.
+The same cache behavior options can be assigned to `fetchCache.options` for
+suite-level defaults. Explicit `readCache` and `writeCache` values override the
+defaults from the selected mode.
 
 ### Sensitive headers and query parameters are redacted by default
 
@@ -323,92 +361,30 @@ Previous experiments:
 
 ## Tips & Tricks
 
-### Rewrite the cache only for failing tests.
+### Rewrite the cache only for failing tests
 
-1. Let's wrap the `it()` function to allow a callback after the test
+Use `FMC_CACHE_MODE=record` to refresh every fixture in a run, and
+`FMC_CACHE_MODE=replay` in CI to guarantee that missing fixtures fail before
+network access.
 
-   ```ts
-   import { it as _it } from "..."; // your fave library
+If you specifically want to rewrite a fixture only when its test fails, keep
+that as a test-runner-specific wrapper and combine `record` mode with an async
+`writeCache` decision:
 
-   export const it = function wrappedIt(
-     suite: string,
-     fn: (
-       t: Parameters<typeof _it>[0],
-       onFinish: (cb: (error?: unknown) => void | Promise<void>) => void,
-     ) => void | Promise<void>,
-   ) {
-     const finishCallbacks = [] as Array<(error?: unknown) => void>;
+```ts
+function conditionalCache(onFinish: Promise<unknown | undefined>) {
+  if (process.env.FMC_RECACHE_ON_FAILURE === "1") {
+    fetchCache.once({
+      mode: "record",
+      writeCache: onFinish.then((error) => Boolean(error)),
+    });
+  }
+}
+```
 
-     const onFinish = (cb: (error?: unknown) => void) => {
-       finishCallbacks.push(cb);
-     };
-
-     const finish = (error?: unknown) => {
-       for (const cb of finishCallbacks) {
-         cb(error);
-       }
-     };
-
-     const wrappedFn = (t: Deno.TestContext) => {
-       let result: ReturnType<typeof fn>;
-       try {
-         result = fn(t, onFinish);
-       } catch (error) {
-         finish(error);
-         throw error;
-       }
-
-       if (result === undefined) {
-         finish();
-         return undefined;
-       }
-
-       if (result instanceof Promise) {
-         return result.then(finish).catch((error) => {
-           finish(error);
-           throw error;
-         });
-       }
-
-       throw new Error(
-         `Test "${name}" failed with unexpected result: ${result}`,
-       );
-     };
-
-     _it(suite, wrappedFn);
-   };
-   ```
-
-2. Now do something like this:
-
-   ```ts
-   import { it } from "above";
-   import fetchCache from "wherever-you-set-it-up";
-
-   function conditionalCache(onFinish) {
-     if (process.env.FETCH_CACHE === "recache")
-       // i.e. if the test fails and has an error, then `writeCache` resolves to "true"
-       fetchCache.once({ readCache: false, writeCache: onFinish.then(error => !!error)})
-   }
-
-   it("rewrites the cache on fail", async(_t, onFinish) => {
-     conditionalCache(onFinish);
-     const response = await fetch(...);
-     const result = await response.json();
-     expect(result).toMatch({
-       success: true
-     });
-   })
-   ```
-
-3. Now, by default, we'll use the cache as normal. However, if you set
-   `FETCH_CACHE="recache"`, we won't use the cache, and if the test fails,
-   we'll replace the cached result.
-
-   This is super useful for testing if API response (and not your code)
-   has changed, commit the new responses, and then adapt your code as
-   necessary. You'd only do this after first making sure all your existing
-   tests are passing.
+`record` makes the request bypass the existing fixture. The `writeCache`
+promise decides whether the fresh network response is committed after the test
+result is known.
 
 ## TODO
 

@@ -28,7 +28,7 @@ the release workflow.
 | 009 | Clear dev-dependency audit advisories | P2 | S | — | DONE |
 | 010 | Author CLAUDE.md | P2 | S | — (content reflects 001's status) | DONE |
 | 011 | Spike: cache modes (record/replay/auto/off) design | P3 | M | 003 | DONE |
-| 011-DESIGN | Design: first-class cache modes | P3 | S | 011 | TODO |
+| 011-DESIGN | Design: first-class cache modes | P3 | S | 011 | DONE |
 | 012 | Spike: browser/jsdom support design | P3 | S | — | DONE |
 | 012-DESIGN | Design: browser/jsdom support | P3 | S | 012 | TODO |
 | 013 | Redact sensitive query params before caching (security) | P1 | M | 001, 005 (soft) | DONE |

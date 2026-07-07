@@ -8,14 +8,23 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import _createFetchCache, {
+  type CreateFetchCacheOptions,
+  type FetchCache,
+  type Runtime,
+} from "../fetch-cache.js";
+export type {
   CreateFetchCacheOptions,
   FetchCache,
+  FetchCacheMode,
+  FetchCacheOptions,
   Runtime,
 } from "../fetch-cache.js";
 
 export const runtime: Runtime = {
   name: "node",
-  env: { ...process.env },
+  get env() {
+    return process.env;
+  },
   async sha256(input: string, length?: number) {
     const utf8 = new TextEncoder().encode(input);
     const hashBuffer = await crypto.subtle.digest("SHA-256", utf8);

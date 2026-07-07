@@ -7,16 +7,25 @@
 import * as path from "@std/path";
 
 import _createFetchCache, {
+  type CreateFetchCacheOptions,
+  type FetchCache,
+  type Runtime,
+} from "../fetch-cache.js";
+export type {
   CreateFetchCacheOptions,
   FetchCache,
+  FetchCacheMode,
+  FetchCacheOptions,
   Runtime,
 } from "../fetch-cache.js";
 
 export const runtime: Runtime = {
   name: "deno",
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore: for typescript parsing outside of deno
-  env: Deno.env.toObject(),
+  get env() {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: for typescript parsing outside of deno
+    return Deno.env.toObject();
+  },
   async sha256(input: string, length?: number) {
     const utf8 = new TextEncoder().encode(input);
     const hashBuffer = await crypto.subtle.digest("SHA-256", utf8);

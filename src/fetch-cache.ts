@@ -15,6 +15,39 @@ import {
 
 const debug = _debug("fetch-mock-cache:core");
 const origFetch = fetch;
+const VALID_FETCH_CACHE_MODES = ["auto", "replay", "record", "off"] as const;
+
+export type FetchCacheMode = (typeof VALID_FETCH_CACHE_MODES)[number];
+
+type ReadCacheOption =
+  | boolean
+  | Promise<boolean>
+  | ((
+      ...args: Parameters<FMCStore["fetchContent"]>
+    ) => boolean | Promise<boolean>);
+
+type WriteCacheOption =
+  | boolean
+  | Promise<boolean>
+  | ((
+      ...args: Parameters<FMCStore["storeContent"]>
+    ) => boolean | Promise<boolean>);
+
+type FetchCacheModeDefaults = {
+  readCache: boolean;
+  writeCache: boolean;
+  throwOnMiss: boolean;
+};
+
+const FETCH_CACHE_MODE_DEFAULTS: Record<
+  FetchCacheMode,
+  FetchCacheModeDefaults
+> = {
+  auto: { readCache: true, writeCache: true, throwOnMiss: false },
+  replay: { readCache: true, writeCache: false, throwOnMiss: true },
+  record: { readCache: false, writeCache: true, throwOnMiss: false },
+  off: { readCache: false, writeCache: false, throwOnMiss: false },
+};
 
 /**
  * A runtime interface with the required subset of built-in runtime functions
@@ -45,13 +78,12 @@ export interface Runtime {
 export interface FetchCacheOptions {
   /** Manually specify a cache key (usually auto computed from URL) */
   id?: string;
+  /** Cache behavior mode. Defaults to `auto`. */
+  mode?: FetchCacheMode;
   /** True (default): use cached response if available; false: always fetch from network.
    * You can also provide a promise or function that returns a boolean or promise.
    */
-  readCache?:
-    | boolean
-    | Promise<boolean>
-    | ((...args: Parameters<FMCStore["fetchContent"]>) => Promise<boolean>);
+  readCache?: ReadCacheOption;
   /** If a fetch was performed, should we write it to the cache?  Can be a boolean, a
    * promise, or a function that returns a boolean or promise.  In the case of a promise,
    * the write will open occur when the promise resolves, and AFTER the response is
@@ -59,10 +91,7 @@ export interface FetchCacheOptions {
    * further processing of the response in other functions before deciding whether to
    * cache it or not, but does require some extra care.
    */
-  writeCache?:
-    | boolean
-    | Promise<boolean>
-    | ((...args: Parameters<FMCStore["storeContent"]>) => Promise<boolean>);
+  writeCache?: WriteCacheOption;
 }
 
 /**
@@ -76,6 +105,7 @@ export interface FetchCache {
   ): Promise<Response>;
 
   runtime: Runtime;
+  options: FetchCacheOptions;
   _options?: FetchCacheOptions | FetchCacheOptions[];
   _store?: FMCStore;
   once: (options: FetchCacheOptions) => void;
@@ -93,6 +123,11 @@ export interface CreateFetchCacheOptions {
   runtime: Runtime;
   Store?: typeof FMCStore | [typeof FMCStore, Record<string, unknown>];
   fetch?: typeof origFetch;
+  /** Global default cache options. These can be changed later via fetchCache.options. */
+  id?: FetchCacheOptions["id"];
+  mode?: FetchCacheOptions["mode"];
+  readCache?: FetchCacheOptions["readCache"];
+  writeCache?: FetchCacheOptions["writeCache"];
   /** Header names to redact from cached content (and cache-key hashes).
    * Defaults to DEFAULT_REDACTED_HEADERS.  Pass `false` to disable
    * redaction entirely, or an array to replace the default list. */
@@ -114,6 +149,10 @@ export default function createCachingMock({
   Store,
   fetch,
   runtime,
+  id,
+  mode,
+  readCache,
+  writeCache,
   redactHeaders,
   redactSearchParams,
 }: CreateFetchCacheOptions) {
@@ -145,6 +184,12 @@ export default function createCachingMock({
   const store: FMCStore = Array.isArray(Store)
     ? new Store[0]({ ...Store[1], runtime })
     : new Store({ runtime });
+  const defaultOptions = mergeFetchCacheOptions({
+    id,
+    mode,
+    readCache,
+    writeCache,
+  });
 
   const fetchCache: FetchCache = Object.assign(
     async function cachingMockImplementation(
@@ -153,14 +198,23 @@ export default function createCachingMock({
     ) {
       if (!urlOrRequest) throw new Error("urlOrRequest is undefined");
 
-      // TODO, main options?  merge?
-      const options =
-        (Array.isArray(fetchCache._options)
-          ? fetchCache._options.shift()
-          : fetchCache._options) || {};
-
-      let readCache = "readCache" in options ? options.readCache : true;
-      let writeCache = "writeCache" in options ? options.writeCache : true;
+      const onceOptions = Array.isArray(fetchCache._options)
+        ? fetchCache._options.shift()
+        : fetchCache._options;
+      const modeResolution = resolveFetchCacheMode(
+        onceOptions,
+        fetchCache.options,
+        runtime,
+      );
+      const modeDefaults = FETCH_CACHE_MODE_DEFAULTS[modeResolution.mode];
+      const options = mergeFetchCacheOptions(fetchCache.options, onceOptions);
+      const writeCache = resolveOptionWithModeDefaults(
+        "writeCache",
+        onceOptions,
+        fetchCache.options,
+        modeResolution.sourcePriority,
+        modeDefaults.writeCache,
+      );
 
       const fetchRequest =
         typeof urlOrRequest === "string" || urlOrRequest instanceof URL
@@ -183,11 +237,17 @@ export default function createCachingMock({
         }),
       };
 
-      if (typeof readCache === "function") {
-        readCache = await readCache(cacheContentRequest, options);
-      } else if (readCache instanceof Promise) {
-        readCache = await readCache;
-      }
+      const readCache = await resolveReadCacheOption(
+        resolveOptionWithModeDefaults(
+          "readCache",
+          onceOptions,
+          fetchCache.options,
+          modeResolution.sourcePriority,
+          modeDefaults.readCache,
+        ),
+        cacheContentRequest,
+        options,
+      );
 
       const existingContent =
         readCache && (await store.fetchContent(cacheContentRequest, options));
@@ -202,6 +262,10 @@ export default function createCachingMock({
           statusText: existingContent.response.statusText,
           headers,
         });
+      }
+
+      if (modeDefaults.throwOnMiss && readCache) {
+        throw await replayMissError(store, cacheContentRequest, options);
       }
 
       debug("Fetching %o", cacheUrl);
@@ -222,12 +286,13 @@ export default function createCachingMock({
         },
       };
 
-      if (typeof writeCache === "function") {
-        writeCache = writeCache(newContent, options);
-      }
+      const resolvedWriteCache =
+        typeof writeCache === "function"
+          ? writeCache(newContent, options)
+          : writeCache;
 
-      if (writeCache instanceof Promise) {
-        writeCache
+      if (resolvedWriteCache instanceof Promise) {
+        resolvedWriteCache
           .then(async (shouldWrite: boolean) => {
             if (shouldWrite) {
               await store.storeContent(newContent, options);
@@ -239,7 +304,8 @@ export default function createCachingMock({
               error,
             );
           });
-      } else if (writeCache) await store.storeContent(newContent, options);
+      } else if (resolvedWriteCache)
+        await store.storeContent(newContent, options);
 
       const headers = new Headers(response.headers);
       headers.set("X-FMC-Cache", "MISS");
@@ -252,6 +318,7 @@ export default function createCachingMock({
     },
     {
       runtime,
+      options: defaultOptions,
       _store: store,
       _options: [] as FetchCacheOptions[], // TODO
       once(options: FetchCacheOptions) {
@@ -268,4 +335,122 @@ export default function createCachingMock({
   );
 
   return fetchCache;
+}
+
+type OptionsSourcePriority = 0 | 1 | 2;
+
+function mergeFetchCacheOptions(
+  ...sources: Array<FetchCacheOptions | undefined>
+): FetchCacheOptions {
+  const options: FetchCacheOptions = {};
+  for (const source of sources) {
+    if (!source) continue;
+    if (source.id !== undefined) options.id = source.id;
+    if (source.mode !== undefined) options.mode = source.mode;
+    if (source.readCache !== undefined) options.readCache = source.readCache;
+    if (source.writeCache !== undefined) {
+      options.writeCache = source.writeCache;
+    }
+  }
+  return options;
+}
+
+function resolveFetchCacheMode(
+  onceOptions: FetchCacheOptions | undefined,
+  globalOptions: FetchCacheOptions | undefined,
+  runtime: Runtime,
+): { mode: FetchCacheMode; sourcePriority: OptionsSourcePriority } {
+  if (onceOptions?.mode !== undefined) {
+    return {
+      mode: parseFetchCacheMode(onceOptions.mode, "once()"),
+      sourcePriority: 2,
+    };
+  }
+
+  if (globalOptions?.mode !== undefined) {
+    return {
+      mode: parseFetchCacheMode(globalOptions.mode, "fetchCache.options"),
+      sourcePriority: 1,
+    };
+  }
+
+  const envMode = runtime.env.FMC_CACHE_MODE;
+  if (envMode !== undefined) {
+    return {
+      mode: parseFetchCacheMode(envMode, "FMC_CACHE_MODE"),
+      sourcePriority: 0,
+    };
+  }
+
+  return { mode: "auto", sourcePriority: 0 };
+}
+
+function parseFetchCacheMode(value: string, source: string): FetchCacheMode {
+  const mode = value.trim().toLowerCase();
+  if (isFetchCacheMode(mode)) return mode;
+
+  throw new Error(
+    `fetch-mock-cache: invalid cache mode ${JSON.stringify(
+      value,
+    )} from ${source}. Valid modes: ${VALID_FETCH_CACHE_MODES.join(", ")}.`,
+  );
+}
+
+function isFetchCacheMode(mode: string): mode is FetchCacheMode {
+  return VALID_FETCH_CACHE_MODES.includes(mode as FetchCacheMode);
+}
+
+function resolveOptionWithModeDefaults<
+  OptionName extends "readCache" | "writeCache",
+>(
+  optionName: OptionName,
+  onceOptions: FetchCacheOptions | undefined,
+  globalOptions: FetchCacheOptions | undefined,
+  modeSourcePriority: OptionsSourcePriority,
+  defaultValue: boolean,
+): NonNullable<FetchCacheOptions[OptionName]> {
+  if (onceOptions?.[optionName] !== undefined && modeSourcePriority <= 2) {
+    return onceOptions[optionName];
+  }
+
+  if (globalOptions?.[optionName] !== undefined && modeSourcePriority <= 1) {
+    return globalOptions[optionName];
+  }
+
+  return defaultValue as NonNullable<FetchCacheOptions[OptionName]>;
+}
+
+async function resolveReadCacheOption(
+  readCache: NonNullable<FetchCacheOptions["readCache"]>,
+  request: FMCCacheContent["request"],
+  options: FetchCacheOptions,
+): Promise<boolean> {
+  if (typeof readCache === "function") {
+    return await readCache(request, options);
+  }
+
+  return await readCache;
+}
+
+async function replayMissError(
+  store: FMCStore,
+  request: FMCCacheContent["request"],
+  options: FetchCacheOptions,
+): Promise<Error> {
+  const storeName = store.constructor.name || "FMCStore";
+  const storeLocation =
+    "_location" in store && typeof store._location === "string"
+      ? ` (location: ${store._location})`
+      : "";
+  const method = request.method || "GET";
+  const cacheId = await store.idFromRequest(request, options);
+
+  return new Error(
+    [
+      `fetch-mock-cache: cache miss in replay mode for ${method} ${request.url}`,
+      `Store: ${storeName}${storeLocation}`,
+      `Computed cache id: ${cacheId}`,
+      'To record this fixture, set FMC_CACHE_MODE=record or createFetchCache({ mode: "record" }).',
+    ].join("\n"),
+  );
 }
