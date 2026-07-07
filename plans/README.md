@@ -24,7 +24,7 @@ the release workflow.
 | 005 | Redact sensitive headers before caching (security) | P1 | M | 001 | DONE |
 | 006 | fs store: only ENOENT/NotFound is a cache miss | P2 | S | 001 (soft) | DONE |
 | 007 | README: fix broken custom-store example + typos | P2 | S | — | DONE |
-| 008 | Misc debt cleanup (deno name, header types, HIT mutation, mkdir race, dead code) | P3 | S | 002–006 (ordering only) | TODO |
+| 008 | Misc debt cleanup (deno name, header types, HIT mutation, mkdir race, dead code) | P3 | S | 002–006 (ordering only) | DONE |
 | 009 | Clear dev-dependency audit advisories | P2 | S | — | TODO |
 | 010 | Author CLAUDE.md | P2 | S | — (content reflects 001's status) | TODO |
 | 011 | Spike: cache modes (record/replay/auto/off) design | P3 | M | 003 | TODO |
