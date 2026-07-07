@@ -23,6 +23,21 @@ describe("body", () => {
     expect(serialized).toEqual({ bodyJson: body });
   });
 
+  it("serializeBody with invalid JSON falls back to text", async () => {
+    const body = "<html>502 Bad Gateway</html>";
+    const serialized = await serializeBody(
+      new Response(body, { headers: { "Content-Type": "application/json" } }),
+    );
+    expect(serialized).toEqual({ bodyText: body });
+  });
+
+  it("serializeBody with empty JSON body falls back to text", async () => {
+    const serialized = await serializeBody(
+      new Response("", { headers: { "Content-Type": "application/json" } }),
+    );
+    expect(serialized).toEqual({ bodyText: "" });
+  });
+
   it("serializeBody with binary", async () => {
     const body = new Uint8Array([1, 2, 3, 4, 5]);
     const serialized = await serializeBody(

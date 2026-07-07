@@ -44,7 +44,12 @@ export async function serializeBody(
     response.headers.get("x-content-type-options")?.toLowerCase() === "nosniff";
 
   if (contentType === "application/json") {
-    return response.json().then((bodyJson) => ({ bodyJson }));
+    const bodyText = await response.text();
+    try {
+      return { bodyJson: JSON.parse(bodyText) };
+    } catch {
+      return { bodyText };
+    }
   } else if (isTextMime(contentType)) {
     return response.text().then((bodyText) => ({ bodyText }));
   }

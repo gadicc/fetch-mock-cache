@@ -355,7 +355,7 @@ Previous experiments:
 
 - [x] Cache request headers too and hash them in filename / key / id.
 - [ ] Browser-environment support. Please open an issue if you need this, and in what cases. jsdom?
-- [ ] Handle and store invalid JSON too?
+- [x] Handle and store invalid JSON too?
 
 ```
 
