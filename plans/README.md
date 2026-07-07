@@ -21,7 +21,7 @@ the release workflow.
 | 002 | Send full Request on cache miss (method/headers/body loss) | P1 | S | 001 (soft) | DONE |
 | 003 | Await promise-valued `readCache` | P1 | S | 001 (soft) | DONE |
 | 004 | Invalid-JSON body → text fallback | P2 | S | 001 (soft) | DONE |
-| 005 | Redact sensitive headers before caching (security) | P1 | M | 001 | TODO |
+| 005 | Redact sensitive headers before caching (security) | P1 | M | 001 | DONE |
 | 006 | fs store: only ENOENT/NotFound is a cache miss | P2 | S | 001 (soft) | TODO |
 | 007 | README: fix broken custom-store example + typos | P2 | S | — | TODO |
 | 008 | Misc debt cleanup (deno name, header types, HIT mutation, mkdir race, dead code) | P3 | S | 002–006 (ordering only) | TODO |

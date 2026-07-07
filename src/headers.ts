@@ -42,3 +42,41 @@ export function deserializeHeaders(
   }
   return headers;
 }
+
+export const DEFAULT_REDACTED_HEADERS = [
+  "authorization",
+  "proxy-authorization",
+  "cookie",
+  "set-cookie",
+  "x-api-key",
+];
+
+export const REDACTED_VALUE = "[REDACTED]";
+
+/**
+ * Returns a copy of serialized headers with the named headers' values
+ * replaced by REDACTED_VALUE. Names are matched case-insensitively.
+ * Multi-value headers (string[]) are replaced per-entry.
+ */
+export function redactHeaders(
+  serialized: Record<string, string | string[]>,
+  names: string[] = DEFAULT_REDACTED_HEADERS,
+): Record<string, string | string[]> {
+  const result: Record<string, string | string[]> = {};
+  const lowerNames = names.map((n) => n.toLowerCase());
+
+  for (const [key, value] of Object.entries(serialized)) {
+    if (lowerNames.includes(key.toLowerCase())) {
+      if (Array.isArray(value)) {
+        result[key] = value.map(() => REDACTED_VALUE);
+      } else {
+        result[key] = REDACTED_VALUE;
+      }
+    } else {
+      result[key] = value;
+    }
+  }
+
+  return result;
+}
+

@@ -1,7 +1,12 @@
 import _debug from "debug";
 import { deserializeBody, serializeBody } from "./body.js";
 import type { FMCCacheContent } from "./cache.js";
-import { deserializeHeaders, serializeHeaders } from "./headers.js";
+import {
+  deserializeHeaders,
+  serializeHeaders,
+  redactHeaders as redactHeadersHelper,
+  DEFAULT_REDACTED_HEADERS,
+} from "./headers.js";
 import type FMCStore from "./store.js";
 
 const debug = _debug("fetch-mock-cache:core");
@@ -84,6 +89,10 @@ export interface CreateFetchCacheOptions {
   runtime: Runtime;
   Store?: typeof FMCStore | [typeof FMCStore, Record<string, unknown>];
   fetch?: typeof origFetch;
+  /** Header names to redact from cached content (and cache-key hashes).
+   * Defaults to DEFAULT_REDACTED_HEADERS.  Pass `false` to disable
+   * redaction entirely, or an array to replace the default list. */
+  redactHeaders?: string[] | false;
 }
 
 /**
@@ -95,6 +104,7 @@ export default function createCachingMock({
   Store,
   fetch,
   runtime,
+  redactHeaders,
 }: CreateFetchCacheOptions) {
   if (!Store) {
     throw new Error(
@@ -102,6 +112,16 @@ export default function createCachingMock({
     );
   }
   if (!fetch) fetch = origFetch;
+
+  const redactList =
+    redactHeaders === false
+      ? null
+      : (redactHeaders ?? DEFAULT_REDACTED_HEADERS);
+
+  const serializeAndRedactHeaders = (headers: Headers) => {
+    const serialized = serializeHeaders(headers);
+    return redactList ? redactHeadersHelper(serialized, redactList) : serialized;
+  };
 
   // Init with options if passed as [ Store, { /* ... */ } ]
   const store: FMCStore = Array.isArray(Store)
@@ -138,7 +158,7 @@ export default function createCachingMock({
         ...(clonedRequest.body && (await serializeBody(clonedRequest))),
         ...(Array.from(fetchRequest.headers.keys()).length > 0 && {
           // Not really necessary as set-cookie never appears in the REQUEST headers.
-          headers: serializeHeaders(fetchRequest.headers),
+          headers: serializeAndRedactHeaders(fetchRequest.headers),
         }),
       };
 
@@ -172,7 +192,7 @@ export default function createCachingMock({
           ok: response.ok,
           status: response.status,
           statusText: response.statusText,
-          headers: serializeHeaders(response.headers),
+          headers: serializeAndRedactHeaders(response.headers),
           ...(await serializeBody(response)),
         },
       };

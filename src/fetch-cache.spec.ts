@@ -113,4 +113,87 @@ describe("fetch-mock-cache", () => {
       expect(fakeFetch.calls).toBe(2);
     });
   });
+
+  describe("redactHeaders option", () => {
+    it("redacts default sensitive headers on cache miss", async (t) => {
+      const fakeFetch = async () => {
+        return new Response("hello", {
+          headers: { "Set-Cookie": "session=xyz" },
+        });
+      };
+      const fetchCache = createFetchCache({
+        Store: MemoryStore,
+        fetch: fakeFetch,
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      const request = new Request("https://fmc.test/", {
+        headers: {
+          Authorization: "Bearer token",
+          "X-Test": "123",
+        },
+      });
+
+      const response = await fetch(request);
+      expect(response.headers.get("X-FMC-Cache")).toBe("MISS");
+
+      const store = fetchCache._store! as MemoryStore;
+      const cached = Array.from(store.store.values())[0];
+      
+      expect(cached.request.headers).toEqual({
+        authorization: "[REDACTED]",
+        "x-test": "123",
+      });
+      expect(cached.response.headers).toMatchObject({
+        "set-cookie": ["[REDACTED]"],
+      });
+    });
+
+    it("has key stability across different secret values", async (t) => {
+      let fetchCount = 0;
+      const fakeFetch = async () => {
+        fetchCount++;
+        return new Response("hello");
+      };
+      const fetchCache = createFetchCache({
+        Store: MemoryStore,
+        fetch: fakeFetch,
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      // First fetch with authorization token A
+      const res1 = await fetch("https://fmc.test/", {
+        headers: { Authorization: "Bearer AAA" },
+      });
+      expect(res1.headers.get("X-FMC-Cache")).toBe("MISS");
+      expect(fetchCount).toBe(1);
+
+      // Second fetch with authorization token B
+      const res2 = await fetch("https://fmc.test/", {
+        headers: { Authorization: "Bearer BBB" },
+      });
+      expect(res2.headers.get("X-FMC-Cache")).toBe("HIT");
+      expect(fetchCount).toBe(1);
+    });
+
+    it("disables redaction when redactHeaders is false", async (t) => {
+      const fakeFetch = async () => new Response("hello");
+      const fetchCache = createFetchCache({
+        Store: MemoryStore,
+        fetch: fakeFetch,
+        redactHeaders: false,
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      await fetch("https://fmc.test/", {
+        headers: { Authorization: "Bearer token" },
+      });
+
+      const store = fetchCache._store! as MemoryStore;
+      const cached = Array.from(store.store.values())[0];
+      expect(cached.request.headers).toEqual({
+        authorization: "Bearer token",
+      });
+    });
+  });
 });

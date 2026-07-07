@@ -243,6 +243,44 @@ You can also pass the following to `fetchCache.once`:
 See below in Tips & Tricks on how you can leverage this to conditionally replace the
 cache for failing tests.
 
+### Sensitive headers are redacted by default
+
+To prevent committing sensitive credentials (like session cookies or API keys) to source control, the library automatically redacts values for the following headers in both the stored cache files and the computed cache-key hashes:
+- `authorization`
+- `proxy-authorization`
+- `cookie`
+- `set-cookie`
+- `x-api-key`
+
+Redacting these headers before hashing ensures key stability (e.g. CI runs without a real token still replay cached fixtures recorded with one).
+
+> [!WARNING]
+> Because redaction alters the cache key, existing cache files for requests that carried any of these sensitive headers will get new cache IDs. You will need to delete those old cache files and re-record them.
+
+#### Customizing or disabling redaction
+
+Redaction can be configured when initializing the caching mock via the global `redactHeaders` option:
+
+```ts
+import createFetchCache from "fetch-mock-cache/runtimes/node";
+import Store from "fetch-mock-cache/stores/fs";
+
+// Disable redaction entirely
+const fetchCache = createFetchCache({
+  Store,
+  redactHeaders: false,
+});
+
+// Customize the list of redacted headers
+const fetchCacheCustom = createFetchCache({
+  Store,
+  redactHeaders: ["x-custom-secret-header", "x-another-one"],
+});
+```
+
+#### Limitation
+
+Only request and response headers are redacted by default. Values inside the request or response **bodies** (e.g., a JSON payload containing a `token` or `password`) are NOT redacted. Be careful not to send sensitive information in request bodies if you plan to commit the fixtures.
 
 ## Internal and Experimental Features
 
