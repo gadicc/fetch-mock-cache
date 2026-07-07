@@ -16,16 +16,16 @@
   "license": "MIT",
   "description": "",
   "devDependencies": {
-    "@swc/core": "^1.7.26",
-    "@swc/jest": "^0.2.36",
-    "@types/jest": "^29.5.13",
-    "expect": "^29.7.0",
-    "fetch-mock": "^11.1.5",
+    "@swc/core": "^1.15.43",
+    "@swc/jest": "^0.2.39",
+    "@types/jest": "^30.0.0",
+    "expect": "^30.4.1",
+    "fetch-mock": "^12.6.0",
     "fetch-mock-cache": "file:../../../",
-    "jest": "^29.7.0",
+    "jest": "^30.4.2",
     "jest-fetch-mock": "^3.0.3",
-    "tsx": "^4.19.1",
-    "vitest": "^2.1.2",
-    "vitest-fetch-mock": "^0.3.0"
+    "tsx": "^4.23.0",
+    "vitest": "^4.1.10",
+    "vitest-fetch-mock": "^0.4.5"
   }
 }

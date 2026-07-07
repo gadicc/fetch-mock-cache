@@ -19,7 +19,9 @@ describe("node:test - fetch-mock", () => {
   const url = "https://example.test/?one=two&key=value";
 
   test("memoryStore", async () => {
-    fetchMock.mock("*", fetchCache);
+    fetchMock
+      .mockGlobal()
+      .route("*", ({ url, options }) => fetchCache(url, options));
     for (let i = 0; i < 2; i++) {
       const response = await fetch(url);
       const data = await response.json();
@@ -27,6 +29,8 @@ describe("node:test - fetch-mock", () => {
       expect(response.headers.get("X-FMC-Cache")).toBe(expectedCacheHeader);
       expect(data.parsedQueryParams).toEqual(expectedResponse);
     }
-    fetchMock.reset();
+    fetchMock.clearHistory();
+    fetchMock.removeRoutes();
+    fetchMock.unmockGlobal();
   });
 });
