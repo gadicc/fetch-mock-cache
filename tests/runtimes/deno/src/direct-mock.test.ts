@@ -9,11 +9,18 @@ import FsStore from "@gadicc/fetch-mock-cache/stores/fs.ts";
 import MemoryStore from "@gadicc/fetch-mock-cache/stores/memory.ts";
 
 describe("deno - direct mock", () => {
-  const url = "https://echo.free.beeceptor.com/?one=two&key=value";
   const expectedResponse = { one: "two", key: "value" };
+  const fetchFixture: typeof fetch = async () =>
+    new Response(JSON.stringify({ parsedQueryParams: expectedResponse }), {
+      headers: { "content-type": "application/json" },
+    });
+  const url = "https://example.test/?one=two&key=value";
 
   it("memoryStore", async () => {
-    const fetchCache = createFetchCache({ Store: MemoryStore });
+    const fetchCache = createFetchCache({
+      Store: MemoryStore,
+      fetch: fetchFixture,
+    });
     const originalFetch = globalThis.fetch;
     globalThis.fetch = spy(fetchCache);
 
@@ -29,7 +36,10 @@ describe("deno - direct mock", () => {
   });
 
   it("fs store", async () => {
-    const fetchCache = createFetchCache({ Store: FsStore });
+    const fetchCache = createFetchCache({
+      Store: FsStore,
+      fetch: fetchFixture,
+    });
     const originalFetch = globalThis.fetch;
     globalThis.fetch = spy(fetchCache);
 

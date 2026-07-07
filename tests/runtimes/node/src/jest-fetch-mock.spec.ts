@@ -10,9 +10,16 @@ const fetchMock = _fetchMock.default;
 fetchMock.enableMocks();
 
 describe("jest-fetch-mock", () => {
-  const fetchCache = createFetchCache({ Store: MemoryStore });
-  const url = "https://echo.free.beeceptor.com/?one=two&key=value";
   const expectedResponse = { one: "two", key: "value" };
+  const fetchFixture: typeof fetch = async () =>
+    new Response(JSON.stringify({ parsedQueryParams: expectedResponse }), {
+      headers: { "content-type": "application/json" },
+    });
+  const fetchCache = createFetchCache({
+    Store: MemoryStore,
+    fetch: fetchFixture,
+  });
+  const url = "https://example.test/?one=two&key=value";
 
   test("memoryStore", async () => {
     for (let i = 0; i < 2; i++) {

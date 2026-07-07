@@ -12,6 +12,7 @@ resultToStatus() {
   fi
 }
 
-deno test --unstable-sloppy-imports --allow-env --allow-net --allow-read --allow-write
-echo "    native: $(resultToStatus $?)" >> results.yaml
-
+deno test --unstable-sloppy-imports --allow-env --allow-read --allow-write
+result=$?
+echo "    native: $(resultToStatus $result)" >> results.yaml
+exit $result

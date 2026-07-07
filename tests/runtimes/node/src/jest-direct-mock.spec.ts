@@ -5,9 +5,16 @@ import createFetchCache from "fetch-mock-cache";
 import MemoryStore from "fetch-mock-cache/stores/memory";
 
 describe("jest-fetch-mock", () => {
-  const fetchCache = createFetchCache({ Store: MemoryStore });
-  const url = "https://echo.free.beeceptor.com/?one=two&key=value";
   const expectedResponse = { one: "two", key: "value" };
+  const fetchFixture: typeof fetch = async () =>
+    new Response(JSON.stringify({ parsedQueryParams: expectedResponse }), {
+      headers: { "content-type": "application/json" },
+    });
+  const fetchCache = createFetchCache({
+    Store: MemoryStore,
+    fetch: fetchFixture,
+  });
+  const url = "https://example.test/?one=two&key=value";
   const origFetch = global.fetch;
 
   test("memoryStore", async () => {

@@ -3,6 +3,7 @@
 rm -f results.yaml
 rm -rf tests/fixtures/http
 echo "node:" >> results.yaml
+status=0
 
 resultToStatus() {
   if [ $1 -eq 0 ]; then
@@ -13,12 +14,30 @@ resultToStatus() {
 }
 
 npm install
+result=$?
+if [ $result -ne 0 ]; then
+  status=1
+fi
 
 npm run test:native
-echo "    native: $(resultToStatus $?)" >> results.yaml
+result=$?
+echo "    native: $(resultToStatus $result)" >> results.yaml
+if [ $result -ne 0 ]; then
+  status=1
+fi
 
 npm run test:jest
-echo "    jest: $(resultToStatus $?)" >> results.yaml
+result=$?
+echo "    jest: $(resultToStatus $result)" >> results.yaml
+if [ $result -ne 0 ]; then
+  status=1
+fi
 
 npm run test:vitest
-echo "    vitest: $(resultToStatus $?)" >> results.yaml
+result=$?
+echo "    vitest: $(resultToStatus $result)" >> results.yaml
+if [ $result -ne 0 ]; then
+  status=1
+fi
+
+exit $status

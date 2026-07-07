@@ -1,7 +1,5 @@
 #!/bin/sh
 
-#!/bin/sh
-
 rm -f results.yaml
 rm -rf tests/fixtures/http
 echo "bun:" >> results.yaml
@@ -15,4 +13,6 @@ resultToStatus() {
 }
 
 bun test
-echo "    native: $(resultToStatus $?)" >> results.yaml
+result=$?
+echo "    native: $(resultToStatus $result)" >> results.yaml
+exit $result

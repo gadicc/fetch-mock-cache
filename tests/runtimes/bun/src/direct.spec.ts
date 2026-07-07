@@ -6,11 +6,18 @@ import FsStore from "fetch-mock-cache/stores/fs.js";
 import MemoryStore from "fetch-mock-cache/stores/memory.js";
 
 describe("bun:test - direct mock", () => {
-  const url = "https://echo.free.beeceptor.com/?one=two&key=value";
   const expectedResponse = { one: "two", key: "value" };
+  const fetchFixture: typeof fetch = async () =>
+    new Response(JSON.stringify({ parsedQueryParams: expectedResponse }), {
+      headers: { "content-type": "application/json" },
+    });
+  const url = "https://example.test/?one=two&key=value";
 
   test("memoryStore", async () => {
-    const fetchCache = createFetchCache({ Store: MemoryStore });
+    const fetchCache = createFetchCache({
+      Store: MemoryStore,
+      fetch: fetchFixture,
+    });
     const origFetch = global.fetch;
     global.fetch = mock(fetchCache);
 
@@ -26,7 +33,10 @@ describe("bun:test - direct mock", () => {
   });
 
   test("fs store", async () => {
-    const fetchCache = createFetchCache({ Store: FsStore });
+    const fetchCache = createFetchCache({
+      Store: FsStore,
+      fetch: fetchFixture,
+    });
     const origFetch = global.fetch;
     global.fetch = mock(fetchCache);
 

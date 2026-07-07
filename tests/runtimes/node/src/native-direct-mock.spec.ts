@@ -7,11 +7,18 @@ import FsStore from "fetch-mock-cache/stores/fs";
 import MemoryStore from "fetch-mock-cache/stores/memory";
 
 describe("node:test - direct mock", () => {
-  const url = "https://echo.free.beeceptor.com/?one=two&key=value";
   const expectedResponse = { one: "two", key: "value" };
+  const fetchFixture: typeof fetch = async () =>
+    new Response(JSON.stringify({ parsedQueryParams: expectedResponse }), {
+      headers: { "content-type": "application/json" },
+    });
+  const url = "https://example.test/?one=two&key=value";
 
   test("memoryStore", async (t) => {
-    const fetchCache = createFetchCache({ Store: MemoryStore });
+    const fetchCache = createFetchCache({
+      Store: MemoryStore,
+      fetch: fetchFixture,
+    });
     t.mock.method(globalThis, "fetch", fetchCache);
 
     for (let i = 0; i < 2; i++) {
@@ -26,7 +33,10 @@ describe("node:test - direct mock", () => {
   // NB, this is ONLY in native-direct-mock.spec.ts, because we only need to
   // test once for node.
   test("fs store", async (t) => {
-    const fetchCache = createFetchCache({ Store: FsStore });
+    const fetchCache = createFetchCache({
+      Store: FsStore,
+      fetch: fetchFixture,
+    });
     t.mock.method(globalThis, "fetch", fetchCache);
 
     for (let i = 0; i < 2; i++) {
