@@ -1,6 +1,15 @@
 name: Test & Release
 on:
   push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   release:
     name: Test & Release
@@ -10,7 +19,7 @@ jobs:
       contents: write # create releases
       issues: write # issue comments and labels
       pull-requests: write # ditto
-      id-token: write # The OIDC ID token is used for authentication with JSR.
+      id-token: write # OIDC for JSR and npm trusted publishing/provenance.
 
     steps:
       - name: Checkout
@@ -38,6 +47,12 @@ jobs:
       - name: Run CI script (tests)
         run: npm run ci
 
+      - name: Setup Node.js for release
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14
+          cache: "pnpm"
+
       - name: Prepare packages for next step (remove after non-sha release)
         run: cd /home/runner/work/_actions/gaelgirodon/ci-badges-action && npm i -D @actions/core @actions/github @actions/glob
 
@@ -57,5 +72,4 @@ jobs:
       - name: Release if relevant
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npx semantic-release
+        run: pnpm exec semantic-release

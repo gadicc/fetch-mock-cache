@@ -64,14 +64,14 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.2",
-    "@sebbo2002/semantic-release-jsr": "^2.0.5",
+    "@sebbo2002/semantic-release-jsr": "^4.0.1",
     "@types/debug": "^4.1.13",
     "@types/node": "^20.19.43",
     "conventional-changelog-conventionalcommits": "^8.0.0",
     "expect": "^29.7.0",
     "glob": "^11.1.0",
     "globals": "^15.15.0",
-    "semantic-release": "^24.2.9",
+    "semantic-release": "^25.0.5",
     "tsx": "^4.23.0",
     "typescript": "^5.9.3"
   },
