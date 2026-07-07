@@ -50,6 +50,28 @@ describe("fetch-mock-cache", () => {
       optionsArg = fetchContent.mock.calls[2].arguments[1];
       expect(Object.getOwnPropertyNames(optionsArg)).toHaveLength(0);
     });
+
+    it("should not mutate stored response headers with X-FMC-Cache on HIT", async (t) => {
+      const fetchCache = createFetchCache({
+        Store: MemoryStore,
+        fetch: createFakeFetch(),
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      // MISS
+      const res1 = await fetch("https://fmc.test/");
+      expect(res1.headers.get("X-FMC-Cache")).toBe("MISS");
+
+      // HIT
+      const res2 = await fetch("https://fmc.test/");
+      expect(res2.headers.get("X-FMC-Cache")).toBe("HIT");
+
+      // Verify store content remains uncontaminated
+      const store = fetchCache._store! as MemoryStore;
+      const cached = Array.from(store.store.values())[0];
+      expect(cached.response.headers).not.toHaveProperty("X-FMC-Cache");
+      expect(cached.response.headers).not.toHaveProperty("x-fmc-cache");
+    });
   });
 
   describe("readCache option", () => {

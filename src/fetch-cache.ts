@@ -173,12 +173,13 @@ export default function createCachingMock({
 
       if (existingContent) {
         debug("Using cached copy of %o", url);
-        existingContent.response.headers["X-FMC-Cache"] = "HIT";
+        const headers = deserializeHeaders(existingContent.response.headers);
+        headers.set("X-FMC-Cache", "HIT");
 
         return new Response(await deserializeBody(existingContent.response), {
           status: existingContent.response.status,
           statusText: existingContent.response.statusText,
-          headers: deserializeHeaders(existingContent.response.headers),
+          headers,
         });
       }
 
