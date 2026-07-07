@@ -135,4 +135,3 @@ export function createTestsForMock(mock: ReturnType<typeof createCachingMock>) {
     expect(data.parsedBody).toEqual(body);
   });
 }
-

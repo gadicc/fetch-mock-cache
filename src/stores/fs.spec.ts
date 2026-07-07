@@ -1,9 +1,9 @@
 import { describe, test as it } from "node:test";
-import fs from "fs/promises";
 import { expect } from "expect";
+import fs from "fs/promises";
 
 import createFetchCache from "../runtimes/node.js";
-import { createTestsForMock, createFakeFetch } from "../testUtils.js";
+import { createFakeFetch, createTestsForMock } from "../testUtils.js";
 import FsStore from "./fs.js";
 
 const location = `coverage/fmc-test-temp-${Math.random().toString(36).slice(2)}`;
@@ -63,5 +63,3 @@ describe("fsStore", () => {
     });
   });
 });
-
-

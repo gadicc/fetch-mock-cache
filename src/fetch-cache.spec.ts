@@ -5,7 +5,10 @@ import createFetchCache from "./runtimes/node.js";
 import MemoryStore from "./stores/memory.js";
 import { createFakeFetch } from "./testUtils.js";
 
-const fetchCache = createFetchCache({ Store: MemoryStore, fetch: createFakeFetch() });
+const fetchCache = createFetchCache({
+  Store: MemoryStore,
+  fetch: createFakeFetch(),
+});
 
 describe("fetch-mock-cache", () => {
   describe("createFetchCache", () => {
@@ -160,7 +163,7 @@ describe("fetch-mock-cache", () => {
 
       const store = fetchCache._store! as MemoryStore;
       const cached = Array.from(store.store.values())[0];
-      
+
       expect(cached.request.headers).toEqual({
         authorization: "[REDACTED]",
         "x-test": "123",
@@ -253,12 +256,16 @@ describe("fetch-mock-cache", () => {
       t.mock.method(globalThis, "fetch", fetchCache);
 
       // First fetch with key AAA
-      const res1 = await fetch("https://api.example.com/eod?apikey=AAA&symbol=AAPL");
+      const res1 = await fetch(
+        "https://api.example.com/eod?apikey=AAA&symbol=AAPL",
+      );
       expect(res1.headers.get("X-FMC-Cache")).toBe("MISS");
       expect(fetchCount).toBe(1);
 
       // Second fetch with key BBB
-      const res2 = await fetch("https://api.example.com/eod?apikey=BBB&symbol=AAPL");
+      const res2 = await fetch(
+        "https://api.example.com/eod?apikey=BBB&symbol=AAPL",
+      );
       expect(res2.headers.get("X-FMC-Cache")).toBe("HIT");
       expect(fetchCount).toBe(1);
     });

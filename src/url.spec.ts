@@ -1,9 +1,9 @@
 import { describe, test as it } from "node:test";
 import { expect } from "expect";
 import {
-  redactSearchParams,
   DEFAULT_REDACTED_SEARCH_PARAMS,
   REDACTED_PARAM_VALUE,
+  redactSearchParams,
 } from "./url.js";
 
 describe("redactSearchParams", () => {
@@ -15,13 +15,15 @@ describe("redactSearchParams", () => {
 
   it("matches param names case-insensitively", () => {
     const original = "https://api.example.com/eod?apiKey=x&APIKEY=y";
-    const expected = "https://api.example.com/eod?apiKey=REDACTED&APIKEY=REDACTED";
+    const expected =
+      "https://api.example.com/eod?apiKey=REDACTED&APIKEY=REDACTED";
     expect(redactSearchParams(original)).toBe(expected);
   });
 
   it("redacts every occurrence of a repeated param", () => {
     const original = "https://api.example.com/eod?token=a&b=2&token=c";
-    const expected = "https://api.example.com/eod?token=REDACTED&b=2&token=REDACTED";
+    const expected =
+      "https://api.example.com/eod?token=REDACTED&b=2&token=REDACTED";
     expect(redactSearchParams(original)).toBe(expected);
   });
 

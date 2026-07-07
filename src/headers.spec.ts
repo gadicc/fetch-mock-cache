@@ -1,6 +1,10 @@
 import { describe, test as it } from "node:test";
 import { expect } from "expect";
-import { deserializeHeaders, serializeHeaders, redactHeaders } from "./headers.js";
+import {
+  deserializeHeaders,
+  redactHeaders,
+  serializeHeaders,
+} from "./headers.js";
 
 describe("headers", () => {
   it("serializeHeaders", () => {
@@ -68,4 +72,3 @@ describe("headers", () => {
     });
   });
 });
-

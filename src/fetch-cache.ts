@@ -2,15 +2,15 @@ import _debug from "debug";
 import { deserializeBody, serializeBody } from "./body.js";
 import type { FMCCacheContent } from "./cache.js";
 import {
-  deserializeHeaders,
-  serializeHeaders,
-  redactHeaders as redactHeadersHelper,
   DEFAULT_REDACTED_HEADERS,
+  deserializeHeaders,
+  redactHeaders as redactHeadersHelper,
+  serializeHeaders,
 } from "./headers.js";
 import type FMCStore from "./store.js";
 import {
-  redactSearchParams as redactUrlSearchParams,
   DEFAULT_REDACTED_SEARCH_PARAMS,
+  redactSearchParams as redactUrlSearchParams,
 } from "./url.js";
 
 const debug = _debug("fetch-mock-cache:core");
@@ -136,7 +136,9 @@ export default function createCachingMock({
 
   const serializeAndRedactHeaders = (headers: Headers) => {
     const serialized = serializeHeaders(headers);
-    return redactList ? redactHeadersHelper(serialized, redactList) : serialized;
+    return redactList
+      ? redactHeadersHelper(serialized, redactList)
+      : serialized;
   };
 
   // Init with options if passed as [ Store, { /* ... */ } ]
@@ -204,7 +206,10 @@ export default function createCachingMock({
 
       debug("Fetching %o", cacheUrl);
 
-      const response = await fetch(fetchRequest);
+      const response =
+        typeof urlOrRequest === "string" || urlOrRequest instanceof URL
+          ? await fetch(urlOrRequest, requestInit)
+          : await fetch(fetchRequest);
 
       const newContent: FMCCacheContent = {
         request: cacheContentRequest,
