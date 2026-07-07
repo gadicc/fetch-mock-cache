@@ -27,7 +27,7 @@ interface FMCFileStoreOptions extends FMCStoreOptions {
  * ```
  */
 export default class FMCFileSystemStore extends FMCStore {
-  _createdCacheDir = false;
+  _mkdirPromise?: Promise<unknown>;
   _cwd: string;
   _location: string;
 
@@ -47,10 +47,12 @@ export default class FMCFileSystemStore extends FMCStore {
 
   // Cache in a sub-folder in the tests folder.
   async cache_dir(filename: string): Promise<string> {
-    if (!this._createdCacheDir) {
-      this._createdCacheDir = true;
-      await this.runtime.fs.mkdir(this._location, { recursive: true });
+    if (!this._mkdirPromise) {
+      this._mkdirPromise = this.runtime.fs.mkdir(this._location, {
+        recursive: true,
+      });
     }
+    await this._mkdirPromise;
     return this.runtime.path.join(this._location, filename);
   }
 
