@@ -10,7 +10,7 @@
     "test:vitest": "vitest --run src/vitest-*.spec.ts"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "author": "Gadi Cohen <dragon@wastelands.net>",
   "license": "MIT",
