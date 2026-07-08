@@ -32,5 +32,15 @@
     "debug": "npm:debug@^4.3.4",
     "filenamify-url": "npm:filenamify-url@^4.0.0"
   },
-  "exclude": ["node_modules", "lib", "coverage", "tests"]
+  "publish": {
+    "include": [
+      "LICENSE.txt",
+      "MIGRATING.md",
+      "README.md",
+      "jsr.json",
+      "package.json",
+      "src/**/*.ts"
+    ],
+    "exclude": ["src/**/*.spec.ts", "src/testUtils.ts"]
+  }
 }

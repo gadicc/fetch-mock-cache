@@ -5,6 +5,21 @@
   "main": "lib/index.js",
   "type": "module",
   "types": "lib/index.d.ts",
+  "files": [
+    "lib/*.d.ts",
+    "lib/*.js",
+    "lib/runtimes/*.d.ts",
+    "lib/runtimes/*.js",
+    "lib/stores/*.d.ts",
+    "lib/stores/*.js",
+    "!lib/**/*.spec.d.ts",
+    "!lib/**/*.spec.js",
+    "!lib/temp_regenerate.d.ts",
+    "!lib/temp_regenerate.js",
+    "!lib/testUtils.d.ts",
+    "!lib/testUtils.js",
+    "MIGRATING.md"
+  ],
   "scripts": {
     "test": "node --experimental-vm-modules --test --import tsx `glob 'src/**/*.spec.ts'`",
     "test:all": "pnpm run test && pnpm run build && pnpm run lint",
