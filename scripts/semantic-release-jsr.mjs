@@ -3,7 +3,12 @@ import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
-const publishArgs = ["--allow-dirty", "--unstable-sloppy-imports"];
+const publishArgs = [
+  "--config",
+  "jsr.json",
+  "--allow-dirty",
+  "--unstable-sloppy-imports",
+];
 
 function uniqueArgs(args) {
   return [...new Set(args)];
