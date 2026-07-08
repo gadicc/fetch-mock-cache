@@ -18,9 +18,15 @@ export type {
   FetchCache,
   FetchCacheMode,
   FetchCacheOptions,
+  ReadCacheOption,
   Runtime,
+  WriteCacheOption,
 } from "../fetch-cache.js";
 
+/**
+ * Runtime adapter that provides Node.js environment, hashing, filesystem,
+ * path, and cwd operations to stores.
+ */
 export const runtime: Runtime = {
   name: "node",
   get env() {
@@ -47,11 +53,14 @@ export const runtime: Runtime = {
 };
 
 /**
+ * Creates a cached `fetch` implementation using the Node.js runtime adapter.
+ *
  * @example
  * ```ts
  * import createFetchCache from "fetch-mock-cache/runtimes/node.js"
  * import Store from "fetch-mock-cache/stores/memory";
  * const fetchCache = createFetchCache({ Store });
+ * ```
  */
 export default function createFetchCache(
   options: Partial<CreateFetchCacheOptions> = {},

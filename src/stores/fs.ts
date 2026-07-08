@@ -7,7 +7,7 @@
  * @module
  */
 import filenamifyUrl from "filenamify-url";
-import { FetchCacheOptions } from "../fetch-cache.js";
+import type { FetchCacheOptions } from "../fetch-cache.js";
 import type { FMCCacheContent, FMCStoreOptions } from "../store.js";
 import FMCStore from "../store.js";
 
@@ -27,10 +27,17 @@ interface FMCFileStoreOptions extends FMCStoreOptions {
  * ```
  */
 export default class FMCFileSystemStore extends FMCStore {
+  /** Shared directory creation promise used to avoid duplicate mkdir calls. */
   _mkdirPromise?: Promise<unknown>;
+  /** Current working directory captured from the runtime adapter. */
   _cwd: string;
+  /** Absolute directory where fixture files are stored. */
   _location: string;
 
+  /**
+   * Creates a file-system store rooted at `options.location`, or at
+   * `tests/fixtures/http` when no location is provided.
+   */
   constructor(options: FMCFileStoreOptions) {
     super(options);
 
@@ -45,7 +52,10 @@ export default class FMCFileSystemStore extends FMCStore {
     );
   }
 
-  // Cache in a sub-folder in the tests folder.
+  /**
+   * Returns an absolute fixture path inside the store directory, creating the
+   * directory first when needed.
+   */
   async cache_dir(filename: string): Promise<string> {
     if (!this._mkdirPromise) {
       this._mkdirPromise = this.runtime.fs.mkdir(this._location, {
@@ -56,6 +66,10 @@ export default class FMCFileSystemStore extends FMCStore {
     return this.runtime.path.join(this._location, filename);
   }
 
+  /**
+   * Returns a file-safe cache id for the request, including the `.json`
+   * extension used by this store.
+   */
   override async idFromRequest(
     request: FMCCacheContent["request"],
     options?: FetchCacheOptions,
@@ -67,6 +81,9 @@ export default class FMCFileSystemStore extends FMCStore {
     return filenamifyUrl(parts[1]) + (parts[2] || "") + ".json";
   }
 
+  /**
+   * Returns the absolute fixture file path for a request.
+   */
   async pathFromRequest(
     request: FMCCacheContent["request"],
     options?: FetchCacheOptions,
@@ -74,6 +91,9 @@ export default class FMCFileSystemStore extends FMCStore {
     return await this.cache_dir(await this.idFromRequest(request, options));
   }
 
+  /**
+   * Reads and parses cached content from the request's fixture file.
+   */
   override async fetchContent(
     request: FMCCacheContent["request"],
     options?: FetchCacheOptions,
@@ -97,6 +117,9 @@ export default class FMCFileSystemStore extends FMCStore {
     }
   }
 
+  /**
+   * Writes cached content as formatted JSON to the request's fixture file.
+   */
   override async storeContent(
     content: FMCCacheContent,
     options?: FetchCacheOptions,

@@ -17,20 +17,36 @@ const debug = _debug("fetch-mock-cache:core");
 const origFetch = fetch;
 const VALID_FETCH_CACHE_MODES = ["auto", "replay", "record", "off"] as const;
 
-export type FetchCacheMode = (typeof VALID_FETCH_CACHE_MODES)[number];
+/**
+ * Built-in cache behavior modes.
+ *
+ * - `auto`: read cache first, then fetch and write on misses.
+ * - `replay`: read cache only and throw on misses.
+ * - `record`: fetch from the network and write the result.
+ * - `off`: fetch from the network without reading or writing cache.
+ */
+export type FetchCacheMode = "auto" | "replay" | "record" | "off";
 
-type ReadCacheOption =
+/**
+ * Per-call or global policy for deciding whether a cache lookup should run.
+ */
+export type ReadCacheOption =
   | boolean
   | Promise<boolean>
   | ((
-      ...args: Parameters<FMCStore["fetchContent"]>
+      request: FMCCacheContent["request"],
+      options?: FetchCacheOptions,
     ) => boolean | Promise<boolean>);
 
-type WriteCacheOption =
+/**
+ * Per-call or global policy for deciding whether fetched content is stored.
+ */
+export type WriteCacheOption =
   | boolean
   | Promise<boolean>
   | ((
-      ...args: Parameters<FMCStore["storeContent"]>
+      content: FMCCacheContent,
+      options?: FetchCacheOptions,
     ) => boolean | Promise<boolean>);
 
 type FetchCacheModeDefaults = {
@@ -54,20 +70,30 @@ const FETCH_CACHE_MODE_DEFAULTS: Record<
  * needed for fech-mock-cache, e.g. `env`, `sha256`, `fs`, `path`, `cwd`.
  */
 export interface Runtime {
+  /** Runtime name used in diagnostics and adapter metadata. */
   name: string;
+  /** Environment variables available to the runtime. */
   env: Record<string, string | undefined>;
+  /** Returns a SHA-256 hash for the input, optionally truncated. */
   sha256(input: string, length?: number): Promise<string>;
+  /** File-system operations required by file-backed stores. */
   fs: {
+    /** Reads a UTF-8 text file. */
     readFile(path: string): Promise<string>;
+    /** Writes a UTF-8 text file. */
     writeFile(path: string, content: string): Promise<void>;
+    /** Creates a directory, optionally including parents. */
     mkdir(
       path: string,
       options: { recursive?: boolean },
     ): Promise<string | undefined | void>;
   };
+  /** Path operations required by file-backed stores. */
   path: {
+    /** Joins path segments using runtime-specific path rules. */
     join(...paths: string[]): string;
   };
+  /** Returns the runtime's current working directory. */
   cwd: () => string;
 }
 
@@ -99,17 +125,27 @@ export interface FetchCacheOptions {
  * Used to make sure the runtime implementation is compliant.
  */
 export interface FetchCache {
+  /** Fetch-compatible call signature used to replace or wrap `fetch`. */
   (
     urlOrRequest: string | Request | URL | undefined,
     options: RequestInit | undefined,
   ): Promise<Response>;
 
+  /** Runtime adapter used by this cached fetch implementation. */
   runtime: Runtime;
+  /** Global default cache options used by future calls. */
   options: FetchCacheOptions;
+  /** Queue of options that apply to upcoming fetch calls only. */
   _options?: FetchCacheOptions | FetchCacheOptions[];
+  /** Store instance backing this cached fetch implementation. */
   _store?: FMCStore;
+  /** Queues options for the next fetch call. */
   once: (options: FetchCacheOptions) => void;
-  /** @deprecated Use once() instead */
+  /**
+   * Queues options for the next fetch call.
+   *
+   * @deprecated Use `once()` instead.
+   */
   _once: (options: FetchCacheOptions) => void;
 }
 
@@ -120,13 +156,19 @@ export interface FetchCache {
  * module load time.
  */
 export interface CreateFetchCacheOptions {
+  /** Runtime adapter used for environment, hashing, filesystem, and paths. */
   runtime: Runtime;
+  /** Store class, or store class plus constructor options, used for fixtures. */
   Store?: typeof FMCStore | [typeof FMCStore, Record<string, unknown>];
-  fetch?: typeof origFetch;
+  /** Fetch implementation to wrap. Defaults to `globalThis.fetch`. */
+  fetch?: typeof globalThis.fetch;
   /** Global default cache options. These can be changed later via fetchCache.options. */
   id?: FetchCacheOptions["id"];
+  /** Global default cache mode. */
   mode?: FetchCacheOptions["mode"];
+  /** Global default policy for reading from the cache. */
   readCache?: FetchCacheOptions["readCache"];
+  /** Global default policy for writing fetched content to the cache. */
   writeCache?: FetchCacheOptions["writeCache"];
   /** Header names to redact from cached content (and cache-key hashes).
    * Defaults to DEFAULT_REDACTED_HEADERS.  Pass `false` to disable

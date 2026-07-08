@@ -13,7 +13,9 @@ export type {
   FetchCache,
   FetchCacheMode,
   FetchCacheOptions,
+  ReadCacheOption,
   Runtime,
+  WriteCacheOption,
 } from "../fetch-cache.js";
 
 // For now, bun is just so awesomely compatible out of the box that there's
@@ -21,11 +23,14 @@ export type {
 import { runtime } from "./node.js";
 
 /**
+ * Creates a cached `fetch` implementation using the Bun runtime adapter.
+ *
  * @example
  * ```ts
  * import createFetchCache from "fetch-mock-cache/runtimes/bun.js"
  * import Store from "fetch-mock-cache/stores/memory";
  * const fetchCache = createFetchCache({ Store });
+ * ```
  */
 export default function createFetchCache(
   options: Partial<CreateFetchCacheOptions> = {},

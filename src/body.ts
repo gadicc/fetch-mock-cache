@@ -1,16 +1,10 @@
-import type { FMCCacheContent } from "./cache.js";
+import type { FMCCacheContent, SerializedBody } from "./cache.js";
 
 const textMimeWhitelist = {
   application: ["json", "javascript", "xml", "xhtml+xml", "ld+json"],
   image: ["svg+xml"],
   text: ["*"],
 };
-
-export type SerializedBody =
-  | { bodyText: string }
-  | { bodyJson: object }
-  | { bodyBase64: string }
-  | { body: null };
 
 function isTextMime(contentType: string): boolean {
   const [type, subtype] = contentType.split("/");

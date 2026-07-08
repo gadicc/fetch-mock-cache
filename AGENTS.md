@@ -14,6 +14,25 @@ Any new public module needs matching entries in `package.json#exports` (pointing
 at `./lib/*.js`) and `jsr.json#exports` (pointing at `./src/*.ts`), including
 the `.js` and `.ts` extension variants.
 
+## JSR Documentation Score
+
+Keep JSR's package score at 100% when changing public API:
+
+- Every file listed in `jsr.json#exports` must start with a `/** ... @module
+  ... */` doc comment that summarizes that entrypoint.
+- Every exported symbol and every public member of exported interfaces/classes
+  should have JSDoc. This includes option properties, class fields,
+  constructors, and overridden public methods in exported store classes.
+- Public exported types must not reference private helper types. Export those
+  helper types when they are part of the public type surface, and re-export them
+  from runtime entrypoints when public options refer to them.
+- If a type is shared by a public entrypoint such as `src/cache.ts`, define or
+  re-export it from that entrypoint so JSR can document it.
+- For local checks, use `deno doc --lint --quiet --no-lock
+  --unstable-sloppy-imports` against all `jsr.json#exports` source files. If
+  the Deno runtime import needs `@std/path`, use a temporary import map derived
+  from `jsr.json#imports`.
+
 ## Build, Test, and Development Commands
 
 Use pnpm 10.x, as declared in `package.json`.

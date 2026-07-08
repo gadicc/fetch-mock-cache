@@ -17,9 +17,15 @@ export type {
   FetchCache,
   FetchCacheMode,
   FetchCacheOptions,
+  ReadCacheOption,
   Runtime,
+  WriteCacheOption,
 } from "../fetch-cache.js";
 
+/**
+ * Runtime adapter that provides Deno environment, hashing, filesystem, path,
+ * and cwd operations to stores.
+ */
 export const runtime: Runtime = {
   name: "deno",
   get env() {
@@ -64,11 +70,14 @@ export const runtime: Runtime = {
 };
 
 /**
+ * Creates a cached `fetch` implementation using the Deno runtime adapter.
+ *
  * @example
  * ```ts
  * import createFetchCache from "fetch-mock-cache/runtimes/deno.ts"
  * import Store from "fetch-mock-cache/stores/memory";
  * const fetchCache = createFetchCache({ Store });
+ * ```
  */
 export default function createFetchCache(
   options: Partial<CreateFetchCacheOptions> = {},

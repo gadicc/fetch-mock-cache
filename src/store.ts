@@ -16,6 +16,7 @@ import type { FetchCacheOptions, Runtime } from "./fetch-cache.js";
  * automatically passed to the store by `createFetchCache`.
  */
 export interface FMCStoreOptions {
+  /** Runtime adapter supplied by the active `createFetchCache` entrypoint. */
   runtime: Runtime;
 }
 
@@ -41,8 +42,12 @@ export interface FMCStoreOptions {
  * ```
  */
 export default class FMCStore {
+  /** Runtime adapter available to store implementations. */
   runtime: Runtime;
 
+  /**
+   * Creates a store with the runtime adapter supplied by `createFetchCache`.
+   */
   constructor(options: FMCStoreOptions) {
     this.runtime = options.runtime;
   }
@@ -127,7 +132,7 @@ export default class FMCStore {
   /**
    * Given an FMCCacheContent.request object, return the cached content
    * from the store if it exists, or undefined otherwise.
-   * @param {FMCCacheContent["request"]} req
+   * @param {FMCCacheContent["request"]} request
    * @returns {Promise<FMCCacheContent | undefined>}
    */
   async fetchContent(
