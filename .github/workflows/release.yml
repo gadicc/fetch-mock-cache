@@ -11,15 +11,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  release:
-    name: Test & Release
+  test:
+    name: Test
     runs-on: ubuntu-latest
     permissions:
-      # https://github.com/semantic-release/semantic-release/issues/2469
-      contents: write # create releases
-      issues: write # issue comments and labels
-      pull-requests: write # ditto
-      id-token: write # OIDC for JSR and npm trusted publishing/provenance.
+      contents: read
 
     steps:
       - name: Checkout
@@ -47,11 +43,58 @@ jobs:
       - name: Run CI script (tests)
         run: npm run ci
 
-      - name: Setup Node.js for release
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: lcov.info
+
+      - name: Upload runtime results artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-results
+          path: tests/runtimes/results.yaml
+
+  release:
+    name: Release
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      # https://github.com/semantic-release/semantic-release/issues/2469
+      contents: write # create releases
+      issues: write # issue comments and labels
+      pull-requests: write # ditto
+      id-token: write # OIDC for JSR and npm trusted publishing/provenance.
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Use pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: 22.14
           cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage
+          path: .
+
+      - name: Download runtime results artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: runtime-results
+          path: tests/runtimes
 
       - name: Upload coverage to gist
         uses: gaelgirodon/ci-badges-action@v1
@@ -65,6 +108,9 @@ jobs:
           token: ${{ secrets.GH_TOKEN_GISTS }}
           gist_id: f66f0ad9395e4019ec5209719377650b
           file_path: ./tests/runtimes/results.yaml
+
+      - name: Build package
+        run: pnpm run build
 
       - name: Release if relevant
         env:
