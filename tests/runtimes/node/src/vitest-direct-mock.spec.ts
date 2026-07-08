@@ -5,7 +5,7 @@ import { describe, expect, test, vi } from "vitest";
 import createFetchCache from "fetch-mock-cache";
 import MemoryStore from "fetch-mock-cache/stores/memory";
 
-describe("vitest-fetch-mock", () => {
+describe("vitest - direct mock", () => {
   const expectedResponse = { one: "two", key: "value" };
   const fetchFixture: typeof fetch = async () =>
     new Response(JSON.stringify({ parsedQueryParams: expectedResponse }), {

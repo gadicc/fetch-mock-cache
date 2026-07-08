@@ -46,6 +46,13 @@ Use pnpm 10.x, as declared in `package.json`.
 - `cd tests/runtimes && ./test.sh` runs Node, Deno, and Bun compatibility
   tests when those runtimes are installed.
 
+Runtime examples linked from the README's Quick Start / Example table must be
+real executable tests under `tests/runtimes/`. Keep package imports in those
+files copy-pasteable for users by using public package specifiers backed by
+local `file:`/`link:` dependencies or import maps. If a local relative import is
+unavoidable, put a short comment immediately above it with the public import a
+user should copy.
+
 ## Coding Style & Naming Conventions
 
 Biome controls formatting: 2-space indentation, LF line endings, 80-column

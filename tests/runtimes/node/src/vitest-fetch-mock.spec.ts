@@ -9,7 +9,7 @@ import MemoryStore from "fetch-mock-cache/stores/memory";
 const fetchMocker = createFetchMock(vi);
 fetchMocker.enableMocks();
 
-describe("jest-fetch-mock", () => {
+describe("vitest-fetch-mock", () => {
   const expectedResponse = { one: "two", key: "value" };
   const fetchFixture: typeof fetch = async () =>
     new Response(JSON.stringify({ parsedQueryParams: expectedResponse }), {
