@@ -8,12 +8,12 @@
  * @module
  */
 
-import createCachingFetch from "./runtimes/node.js";
-
 export * from "./runtimes/node.js";
 
-/**
- * Creates a cached `fetch` implementation configured with the Node.js
- * runtime adapter.
- */
-export default createCachingFetch;
+export {
+  /**
+   * Creates a cached `fetch` implementation configured with the Node.js
+   * runtime adapter.
+   */
+  default,
+} from "./runtimes/node.js";

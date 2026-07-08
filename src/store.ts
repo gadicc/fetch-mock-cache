@@ -158,4 +158,7 @@ export default class FMCStore {
   }
 }
 
-export type { FMCCacheContent };
+export type {
+  /** Complete request and response data stored for one cached fetch call. */
+  FMCCacheContent,
+};

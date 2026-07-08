@@ -20,18 +20,25 @@ Keep JSR's package score at 100% when changing public API:
 
 - Every file listed in `jsr.json#exports` must start with a `/** ... @module
   ... */` doc comment that summarizes that entrypoint.
+- Because the root `.` entrypoint has `@module` docs, keep the JSR package
+  setting "Readme Source" set to "Readme" so the Overview tab shows README.md.
 - Every exported symbol and every public member of exported interfaces/classes
   should have JSDoc. This includes option properties, class fields,
   constructors, and overridden public methods in exported store classes.
 - Public exported types must not reference private helper types. Export those
   helper types when they are part of the public type surface, and re-export them
   from runtime entrypoints when public options refer to them.
+- Add JSDoc directly to re-export specifiers, such as `export type { ... }`
+  entries in runtime modules. JSR scores those re-exported symbols separately,
+  and `deno doc --lint` may not report missing docs there.
 - If a type is shared by a public entrypoint such as `src/cache.ts`, define or
   re-export it from that entrypoint so JSR can document it.
 - For local checks, use `deno doc --lint --quiet --no-lock
   --unstable-sloppy-imports` against all `jsr.json#exports` source files. If
   the Deno runtime import needs `@std/path`, use a temporary import map derived
   from `jsr.json#imports`.
+- To mirror JSR's symbol score more closely, also inspect `deno doc --json` for
+  each entrypoint and verify every top-level symbol in the JSON has `jsDoc.doc`.
 
 ## Build, Test, and Development Commands
 

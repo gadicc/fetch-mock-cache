@@ -11,7 +11,11 @@ import type { FetchCacheOptions } from "../fetch-cache.js";
 import type { FMCCacheContent, FMCStoreOptions } from "../store.js";
 import FMCStore from "../store.js";
 
-interface FMCFileStoreOptions extends FMCStoreOptions {
+/**
+ * Options for the file-system store.
+ */
+export interface FMCFileStoreOptions extends FMCStoreOptions {
+  /** Directory where fixture files are read and written. */
   location?: string;
 }
 

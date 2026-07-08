@@ -13,12 +13,19 @@ import _createFetchCache, {
 } from "../fetch-cache.js";
 
 export type {
+  /** Options accepted by `createFetchCache`. */
   CreateFetchCacheOptions,
+  /** Cached fetch function returned by `createFetchCache`. */
   FetchCache,
+  /** Built-in cache behavior modes. */
   FetchCacheMode,
+  /** Per-call or global options that control cache behavior. */
   FetchCacheOptions,
+  /** Policy for deciding whether a cache lookup should run. */
   ReadCacheOption,
+  /** Runtime adapter contract used by stores. */
   Runtime,
+  /** Policy for deciding whether fetched content is stored. */
   WriteCacheOption,
 } from "../fetch-cache.js";
 
