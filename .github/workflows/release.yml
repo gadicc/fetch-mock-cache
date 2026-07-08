@@ -54,6 +54,13 @@ jobs:
           node-version: 22.14
           cache: "pnpm"
 
+      - name: Upgrade npm for trusted publishing
+        # Node 22.14 bundles npm 10, but npm OIDC publishing requires
+        # npm 11.5.1 or newer.
+        run: |
+          npm install --global npm@^11.5.1
+          npm --version
+
       - name: Setup Deno
         uses: denoland/setup-deno@v2
 
