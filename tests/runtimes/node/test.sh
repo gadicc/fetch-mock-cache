@@ -18,12 +18,6 @@ unset npm_config_verify_deps_before_run
 unset npm_config__jsr_registry
 unset npm_config__gadicc_registry
 
-npm ci --ignore-scripts --no-audit --fund=false
-result=$?
-if [ $result -ne 0 ]; then
-  status=1
-fi
-
 npm run test:native
 result=$?
 echo "    native: $(resultToStatus $result)" >> results.yaml

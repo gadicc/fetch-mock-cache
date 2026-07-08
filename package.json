@@ -15,7 +15,11 @@
     "prepublishOnly": "pnpm run build",
     "coverage:output": "node --experimental-vm-modules --test --import tsx --experimental-test-coverage `glob 'src/**/*.spec.ts'`",
     "coverage": "node --experimental-vm-modules --test --import tsx --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=lcov.info `glob 'src/**/*.spec.ts'`",
-    "ci": "pnpm run build && pnpm biome ci && pnpm run coverage && cd tests/runtimes && ./test.sh"
+    "ci:core": "pnpm run build && pnpm biome ci && pnpm run coverage",
+    "test:runtimes:install": "cd tests/runtimes && ./install.sh",
+    "test:runtimes:run": "cd tests/runtimes && ./test.sh --skip-install",
+    "test:runtimes": "cd tests/runtimes && ./test.sh",
+    "ci": "pnpm run ci:core && pnpm run test:runtimes"
   },
   "repository": {
     "type": "git",

@@ -39,9 +39,32 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
+          cache: true
 
-      - name: Run CI script (tests)
-        run: npm run ci
+      - name: Cache runtime npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-runtime-npm-${{ hashFiles('tests/runtimes/node/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-runtime-npm-
+
+      - name: Cache runtime Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-runtime-bun-${{ hashFiles('tests/runtimes/bun/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-runtime-bun-
+
+      - name: Run core CI checks
+        run: pnpm run ci:core
+
+      - name: Install runtime dependencies
+        run: pnpm run test:runtimes:install
+
+      - name: Run runtime tests
+        run: pnpm run test:runtimes:run
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
