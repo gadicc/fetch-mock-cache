@@ -1,6 +1,15 @@
 name: Test & Release
 on:
   push:
+    branches:
+      - main
+      - master
+      - next
+      - next-major
+      - beta
+      - alpha
+      - "[0-9]+.x"
+      - "[0-9]+.[0-9]+.x"
   workflow_dispatch:
 
 permissions:
@@ -13,70 +22,11 @@ concurrency:
 jobs:
   test:
     name: Test
-    runs-on: ubuntu-latest
     permissions:
       contents: read
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Use pnpm
-        uses: pnpm/action-setup@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22.14
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - uses: oven-sh/setup-bun@v2
-      - uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
-          cache: true
-
-      - name: Cache runtime npm dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-runtime-npm-${{ hashFiles('tests/runtimes/node/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-runtime-npm-
-
-      - name: Cache runtime Bun dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.bun/install/cache
-          key: ${{ runner.os }}-runtime-bun-${{ hashFiles('tests/runtimes/bun/bun.lockb') }}
-          restore-keys: |
-            ${{ runner.os }}-runtime-bun-
-
-      - name: Run core CI checks
-        run: pnpm run ci:core
-
-      - name: Install runtime dependencies
-        run: pnpm run test:runtimes:install
-
-      - name: Run runtime tests
-        run: pnpm run test:runtimes:run
-
-      - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: lcov.info
-
-      - name: Upload runtime results artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: runtime-results
-          path: tests/runtimes/results.yaml
+    uses: ./.github/workflows/test.yml
+    with:
+      upload_artifacts: true
 
   release:
     name: Release
