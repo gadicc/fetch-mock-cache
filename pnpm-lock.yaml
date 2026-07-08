@@ -18,9 +18,6 @@ importers:
       '@biomejs/biome':
         specifier: ^2.5.2
         version: 2.5.2
-      '@sebbo2002/semantic-release-jsr':
-        specifier: ^4.0.1
-        version: 4.0.1
       '@types/debug':
         specifier: ^4.1.13
         version: 4.1.13
@@ -376,10 +373,6 @@ packages:
   '@pnpm/npm-conf@3.0.3':
     resolution: {integrity: sha512-//0sR/cow/s4ICQaYoAobOl4aU8cjU6x/V24V7XkKotb9+O+3zySIYp146vpaobYHnxa4pZX8NkV54Z5AwbDKA==}
     engines: {node: '>=12'}
-
-  '@sebbo2002/semantic-release-jsr@4.0.1':
-    resolution: {integrity: sha512-W/qrTW6/JfSvfS3YKxX0GGaekYtObJKYRkACfu2/3lBT5iTp1ZnTOoFpNus8JuwGLPVy4oB5M+LEhHzYjn5lHQ==}
-    engines: {node: 22 || >=24.0.0}
 
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
@@ -985,10 +978,6 @@ packages:
   jsonfile@6.2.1:
     resolution: {integrity: sha512-zwOTdL3rFQ/lRdBnntKVOX6k5cKJwEc1HdilT71BWEu7J41gXIB2MRp+vxduPSwZJPWBxEzv4yH1wYLJGUHX4Q==}
 
-  jsr@0.14.3:
-    resolution: {integrity: sha512-PGxnDepx7vwJoZQe2SHbyBiFfpGwsOKmX4kn/wZZqfMafV7fjXqTxSaX6lp9QHYkSTLKkER+P/wmrZY3gVJNzg==}
-    hasBin: true
-
   lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
 
@@ -1086,10 +1075,6 @@ packages:
   node-emoji@2.2.0:
     resolution: {integrity: sha512-Z3lTE9pLaJF47NyMhd4ww1yFTAP8YhYI8SleJiHzM46Fgpm5cnNzSl9XfzFNqbaz+VlJrIj3fXQ4DeN1Rjm6cw==}
     engines: {node: '>=18'}
-
-  node-stream-zip@1.15.0:
-    resolution: {integrity: sha512-LN4fydt9TqhZhThkZIVQnF9cwjU3qmUH9h78Mx/K7d3VvfRqqwthLwJEUOEL0QPZ0XQmNN7be5Ggit5+4dq3Bw==}
-    engines: {node: '>=0.12.0'}
 
   normalize-package-data@6.0.2:
     resolution: {integrity: sha512-V6gygoYb/5EmNI+MEGrWkC+e6+Rr7mTmfHrxDbLzxQogBkgzo76rkok0Am6thgSF7Mv2nLOajAJj5vDJZEFn7g==}
@@ -1376,10 +1361,6 @@ packages:
     resolution: {integrity: sha512-mn61SUJwtM8ThrWn2WmgLVpwVJeG/hPSupua1psdMoufmwRIPyvRLkRkL0JDXkP67OntlLWUYnBnfVc8EDO3/g==}
     engines: {node: ^22.14.0 || >= 24.10.0}
     hasBin: true
-
-  semiver@1.1.0:
-    resolution: {integrity: sha512-QNI2ChmuioGC1/xjyYwyZYADILWyW6AmS1UH6gDj/SFUUUS4MBAWs/7mxnkRPc/F4iHezDP+O8t0dO8WHiEOdg==}
-    engines: {node: '>=6'}
 
   semver-regex@4.0.5:
     resolution: {integrity: sha512-hunMQrEy1T6Jr2uEVjrAIqjwWcQTgOAcIM52C8MY1EZSD3DDNft04XzvYKPqjED65bNVVko0YI38nYeEHCX3yw==}
@@ -1906,11 +1887,6 @@ snapshots:
       '@pnpm/config.env-replace': 1.1.0
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
-
-  '@sebbo2002/semantic-release-jsr@4.0.1':
-    dependencies:
-      '@semantic-release/error': 4.0.0
-      jsr: 0.14.3
 
   '@sec-ant/readable-stream@0.4.1': {}
 
@@ -2569,11 +2545,6 @@ snapshots:
     optionalDependencies:
       graceful-fs: 4.2.11
 
-  jsr@0.14.3:
-    dependencies:
-      node-stream-zip: 1.15.0
-      semiver: 1.1.0
-
   lines-and-columns@1.2.4: {}
 
   load-json-file@4.0.0:
@@ -2662,8 +2633,6 @@ snapshots:
       char-regex: 1.0.2
       emojilib: 2.4.0
       skin-tone: 2.0.0
-
-  node-stream-zip@1.15.0: {}
 
   normalize-package-data@6.0.2:
     dependencies:
@@ -2896,8 +2865,6 @@ snapshots:
       - kerberos
       - supports-color
       - typescript
-
-  semiver@1.1.0: {}
 
   semver-regex@4.0.5: {}
 

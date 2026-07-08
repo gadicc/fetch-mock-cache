@@ -71,7 +71,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.2",
-    "@sebbo2002/semantic-release-jsr": "^4.0.1",
     "@types/debug": "^4.1.13",
     "@types/node": "^22.20.0",
     "conventional-changelog-conventionalcommits": "^10.2.1",
