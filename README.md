@@ -31,9 +31,11 @@ Copyright (c) 2023 by Gadi Cohen. [MIT Licensed](./LICENSE.txt).
 - 💬 **Open to ideas**  
   Feature requests and contributions welcome!
 
-NB: if you're still using **v1** (formerly `jest-fetch-mock-cache`),
-see the [old README](https://github.com/gadicc/fetch-mock-cache/tree/1.x)
-and/or [MIGRATING.md](./MIGRATING.md) for how to upgrade.
+NB: upgrading from an earlier major version? See
+[MIGRATING.md](./MIGRATING.md) for v2-to-v3 and v1-to-v2 notes. If you're
+still using **v1** (formerly `jest-fetch-mock-cache`), the
+[old README](https://github.com/gadicc/fetch-mock-cache/tree/1.x) remains
+available.
 
 ## AI Agent Skill
 
