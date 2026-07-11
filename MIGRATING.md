@@ -122,6 +122,25 @@ Notable additions and behavior changes:
   `FMCCacheContent.request.headers` to already be redacted unless the user
   disables or customizes redaction. Store method signatures remain compatible.
 
+- **Direction-specific header redaction**
+
+  If replay behavior depends on a sensitive response header, such as
+  `set-cookie` rebuilding a cookie jar, configure request and response headers
+  independently. `redactRequestHeaders` and `redactResponseHeaders` override
+  the shared `redactHeaders` option for their respective direction.
+
+  ```ts
+  const fetchCache = createFetchCache({
+    Store,
+    redactResponseHeaders: [
+      "authorization",
+      "proxy-authorization",
+      "cookie",
+      "x-api-key",
+    ],
+  });
+  ```
+
 - **Bug fixes that may affect tests**
 
   - Passing a `Request` object now preserves its method, headers, and body on

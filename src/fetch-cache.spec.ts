@@ -396,6 +396,42 @@ describe("fetch-mock-cache", () => {
         authorization: "Bearer token",
       });
     });
+
+    it("configures request and response redaction independently", async (t) => {
+      const fakeFetch = async () =>
+        new Response("hello", {
+          headers: {
+            Authorization: "Bearer response-token",
+            "Set-Cookie": "session=xyz",
+          },
+        });
+      const fetchCache = createFetchCache({
+        Store: MemoryStore,
+        fetch: fakeFetch,
+        redactHeaders: false,
+        redactRequestHeaders: ["cookie"],
+        redactResponseHeaders: ["authorization"],
+      });
+      t.mock.method(globalThis, "fetch", fetchCache);
+
+      await fetch("https://fmc.test/", {
+        headers: {
+          Authorization: "Bearer request-token",
+          Cookie: "session=abc",
+        },
+      });
+
+      const store = fetchCache._store! as MemoryStore;
+      const cached = Array.from(store.store.values())[0];
+      expect(cached.request.headers).toEqual({
+        authorization: "Bearer request-token",
+        cookie: "[REDACTED]",
+      });
+      expect(cached.response.headers).toMatchObject({
+        authorization: "[REDACTED]",
+        "set-cookie": ["session=xyz"],
+      });
+    });
   });
 
   describe("redactSearchParams option", () => {

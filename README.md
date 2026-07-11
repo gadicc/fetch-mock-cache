@@ -327,7 +327,11 @@ Redacting these headers and query parameters before hashing ensures key stabilit
 
 #### Customizing or disabling redaction
 
-Redaction can be configured when initializing the caching mock via the global `redactHeaders` and `redactSearchParams` options:
+Redaction can be configured when initializing the caching mock via the global
+`redactHeaders` and `redactSearchParams` options. Use
+`redactRequestHeaders` or `redactResponseHeaders` when the two directions need
+different policies. Direction-specific options override `redactHeaders` for
+that direction:
 
 ```ts
 import createFetchCache from "fetch-mock-cache/runtimes/node";
@@ -345,6 +349,25 @@ const fetchCacheCustom = createFetchCache({
   Store,
   redactHeaders: ["x-custom-secret-header"],
   redactSearchParams: ["custom_api_key", "session_token"],
+});
+
+// Redact request cookies, but retain response Set-Cookie headers when replay
+// behavior depends on rebuilding a cookie jar.
+const fetchCacheWithReplayCookies = createFetchCache({
+  Store,
+  redactRequestHeaders: [
+    "authorization",
+    "proxy-authorization",
+    "cookie",
+    "set-cookie",
+    "x-api-key",
+  ],
+  redactResponseHeaders: [
+    "authorization",
+    "proxy-authorization",
+    "cookie",
+    "x-api-key",
+  ],
 });
 ```
 

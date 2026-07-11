@@ -61,12 +61,15 @@ then `FMC_CACHE_MODE`, then `auto`.
 
 Review every filesystem fixture diff before committing.
 
-`fetch-mock-cache` redacts common sensitive request headers and query
-parameters before deriving cache keys and writing fixture JSON. It does not
-redact request or response bodies, and it cannot reliably detect secrets in URL
-path segments. For those cases, avoid recording sensitive values, sanitize the
-code under test, or use `fetchCache.once({ id: "stable-safe-name" })` so the
-filename does not contain the secret-bearing URL.
+`fetch-mock-cache` redacts common sensitive request and response headers plus
+request query parameters before deriving cache keys and writing fixture JSON.
+Use `redactRequestHeaders` and `redactResponseHeaders` when replay requires a
+different policy in each direction, such as preserving response `set-cookie`
+headers to rebuild a cookie jar. It does not redact request or response bodies,
+and it cannot reliably detect secrets in URL path segments. For those cases,
+avoid recording sensitive values, sanitize the code under test, or use
+`fetchCache.once({ id: "stable-safe-name" })` so the filename does not contain
+the secret-bearing URL.
 
 For CI, set `FMC_CACHE_MODE=replay` after fixtures are committed so missing
 fixtures fail loudly instead of making live network requests.

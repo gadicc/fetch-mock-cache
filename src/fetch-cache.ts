@@ -172,8 +172,18 @@ export interface CreateFetchCacheOptions {
   writeCache?: FetchCacheOptions["writeCache"];
   /** Header names to redact from cached content (and cache-key hashes).
    * Defaults to DEFAULT_REDACTED_HEADERS.  Pass `false` to disable
-   * redaction entirely, or an array to replace the default list. */
+   * redaction entirely, or an array to replace the default list.  Used as
+   * the fallback for request and response headers when their specific
+   * options are omitted. */
   redactHeaders?: string[] | false;
+  /** Request header names to redact from cached content and cache-key hashes.
+   * Overrides `redactHeaders` for requests.  Pass `false` to disable request
+   * header redaction, or an array to replace the inherited/default list. */
+  redactRequestHeaders?: string[] | false;
+  /** Response header names to redact from cached content.
+   * Overrides `redactHeaders` for responses.  Pass `false` to disable response
+   * header redaction, or an array to replace the inherited/default list. */
+  redactResponseHeaders?: string[] | false;
   /** Query param names whose values are redacted from cached URLs —
    * fixture filenames, stored content, and cache-key derivation all see
    * the redacted URL; the real network request is unaffected.  Defaults
@@ -196,6 +206,8 @@ export default function createCachingMock({
   readCache,
   writeCache,
   redactHeaders,
+  redactRequestHeaders,
+  redactResponseHeaders,
   redactSearchParams,
 }: CreateFetchCacheOptions) {
   if (!Store) {
@@ -205,17 +217,28 @@ export default function createCachingMock({
   }
   if (!fetch) fetch = origFetch;
 
-  const redactList =
-    redactHeaders === false
+  const resolveHeaderRedactList = (specific?: string[] | false) =>
+    specific === false
       ? null
-      : (redactHeaders ?? DEFAULT_REDACTED_HEADERS);
+      : (specific ??
+        (redactHeaders === false
+          ? null
+          : (redactHeaders ?? DEFAULT_REDACTED_HEADERS)));
+
+  const requestHeaderRedactList = resolveHeaderRedactList(redactRequestHeaders);
+  const responseHeaderRedactList = resolveHeaderRedactList(
+    redactResponseHeaders,
+  );
 
   const paramRedactList =
     redactSearchParams === false
       ? null
       : (redactSearchParams ?? DEFAULT_REDACTED_SEARCH_PARAMS);
 
-  const serializeAndRedactHeaders = (headers: Headers) => {
+  const serializeAndRedactHeaders = (
+    headers: Headers,
+    redactList: string[] | null,
+  ) => {
     const serialized = serializeHeaders(headers);
     return redactList
       ? redactHeadersHelper(serialized, redactList)
@@ -275,7 +298,10 @@ export default function createCachingMock({
         ...(clonedRequest.body && (await serializeBody(clonedRequest))),
         ...(Array.from(fetchRequest.headers.keys()).length > 0 && {
           // Not really necessary as set-cookie never appears in the REQUEST headers.
-          headers: serializeAndRedactHeaders(fetchRequest.headers),
+          headers: serializeAndRedactHeaders(
+            fetchRequest.headers,
+            requestHeaderRedactList,
+          ),
         }),
       };
 
@@ -323,7 +349,10 @@ export default function createCachingMock({
           ok: response.ok,
           status: response.status,
           statusText: response.statusText,
-          headers: serializeAndRedactHeaders(response.headers),
+          headers: serializeAndRedactHeaders(
+            response.headers,
+            responseHeaderRedactList,
+          ),
           ...(await serializeBody(response)),
         },
       };
