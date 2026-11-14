@@ -106,7 +106,7 @@ implementation for your framework of choice.
 Sample output from the Quick Start code above, when used with `NodeFSStore`:
 
 ```bash
-$ cat tests/fixtures/http/echo.jsontest.com\!key\!value\!one\!two
+$ cat 'tests/fixtures/http/fmc-v1/echo.jsontest.com!key!value!one!two-<sha256>.json'
 ```
 
 ```js
@@ -138,6 +138,19 @@ $ cat tests/fixtures/http/echo.jsontest.com\!key\!value\!one\!two
 JSON bodies are stored as a decoded object in `bodyJSON` for increased
 readability.  Text bodies are stored as a string in `bodyText`, and
 binary bodies are stored as a Base64 encoded string in `bodyBase64`.
+
+Automatic filesystem fixtures live in the `fmc-v1/` subdirectory. Their names
+contain a readable URL prefix followed by a full SHA-256 request fingerprint
+(`<sha256>` above). The fingerprint includes the redacted URL, method, headers,
+and body, so URLs that look alike after filename
+sanitization still have separate fixtures. Automatic names are at most 130
+ASCII bytes; explicit IDs still use `<id>.json` in the configured directory.
+
+Existing fixtures using the older URL-based names can still replay when their
+stored request metadata matches the requested identity. Legacy lookup never
+rewrites files. New recordings and record-mode refreshes use the new names,
+which take precedence over legacy fixtures. See [migration notes](./MIGRATING.md)
+for compatibility and re-recording details.
 
 ## Debugging
 

@@ -30,8 +30,8 @@ export const DEFAULT_REDACTED_SEARCH_PARAMS = [
 
 /**
  * Replacement value for redacted params.  MUST NOT contain "[", "]", "?",
- * "&" or "#": the fs store splits cache ids on brackets
- * (src/stores/fs.ts idFromRequest) and the value lands in filenames.
+ * "&" or "#": legacy fs fixture lookup splits cache ids on brackets,
+ * and the value can appear in readable filename prefixes.
  */
 export const REDACTED_PARAM_VALUE = "REDACTED";
 

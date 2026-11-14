@@ -74,6 +74,18 @@ the secret-bearing URL.
 For CI, set `FMC_CACHE_MODE=replay` after fixtures are committed so missing
 fixtures fail loudly instead of making live network requests.
 
+Automatic filesystem fixtures live in `fmc-v1/` within the configured fixture
+directory and use a readable URL prefix plus a full SHA-256 request fingerprint.
+Explicit IDs still use `<id>.json` in the configured directory. The directory's
+`v1` identifies the fixture format, not the package version. Older URL-based
+fixture names are read without migration only when their stored request
+metadata verifies the requested identity. Mismatches are misses, so replay mode
+fails before network access. Missing or edited request metadata, older redaction policies,
+and responses already overwritten by collisions can require re-recording.
+Record mode writes the new names and leaves old fixtures in place; review and
+remove obsolete files after migration. Upgrade older package versions before
+sharing new fixtures, because those versions cannot find the new names.
+
 ## Custom Stores
 
 Create a custom store only when `stores/fs` or `stores/memory` is not enough.

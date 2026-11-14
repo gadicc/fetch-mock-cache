@@ -32,6 +32,7 @@ the release workflow.
 | 012 | Spike: browser/jsdom support design | P3 | S | — | DONE |
 | 012-DESIGN | Design: browser/jsdom support | P3 | S | 012 | TODO |
 | 013 | Redact sensitive query params before caching (security) | P1 | M | 001, 005 (soft) | DONE |
+| 014 | Collision-resistant fs fixture names and checked legacy reads | P1 | M | 001, 013 | DONE |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
 

@@ -48,3 +48,16 @@ describe("node:test - direct mock", () => {
     }
   });
 });
+
+test("replays the shared versioned fixture without network access", async () => {
+  const cache = createFetchCache({
+    Store: [FsStore, { location: "../../fixtures/fs-identity" }],
+    mode: "replay",
+    fetch: async () => {
+      throw new Error("shared fixture must replay");
+    },
+  });
+  const response = await cache("https://fmc.test/identity", undefined);
+  expect(response.headers.get("X-FMC-Cache")).toBe("HIT");
+  expect(await response.text()).toBe("portable fixture");
+});

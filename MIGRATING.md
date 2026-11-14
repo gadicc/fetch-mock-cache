@@ -2,8 +2,84 @@
 
 ## Table of Contents
 
+- [From v3 to v4 (2026-11-14)](#from-v3-to-v4-2026-11-14)
 - [From v2 to v3 (2026-07-08)](#from-v2-to-v3-2026-07-08)
 - [From v1 to v2](#from-v1-to-v2)
+
+## From v3 to v4 (2026-11-14)
+
+v4 prevents distinct URLs from replaying each other's filesystem fixtures.
+New automatic fixtures use full SHA-256 names under `fmc-v1/`. Existing
+fixtures remain readable when their stored request identity verifies;
+explicit IDs and memory-store keys are unchanged.
+
+**Action:** Upgrade contributors and CI together, then run your tests in
+replay mode. Re-record missing or rejected fixtures with
+`FMC_CACHE_MODE=record pnpm test`, review the new files, and commit them.
+Keep `fmc-v1/`; remove obsolete legacy files only after replay passes.
+Custom filesystem-store subclasses may also need re-recording.
+
+### Filesystem fixture identity and compatibility details
+
+The filesystem store now writes `fmc-v1/<readable-url-prefix>-<sha256>.json`,
+with a full SHA-256 fingerprint of the redacted request identity. This prevents
+distinct URLs from sharing fixtures when filename sanitization removes their
+differences. Methods, headers, and bodies also participate in the fingerprint;
+binary bodies retain their exact bytes. The versioned subdirectory prevents
+legacy URL-based names from masquerading as new digest names or being
+overwritten by them. Explicit `id` values still produce `<id>.json` directly
+in the configured directory. Memory-store keys are unchanged.
+
+Here `v1` identifies the fixture-identity format, independently of the package
+version. Keep the `fmc-v1` directory when removing obsolete legacy fixtures.
+
+Existing URL-based fixture names remain readable when their stored request
+metadata reproduces the requested identity. Reads do not create directories,
+rewrite, rename, or delete fixtures. Unsafe or overlong legacy lookup names
+are skipped. A legacy fixture for another request is a cache miss: `auto`
+records that request separately, while `replay` throws before network access.
+Invalid JSON and permission or I/O failures for usable paths still throw.
+
+Legacy probes exclude path separators, NUL, names over 255 UTF-8 bytes, and
+Windows-invalid characters on Windows. POSIX-valid query punctuation remains
+supported on POSIX. Enable `DEBUG=fetch-mock-cache:fs` to see whether a legacy
+fixture was used or rejected by identity checking.
+
+Current fixtures are verified too. Changing or copying their request metadata
+can cause a miss; in `auto` mode the request is fetched again and the fixture
+is overwritten. Configure redaction before re-recording rather than editing
+request identity by hand. Rejected current fixtures also appear in the debug log.
+
+Some fixtures need re-recording: a response previously overwritten by a naming
+collision cannot be recovered, and hand-edited, missing, or changed request
+metadata cannot be verified. Fixtures from older redaction policies may also
+need re-recording; stored URL identity is compared exactly. To refresh:
+
+```bash
+FMC_CACHE_MODE=record pnpm test
+```
+
+Record mode writes new filenames and leaves old files intact. New files take
+precedence during later replay; review and remove obsolete legacy files when
+the migration is complete. Older package versions cannot find the new names,
+so coordinate dependency upgrades across contributors and workspaces.
+
+The public `idFromRequest` and `pathFromRequest` results change for automatic
+IDs. Subclasses overriding either method or `cache_dir` retain their custom
+lookup behavior and do not use the built-in legacy fallback. Bound or spied-on
+methods also count as overrides. Overrides of `uniqueRequestIdentifiers` remain
+authoritative, including custom body normalization.
+
+Subclasses overriding only `cache_dir` or `pathFromRequest` inherit the new
+digest filenames without legacy fallback, so their existing fixtures need
+re-recording. Call `pathFromRequest(request)` to locate an automatic fixture;
+composing `cache_dir(await idFromRequest(request))` no longer finds its
+versioned location.
+
+Tests that previously relied on URL-name collisions (including HTTP/HTTPS,
+`www.`, trailing-slash, or query-order differences) now require separate
+fixtures. Automatic IDs and paths change, and legacy verification can turn
+old hits into misses; these are breaking changes in v4.
 
 ## From v2 to v3 (2026-07-08)
 
