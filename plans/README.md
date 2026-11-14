@@ -33,8 +33,14 @@ the release workflow.
 | 012-DESIGN | Design: browser/jsdom support | P3 | S | 012 | TODO |
 | 013 | Redact sensitive query params before caching (security) | P1 | M | 001, 005 (soft) | DONE |
 | 014 | Collision-resistant fs fixture names and checked legacy reads | P1 | M | 001, 013 | DONE |
+| 015 | Replace gist badges with independent GitHub Pages reports | P1 | S | none | DONE |
+| 016 | Restore feature, fix, and breaking-change release notes | P1 | S | none | DONE |
+| 017 | Constrain release tooling and document registry recovery | P1 | S | 015 | DONE |
+| 018 | Validate JSR documentation and publishability before merge | P2 | S | none | DONE |
+| 019 | Verify the package tarball and TypeScript consumer surface | P2 | S | none | DONE |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
+
 
 ## Dependency notes
 
@@ -84,3 +90,64 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJE
   majors could change generated cache filenames, invalidating every user's
   committed fixtures. Cost outweighs benefit; unflagged by audit. Leave
   pinned.
+
+## CI/release improvements (2026-11-14)
+
+Plans 015–019 were requested at commit `8d9f303`. Execute locally after a
+Claude Code `claude-opus-5-5` plan review, then obtain a read-only adversarial
+review through Claude Code `claude-fable-5-2` and address validated findings.
+015 precedes 017; other plans can be implemented independently, with shared
+package.json/workflow integration performed sequentially. User selected Pages.
+Remote branch protection, npm/JSR trust restrictions and actual Pages deployment
+remain explicit hosted follow-ups; do not silently mutate them in a local patch.
+
+Opus plan review completed (`claude-opus-5-5`); see
+[review](015-019-opus-review.md). Execution order: 016 → 019 → 018 → 015 → 017.
+Remote default branch is dev (verified). Use sibling reports/deploy-pages jobs
+in release.yml to avoid workflow_run default-branch activation problems. Reports
+run without OIDC; deploy runs only first-party pinned actions. Release depends
+only on test. The shared workflow OIDC identity is documented as a reason to
+add a synchronized npm release-environment restriction later.
+
+Release-notes regression was run before changing the dependency: 4 tests passed,
+1 failed with `Missing release note: add replay mode`; generated output contained
+only the v4.0.0 heading. With preset 9.3.1 all note and analyzer assertions pass.
+Deno validation must lint/document the eight exported modules in one invocation:
+per-entry invocation misclassifies cross-entrypoint public types as private.
+This was verified and corrected without changing the package API.
+
+Fable adversarial review completed (`claude-fable-5-2`); see
+[review](015-019-fable-review.md). Validated findings addressed locally:
+failed-ancestor deployment condition; all-unknown fallback for truncated failed
+results; real-input parser checks; matching npm11.21.2 in test/release; release
+job-only concurrency; default-dev synchronization; canonical macOS temp paths.
+Added a manual failure-report probe that cannot publish packages, plus per-test
+attempt artifact names to prevent stale data reuse. Namespace/imported reexport
+doc checks and packed JS record/replay behavior were strengthened too.
+The pending breaking change is intentionally released by the authorized push;
+MIGRATING.md contains v3-to-v4 guidance and the README upgrade link now names it.
+
+Local integration validation completed after Fable fixes: `pnpm run ci` passed
+42 automation tests, source coverage, the real package consumer (22 export
+aliases, strict types, record/replay), all eight JSR modules and publish dry-run,
+and Node/Jest/Vitest/Deno/Bun fixtures. Real report parser inputs passed.
+Biome, actionlint 1.7.12, frozen-lockfile installation and diff whitespace checks
+also passed. Plan rows mark local implementation complete; hosted release,
+Pages, failed-report probe and rerun validation follow the authorized push.
+
+Pages was inspected (no existing site), enabled with source GitHub Actions, and
+its environment was verified to allow only main. npm/JSR account restrictions,
+branch protection, removal of obsolete secrets, and an optional synchronized
+release environment remain explicit maintainer follow-ups.
+
+Optional Fable suggestions deferred: Deno CLI compatibility is enforced by its
+JSON schema and the exact CI tool pin rather than rejecting all other local
+patch versions; a separate JSR file-list regression is deferred; the current dry-run file
+list was inspected and the existing include/exclude policy is retained. No src/API change was required.
+
+Fable follow-up found no remaining blockers; see
+[follow-up](015-019-fable-followup.md). Its final rerun observation was addressed
+by attempt-specific Pages artifacts and an explicit artifact-name output. Report
+metadata now records the producing test attempt separately. Existing pr.yml
+was confirmed to call the reusable test workflow on pull_request. AGENTS.md
+was updated with the new verification commands (a coherence scope addition).

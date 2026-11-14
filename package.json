@@ -30,11 +30,15 @@
     "prepublishOnly": "pnpm run build",
     "coverage:output": "node --experimental-vm-modules --test --import tsx --experimental-test-coverage `glob 'src/**/*.spec.ts'`",
     "coverage": "node --experimental-vm-modules --test --import tsx --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=lcov.info `glob 'src/**/*.spec.ts'`",
-    "ci:core": "pnpm run build && pnpm biome ci && pnpm run coverage",
+    "ci:core": "pnpm run build && pnpm biome ci && pnpm run test:scripts && pnpm run coverage && pnpm run check:package",
     "test:runtimes:install": "cd tests/runtimes && ./install.sh",
     "test:runtimes:run": "cd tests/runtimes && ./test.sh --skip-install",
     "test:runtimes": "cd tests/runtimes && ./test.sh",
-    "ci": "pnpm run ci:core && pnpm run test:runtimes"
+    "ci": "pnpm run ci:core && pnpm run check:jsr && pnpm run test:runtimes && pnpm run check:report",
+    "test:scripts": "node --test scripts/*.spec.mjs",
+    "check:package": "node scripts/check-package.mjs",
+    "check:jsr": "node scripts/check-jsr.mjs",
+    "check:report": "node scripts/ci-report.mjs --validate lcov.info tests/runtimes/results.yaml"
   },
   "repository": {
     "type": "git",
@@ -88,7 +92,7 @@
     "@biomejs/biome": "^2.5.2",
     "@types/debug": "^4.1.13",
     "@types/node": "^22.20.0",
-    "conventional-changelog-conventionalcommits": "^10.2.1",
+    "conventional-changelog-conventionalcommits": "9.3.1",
     "expect": "^30.4.1",
     "glob-bin": "^1.1.0",
     "semantic-release": "^25.0.5",

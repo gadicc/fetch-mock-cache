@@ -7,6 +7,15 @@ on:
         required: false
         type: boolean
         default: false
+      verify_failure_reporting:
+        description: Deliberately fail after checks to verify unknown Pages results.
+        required: false
+        type: boolean
+        default: false
+    outputs:
+      artifact_attempt:
+        description: Attempt that produced the raw reports, including across reruns.
+        value: ${{ jobs.test.outputs.artifact_attempt }}
 
 permissions:
   contents: read
@@ -15,36 +24,52 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
+    outputs:
+      artifact_attempt: ${{ steps.attempt.outputs.value }}
 
     steps:
+      - name: Identify raw report attempt
+        id: attempt
+        run: echo "value=$GITHUB_RUN_ATTEMPT" >> "$GITHUB_OUTPUT"
+
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
 
       - name: Use pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          version: 10.34.4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 22.14
+          node-version: 22.23.5
           cache: "pnpm"
+
+      - name: Use publishing npm for package validation
+        run: |
+          npm install --global npm@11.21.2
+          npm --version
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - uses: oven-sh/setup-bun@v2
-      - uses: denoland/setup-deno@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
-          deno-version: v2.x
+          bun-version: 1.4.4
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: v2.9.8
           cache: true
 
       - name: Cache runtime npm dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.npm
           key: ${{ runner.os }}-runtime-npm-${{ hashFiles('tests/runtimes/node/package-lock.json') }}
@@ -52,7 +77,7 @@ jobs:
             ${{ runner.os }}-runtime-npm-
 
       - name: Cache runtime Bun dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-runtime-bun-${{ hashFiles('tests/runtimes/bun/bun.lockb') }}
@@ -62,22 +87,42 @@ jobs:
       - name: Run core CI checks
         run: pnpm run ci:core
 
+      - name: Check JSR documentation and publishability
+        run: pnpm run check:jsr
+
       - name: Install runtime dependencies
         run: pnpm run test:runtimes:install
 
       - name: Run runtime tests
         run: pnpm run test:runtimes:run
 
+      - name: Validate report parser with real inputs on PRs
+        if: github.event_name == 'pull_request'
+        run: pnpm run check:report
+
+      - name: Verify failed and truncated report handling
+        if: inputs.verify_failure_reporting
+        run: |
+          printf 'node:\n    native: pa' > tests/runtimes/results.yaml
+          echo "::error::Intentional report verification; package publishing is disabled."
+          exit 1
+
       - name: Upload coverage artifact
-        if: inputs.upload_artifacts
-        uses: actions/upload-artifact@v4
+        if: always() && inputs.upload_artifacts
+        continue-on-error: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: coverage
+          name: coverage-${{ github.run_attempt }}
           path: lcov.info
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Upload runtime results artifact
-        if: inputs.upload_artifacts
-        uses: actions/upload-artifact@v4
+        if: always() && inputs.upload_artifacts
+        continue-on-error: true
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: runtime-results
+          name: runtime-results-${{ github.run_attempt }}
           path: tests/runtimes/results.yaml
+          if-no-files-found: warn
+          retention-days: 7

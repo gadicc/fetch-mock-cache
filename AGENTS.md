@@ -33,8 +33,10 @@ Keep JSR's package score at 100% when changing public API:
   and `deno doc --lint` may not report missing docs there.
 - If a type is shared by a public entrypoint such as `src/cache.ts`, define or
   re-export it from that entrypoint so JSR can document it.
-- For local checks, use `deno doc --lint --quiet --no-lock
-  --unstable-sloppy-imports` against all `jsr.json#exports` source files. If
+- Prefer `pnpm run check:jsr` for the complete automated JSR gate.
+- For manual checks, use `deno doc --lint --quiet --no-lock
+  --unstable-sloppy-imports` against all unique `jsr.json#exports` source files together in one
+  invocation, so sibling public entrypoints resolve their shared types. If
   the Deno runtime import needs `@std/path`, use a temporary import map derived
   from `jsr.json#imports`.
 - To mirror JSR's symbol score more closely, also inspect `deno doc --json` for
@@ -49,7 +51,14 @@ Use pnpm 10.x, as declared in `package.json`.
 - `pnpm run lint` runs Biome linting over `src/`.
 - `pnpm run format` formats `src/` with Biome.
 - `pnpm run coverage` writes LCOV coverage to `lcov.info`.
-- `pnpm run ci` performs typecheck, Biome CI, coverage, and runtime tests.
+- `pnpm run test:scripts` checks CI/reporting and release automation regressions.
+- `pnpm run check:package` validates a real npm tarball in an isolated consumer
+  after building, including public imports, strict types, and record/replay.
+- `pnpm run check:jsr` validates export parity, module/member/re-export docs,
+  and publishability without publishing.
+- `pnpm run check:report` checks generated coverage/runtime report inputs.
+- `pnpm run ci` builds/typechecks, runs Biome CI, script regressions, coverage,
+  package/JSR validation, runtime examples, and actual report-input validation.
 - `cd tests/runtimes && ./test.sh` runs Node, Deno, and Bun compatibility
   tests when those runtimes are installed.
 

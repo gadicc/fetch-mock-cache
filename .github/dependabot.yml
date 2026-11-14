@@ -1,0 +1,17 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    ignore:
+      # Preset 10 function templates are incompatible with our release writer.
+      # scripts/release-notes.spec.mjs must pass before lifting this restriction.
+      - dependency-name: conventional-changelog-conventionalcommits
+        update-types: [version-update:semver-major]
