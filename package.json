@@ -95,7 +95,7 @@
     "conventional-changelog-conventionalcommits": "9.3.1",
     "expect": "^30.4.1",
     "glob-bin": "^1.1.0",
-    "semantic-release": "^25.0.5",
+    "semantic-release": "^26.0.1",
     "tsx": "^4.23.0",
     "typescript": "^6.0.3"
   },
